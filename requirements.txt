@@ -1,4 +1,5 @@
 #git+https://github.com/huggingface/transformers.git@main
+git+https://github.com/FloTeu/digital-product-generator.git@main
 streamlit
 beautifulsoup4
 requests
