@@ -34,7 +34,7 @@ Contents
    License <license>
    Authors <authors>
    Changelog <changelog>
-   Module Reference <api/modules>
+   digital_product_generator Reference <api/digital_product_generator>
 
 
 Indices and tables

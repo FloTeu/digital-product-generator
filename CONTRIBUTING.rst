@@ -171,7 +171,7 @@ Implement your changes
    and start making changes. Never work on the main branch!
 
 #. Start your work on this branch. Don't forget to add docstrings_ to new
-   functions, modules and classes, especially if they are part of public APIs.
+   functions, digital_product_generator and classes, especially if they are part of public APIs.
 
 #. Add yourself to the list of contributors in ``AUTHORS.rst``.
 

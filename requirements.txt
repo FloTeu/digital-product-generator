@@ -1,0 +1,10 @@
+#git+https://github.com/huggingface/transformers.git@main
+streamlit
+beautifulsoup4
+requests
+pillow
+accelerate
+bitsandbytes
+openai
+opencv-python
+numpy

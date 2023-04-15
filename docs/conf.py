@@ -15,7 +15,7 @@ import shutil
 
 __location__ = os.path.dirname(__file__)
 
-# If extensions (or modules to document with autodoc) are in another directory,
+# If extensions (or digital_product_generator to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.join(__location__, "../src"))
@@ -34,7 +34,7 @@ except ImportError:
     from sphinx import apidoc
 
 output_dir = os.path.join(__location__, "api")
-module_dir = os.path.join(__location__, "../src/digital_product_generator")
+digital_product_generator_dir = os.path.join(__location__, "../src/digital_product_generator")
 try:
     shutil.rmtree(output_dir)
 except FileNotFoundError:
@@ -43,7 +43,7 @@ except FileNotFoundError:
 try:
     import sphinx
 
-    cmd_line = f"sphinx-apidoc --implicit-namespaces -f -o {output_dir} {module_dir}"
+    cmd_line = f"sphinx-apidoc --implicit-namespaces -f -o {output_dir} {digital_product_generator_dir}"
 
     args = cmd_line.split(" ")
     if tuple(sphinx.__version__.split(".")) >= ("1", "7"):
@@ -59,7 +59,7 @@ except Exception as e:
 # If your documentation needs a minimal Sphinx version, state it here.
 # needs_sphinx = '1.0'
 
-# Add any Sphinx extension module names here, as strings. They can be extensions
+# Add any Sphinx extension digital_product_generator names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     "sphinx.ext.autodoc",
@@ -128,18 +128,18 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", ".venv"]
 # If true, '()' will be appended to :func: etc. cross-reference text.
 # add_function_parentheses = True
 
-# If true, the current module name will be prepended to all description
+# If true, the current digital_product_generator name will be prepended to all description
 # unit titles (such as .. function::).
-# add_module_names = True
+# add_digital_product_generator_names = True
 
-# If true, sectionauthor and moduleauthor directives will be shown in the
+# If true, sectionauthor and digital_product_generatorauthor directives will be shown in the
 # output. They are ignored by default.
 # show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
-# A list of ignored prefixes for module index sorting.
+# A list of ignored prefixes for digital_product_generator index sorting.
 # modindex_common_prefix = []
 
 # If true, keep warnings as "system message" paragraphs in the built documents.
@@ -202,7 +202,7 @@ html_static_path = ["_static"]
 # template names.
 # html_additional_pages = {}
 
-# If false, no module index is generated.
+# If false, no digital_product_generator index is generated.
 # html_domain_indices = True
 
 # If false, no index is generated.
@@ -266,7 +266,7 @@ latex_documents = [
 # Documents to append as an appendix to all manuals.
 # latex_appendices = []
 
-# If false, no module index is generated.
+# If false, no digital_product_generator index is generated.
 # latex_domain_indices = True
 
 # -- External mapping --------------------------------------------------------
