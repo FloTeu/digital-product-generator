@@ -1,7 +1,7 @@
 import streamlit as st
 from typing import List, Any
-from digital_product_generator.data_classes import MBAMarketplaceDomain, CrawlingMBARequest
-from digital_product_generator.crawling.utils import get_mba_overview_urls, get_random_headers, is_product_feature_listing
+from digiprod_gen.backend.data_classes import MBAMarketplaceDomain, CrawlingMBARequest
+from digiprod_gen.backend.crawling.utils import get_mba_overview_urls, get_random_headers, is_product_feature_listing
 
 def split_list(list_obj, split_size):
     return [list_obj[i:i+split_size] for i in range(0, len(list_obj), split_size)]

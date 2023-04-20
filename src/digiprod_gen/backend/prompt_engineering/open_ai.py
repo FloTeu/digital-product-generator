@@ -5,9 +5,9 @@ import streamlit as st
 from typing import List
 
 sys.path.append("...")
-from digital_product_generator.data_classes import MBAProduct, MBAMarketplaceDomain
-from digital_product_generator.prompt_engineering import midjourney
-from digital_product_generator.prompt_engineering.utils import get_midjourney_example_prompts
+from digiprod_gen.backend.data_classes import MBAProduct, MBAMarketplaceDomain
+from digiprod_gen.backend.prompt_engineering import midjourney
+from digiprod_gen.backend.prompt_engineering.utils import get_midjourney_example_prompts
 
 openai.api_key = st.secrets["open_ai_api_key"]
 

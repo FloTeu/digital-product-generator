@@ -1,5 +1,5 @@
 from typing import List
-from digital_product_generator.prompt_engineering import midjourney
+from digiprod_gen.backend.prompt_engineering import midjourney
 
 def get_midjourney_example_prompts() -> List[str]:
     return [midjourney.__dict__[item] for item in dir(midjourney) if item.startswith("prompt_example")]

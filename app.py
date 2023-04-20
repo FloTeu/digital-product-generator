@@ -10,16 +10,15 @@ from operator import itemgetter
 from collections import deque
 
 
-from digital_product_generator import sidebar
-from digital_product_generator.data_classes import MBAMarketplaceDomain, CrawlingMBARequest, MBAProductCategory, MBAProduct
-from digital_product_generator.utils import split_list, marketplace2currency, get_price_display_str, write_session, read_session, request2mba_overview_url
-from digital_product_generator.crawling.utils import get_random_headers, is_product_feature_listing
-from digital_product_generator.crawling.proxies import get_random_private_proxy
-from digital_product_generator.crawling import parser
-from digital_product_generator.prompt_engineering import open_ai
-from digital_product_generator.image import conversion as img_conversion
-from digital_product_generator.image.background_removal import remove_outer_pixels
-from digital_product_generator.image.upscale import pil_upscale
+from digiprod_gen.backend.data_classes import MBAMarketplaceDomain, CrawlingMBARequest, MBAProductCategory, MBAProduct
+from digiprod_gen.backend.utils import split_list, marketplace2currency, get_price_display_str, write_session, read_session, request2mba_overview_url
+from digiprod_gen.backend.crawling.utils import get_random_headers, is_product_feature_listing
+from digiprod_gen.backend.crawling.proxies import get_random_private_proxy
+from digiprod_gen.backend.crawling import parser
+from digiprod_gen.backend.prompt_engineering import open_ai
+from digiprod_gen.backend.image import conversion as img_conversion
+from digiprod_gen.backend.image.background_removal import remove_outer_pixels
+from digiprod_gen.backend.image.upscale import pil_upscale
 
 #overview_product_get_image_url, overview_product_get_asin, overview_product_get_product_url, overview_product_get_title
 
@@ -38,7 +37,7 @@ def image_url2image_bytes_io(image_url: str) -> BytesIO:
 def update_mba_request():
     marketplace = st.session_state["marketplace"]
     search_term = st.session_state["search_term"]
-    proxy = get_random_private_proxy(st.secrets["proxy_perfect_privacy_user_name"], st.secrets["proxy_perfect_privacy_password"],marketplace=marketplace)
+    proxy = get_random_private_proxy(st.secrets.proxy_perfect_privacy.user_name, st.secrets.proxy_perfect_privacy.password,marketplace=marketplace)
     request = CrawlingMBARequest(marketplace=marketplace, product_category=MBAProductCategory.SHIRT,
                                  search_term=search_term, headers=get_random_headers(marketplace), proxy=proxy, mba_overview_url=None)
     request.mba_overview_url = request2mba_overview_url(request)
