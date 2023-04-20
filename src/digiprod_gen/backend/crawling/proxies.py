@@ -1,6 +1,6 @@
 import random
 from typing import Optional, List
-from digital_product_generator.data_classes import MBAMarketplaceDomain
+from digiprod_gen.backend.data_classes import MBAMarketplaceDomain
 
 
 PERFECT_PRIVACY_PROXIES = [

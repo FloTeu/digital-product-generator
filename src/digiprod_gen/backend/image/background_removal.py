@@ -2,7 +2,7 @@
 import numpy as np
 from PIL import Image
 from typing import Tuple
-from digital_product_generator.image.conversion import pil2cv, cv2pil, np2pil
+from digiprod_gen.backend.image.conversion import pil2cv, cv2pil, np2pil
 
 def get_outer_greyscaled_pixel_range(img_np: np.ndarray) -> Tuple[int, int]:
     """Returns grey scaled min and max value of outer (first 30) pixels"""
