@@ -5,12 +5,12 @@ import streamlit as st
 from bs4 import BeautifulSoup
 from io import BytesIO
 from bs4.element import Tag
-from contextlib import suppress
 from typing import List
 from operator import itemgetter
-from PIL import Image
 from collections import deque
 
+
+from digital_product_generator import sidebar
 from digital_product_generator.data_classes import MBAMarketplaceDomain, CrawlingMBARequest, MBAProductCategory, MBAProduct
 from digital_product_generator.utils import split_list, marketplace2currency, get_price_display_str, write_session, read_session, request2mba_overview_url
 from digital_product_generator.crawling.utils import get_random_headers, is_product_feature_listing
@@ -285,11 +285,12 @@ def main():
                     image_pil_br = read_session("image_pil_br")
                     if st.button("Remove Background"):
                         st.write("Removed Background")
-                        image_pil_br = remove_outer_pixels(image_pil, buffer=10)
+                        image_pil_br = remove_outer_pixels(image_pil, buffer=0)
                         write_session("image_pil_br", image_pil_br)
                         st.image(image_pil_br)
                     if st.button("Upscale") and image_pil_br:
                         image_pil_br_upscale = pil_upscale(image_pil_br, (4500, 5400))
+                        image_pil_br_upscale.save("test.png")
                         st.image(image_pil_br_upscale)
 
             if predicted_bullets:
@@ -299,6 +300,8 @@ def main():
                     predicted_bullets_shifted = deque(predicted_bullets)
                     predicted_bullets_shifted.rotate(-1)
                     st.selectbox("Bullet 2:", predicted_bullets_shifted, on_change=crawl_overview_and_display, key="bullet2")
+                    st.text_area("Bullet 1:", value=read_session("bullet1"))
+                    st.text_area("Bullet 2:", value=read_session("bullet2"))
 
         if read_session([request.get_hash_str(), "predicted_bullets"]):
             with tab_upload:
