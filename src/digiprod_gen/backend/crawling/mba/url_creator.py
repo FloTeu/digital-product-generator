@@ -3,7 +3,7 @@ import sys
 import urllib.parse as urlparse
 from urllib.parse import urlencode
 
-from . import url_fns
+from digiprod_gen.backend.crawling.mba import url_fns
 
 def main(argv):
     parser = argparse.ArgumentParser(description='')

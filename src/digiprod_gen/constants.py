@@ -1,0 +1,2 @@
+MAX_SHIRTS_PER_ROW = 4
+DEVICE = "auto"

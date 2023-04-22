@@ -13,6 +13,8 @@ __pycache__/*
 .*.swp
 */.ipynb_checkpoints/*
 .DS_Store
+*.pyc
+*.iml
 
 # Project files
 .ropeproject
@@ -52,5 +54,6 @@ MANIFEST
 .venv*/
 .conda*/
 .python-version
+.idea
 
 .streamlit
