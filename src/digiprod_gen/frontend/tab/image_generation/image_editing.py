@@ -32,7 +32,9 @@ def image_background_removal(image_pil: Image) -> Image:
     if st.button("Remove Background"):
         st.write("Removed Background")
         image_pil_br = remove_outer_pixels(image_pil, buffer=0)
-        #write_session("image_pil_br", image_pil_br)
+        write_session("image_pil_br", image_pil_br)
         # TODO: How to handle result pil
         st.image(image_pil_br)
         return image_pil_br
+    else:
+        return read_session("image_pil_br")

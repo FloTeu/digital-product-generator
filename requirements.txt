@@ -10,3 +10,5 @@ bitsandbytes
 openai
 opencv-python
 numpy
+robobrowser
+Werkzeug==0.16.1
