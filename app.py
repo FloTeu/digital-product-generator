@@ -12,13 +12,6 @@ from digiprod_gen.frontend.tab.upload.bullet_selection import display_bullet_sel
 from digiprod_gen.frontend.tab.upload.mba_upload import login_to_mba, display_mba_account_tier
 
 
-@st.experimental_singleton
-def installff():
-  os.system('sbase install geckodriver')
-  os.system('ln -s /home/appuser/venv/lib/python3.7/site-packages/seleniumbase/drivers/geckodriver /home/appuser/venv/bin/geckodriver')
-
-_ = installff()
-
 st.header("MBA Bullet Feature Extractor")
 tab_crawling, tab_ig, tab_upload = st.tabs(["Crawling", "Image Generation", "MBA Upload"])
 
@@ -69,7 +62,7 @@ def main():
         from digiprod_gen.backend.upload import selenium_mba
         from digiprod_gen.frontend.session import write_session
         if driver and "verification" in driver.page_source.lower():
-            otp_code = st.sidebar.number_input("OTP", value=000000)
+            otp_code = st.sidebar.text_input("OTP")
             if st.sidebar.button("Send OTP Token") and otp_code:
                 selenium_mba.authenticate_mba_with_opt_code(driver, otp_code)
                 write_session("selenium_driver", driver)

@@ -1,15 +1,27 @@
+import streamlit as st
 from selenium import webdriver
-#from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver.chrome.webdriver import WebDriver
+#from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver import FirefoxOptions
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
+@st.cache_resource
+def init_selenium_driver() -> WebDriver:
+    """Instantiate a WebDriver object (in this case, using Chrome)"""
+    options = Options()
+    options.add_argument('--disable-gpu')
+    options.add_argument('--headless')
+    return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 
 def init_selenium_driver() -> WebDriver:
-    """Instantiate a WebDriver object (in this case, using Chrome)"""
     opts = FirefoxOptions()
     opts.add_argument("--headless")
     return webdriver.Firefox(options=opts)
@@ -33,7 +45,7 @@ def login_mba(driver: WebDriver, email: str, password: str):
 #2FA
 #second_factor_code = st.sidebar.number_input("2FA Code:")
 
-def authenticate_mba_with_opt_code(driver: WebDriver, second_factor_code: int):
+def authenticate_mba_with_opt_code(driver: WebDriver, second_factor_code: str):
     """Fill mba second factor authentification form and simulate submit button click"""
     otp_code = driver.find_element(By.NAME, "otpCode")
     remember_device = driver.find_element(By.NAME, "rememberDevice")

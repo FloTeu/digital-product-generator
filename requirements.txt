@@ -10,4 +10,5 @@ bitsandbytes
 openai
 opencv-python
 numpy
-selenium
+seleniumbase
+webdriver-manager
