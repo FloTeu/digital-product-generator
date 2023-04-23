@@ -12,6 +12,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
+
 @st.cache_resource
 def init_selenium_driver() -> WebDriver:
     """Instantiate a WebDriver object (in this case, using Chrome)"""
