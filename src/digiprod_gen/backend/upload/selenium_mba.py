@@ -1,7 +1,7 @@
 import streamlit as st
 from selenium import webdriver
-from selenium.webdriver.chrome.webdriver import WebDriver
-#from selenium.webdriver.firefox.webdriver import WebDriver
+#from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -19,13 +19,10 @@ def init_selenium_driver() -> WebDriver:
     options = Options()
     options.add_argument('--disable-gpu')
     options.add_argument('--headless')
-    return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-
-
-def init_selenium_driver() -> WebDriver:
-    opts = FirefoxOptions()
-    opts.add_argument("--headless")
+    #return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     return webdriver.Firefox(options=opts)
+
+
 
 def close_selenium_driver(driver: WebDriver):
     driver.quit()
