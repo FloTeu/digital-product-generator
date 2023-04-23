@@ -1,5 +1,6 @@
 
 import streamlit as st
+import os, sys
 
 from digiprod_gen.backend.image import conversion as img_conversion
 from digiprod_gen.frontend.session import read_session, update_mba_request
@@ -9,6 +10,14 @@ from digiprod_gen.frontend.tab.image_generation.selected_products import display
 from digiprod_gen.frontend.tab.image_generation.image_editing import get_image_bytes_by_user, display_image_editor
 from digiprod_gen.frontend.tab.upload.bullet_selection import display_bullet_selection
 from digiprod_gen.frontend.tab.upload.mba_upload import login_to_mba, display_mba_account_tier
+
+
+@st.experimental_singleton
+def installff():
+  os.system('sbase install geckodriver')
+  os.system('ln -s /home/appuser/venv/lib/python3.7/site-packages/seleniumbase/drivers/geckodriver /home/appuser/venv/bin/geckodriver')
+
+_ = installff()
 
 st.header("MBA Bullet Feature Extractor")
 tab_crawling, tab_ig, tab_upload = st.tabs(["Crawling", "Image Generation", "MBA Upload"])

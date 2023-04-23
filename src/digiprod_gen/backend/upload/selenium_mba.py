@@ -1,13 +1,18 @@
 from selenium import webdriver
-from selenium.webdriver.chrome.webdriver import WebDriver
+#from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver import FirefoxOptions
+
 
 def init_selenium_driver() -> WebDriver:
     """Instantiate a WebDriver object (in this case, using Chrome)"""
-    return webdriver.Chrome()
+    opts = FirefoxOptions()
+    opts.add_argument("--headless")
+    return webdriver.Firefox(options=opts)
 
 def close_selenium_driver(driver: WebDriver):
     driver.quit()
