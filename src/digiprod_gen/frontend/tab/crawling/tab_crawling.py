@@ -14,7 +14,7 @@ from digiprod_gen.backend.data_classes import CrawlingMBARequest, MBAProduct, MB
 from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io, send_mba_overview_request
 from digiprod_gen.backend.utils import get_price_display_str, marketplace2currency, split_list
 from digiprod_gen.frontend.session import read_session, update_mba_request, write_session
-
+from digiprod_gen.backend.utils import is_debug
 
 def crawl_mba_overview_and_display(st_element: DeltaGenerator):
     """ Display overview products to frontend.
@@ -32,7 +32,7 @@ def crawl_mba_overview_and_display(st_element: DeltaGenerator):
             crawl_mba_overview2mba_products(request)
             mba_products = read_session([request.get_hash_str(), "mba_products"])
 
-        if read_session("is_debug"):
+        if read_session("speed_up"):
             mba_products = mba_products[0:8]
 
         display_mba_overview_products(mba_products, currency_str, marketplace, request)

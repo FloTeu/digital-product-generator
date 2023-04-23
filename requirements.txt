@@ -11,4 +11,5 @@ openai
 opencv-python
 numpy
 seleniumbase
+selenium
 webdriver-manager

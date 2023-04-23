@@ -3,7 +3,9 @@ import streamlit as st
 import os, sys
 
 from digiprod_gen.backend.image import conversion as img_conversion
-from digiprod_gen.frontend.session import read_session, update_mba_request
+from digiprod_gen.backend.data_classes import CrawlingMBARequest
+from digiprod_gen.backend.upload.selenium_mba import upload_image, click_on_create_new
+from digiprod_gen.frontend.session import read_session, update_mba_request, write_session
 from digiprod_gen.frontend import sidebar
 from digiprod_gen.frontend.tab.image_generation.selected_products import get_selected_mba_products_by_url
 from digiprod_gen.frontend.tab.image_generation.selected_products import display_mba_products
@@ -11,12 +13,13 @@ from digiprod_gen.frontend.tab.image_generation.image_editing import get_image_b
 from digiprod_gen.frontend.tab.upload.bullet_selection import display_bullet_selection
 from digiprod_gen.frontend.tab.upload.mba_upload import login_to_mba, display_mba_account_tier
 
-@st.experimental_singleton
-def installff():
-  os.system('sbase install geckodriver')
-  os.system('ln -s /home/appuser/venv/lib/python3.7/site-packages/seleniumbase/drivers/geckodriver /home/appuser/venv/bin/geckodriver')
+# @st.experimental_singleton
+# def installff():
+#   os.system('sbase install geckodriver')
+#   os.system('ln -s /home/appuser/venv/lib/python3.7/site-packages/seleniumbase/drivers/geckodriver /home/appuser/venv/bin/geckodriver')
 
-_ = installff()
+
+# _ = installff()
 st.header("MBA Bullet Feature Extractor")
 tab_crawling, tab_ig, tab_upload = st.tabs(["Crawling", "Image Generation", "MBA Upload"])
 
@@ -29,8 +32,9 @@ def read_request():
 
 def main():
     sidebar.crawling_mba_overview_input(tab_crawling)
-    request = read_request()
-
+    request: CrawlingMBARequest = read_request()
+    predicted_bullets = None
+    
     mba_products = read_session([request.get_hash_str(), "mba_products"])
     if mba_products != None:
         sidebar.crawling_mba_details_input(mba_products, tab_crawling, tab_ig)
@@ -45,35 +49,43 @@ def main():
                 with tab_ig:
                     st.subheader("Suggested Prompts")
                     st.write(predicted_prompts)
-                    image: bytes | None = get_image_bytes_by_user()
-                    if image:
-                        image_pil = img_conversion.bytes2pil(image)
+                    image_bytes: bytes | None = get_image_bytes_by_user()
+                    if image_bytes:
+                        image_pil = img_conversion.bytes2pil(image_bytes)
                         print("type", type(image_pil))
                         image_pil_upload_ready = display_image_editor(image_pil)
+                        write_session([request.get_hash_str(), "image_pil_upload_ready"], image_pil_upload_ready)
 
-            if predicted_bullets:
-                with tab_upload:
-                    display_bullet_selection(predicted_bullets, tab_crawling)
+
+
+    sidebar.mab_login_input(tab_upload)
+    driver = read_session("selenium_driver")
+    sidebar.mba_otp_input(driver)
+
+    with tab_upload:
+        image_pil_upload_ready = read_session([request.get_hash_str(), "image_pil_upload_ready"])
+        # User can either choose newly created image or choose a existing one
+        if not image_pil_upload_ready:
+            image = st.file_uploader("Image:", type=["png", "jpg", "jpeg"], key="tab_ig_image")
+            if image:
+                image_pil_upload_ready = img_conversion.bytes2pil(image.getvalue())
+                write_session([request.get_hash_str(), "image_pil_upload_ready"], image_pil_upload_ready)
+        
+        if predicted_bullets:
+            display_bullet_selection(predicted_bullets, tab_crawling)
+
+        if read_session("mba_login_successfull"):
+            display_mba_account_tier(driver)
+            if st.button("Upload product to MBA:"):
+                click_on_create_new(driver)
+                upload_image(driver, image_pil_upload_ready)
 
     # just for debuging
-    image: bytes | None = get_image_bytes_by_user()
-    if image:
+    #image: bytes | None = get_image_bytes_by_user()
+    #image_pil = img_conversion.bytes2pil(image)
+    #t = 0
+    #if image:
         
-        mba_email = st.sidebar.text_input("MBA Email:")
-        mba_password = st.sidebar.text_input("MBA Password:", type="password")
-        driver = read_session("selenium_driver")
-        if st.sidebar.button("Login") and mba_email and mba_password:
-            driver = login_to_mba(mba_email, mba_password)
-        from digiprod_gen.backend.upload import selenium_mba
-        from digiprod_gen.frontend.session import write_session
-        if driver and "verification" in driver.page_source.lower():
-            otp_code = st.sidebar.text_input("OTP")
-            if st.sidebar.button("Send OTP Token") and otp_code:
-                selenium_mba.authenticate_mba_with_opt_code(driver, otp_code)
-                write_session("selenium_driver", driver)
-
-            if not "verification" in driver.page_source.lower():
-                display_mba_account_tier(driver)
 
         # import mechanize
         # import requests

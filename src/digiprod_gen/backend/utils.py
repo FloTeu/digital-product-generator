@@ -1,9 +1,12 @@
-
+import os
 
 from digiprod_gen.backend.crawling.mba.utils import get_mba_overview_urls
 from digiprod_gen.backend.data_classes import (CrawlingMBARequest,
                                                MBAMarketplaceDomain)
 
+
+def is_debug():
+    return bool(os.environ.get("DEBUG", False))
 
 def split_list(list_obj, split_size):
     return [list_obj[i:i+split_size] for i in range(0, len(list_obj), split_size)]

@@ -1,7 +1,8 @@
+import os
 import streamlit as st
 from selenium import webdriver
-#from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver.chrome.webdriver import WebDriver
+#from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -11,16 +12,20 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+import tempfile
+from digiprod_gen.backend.io.io_fns import save_img_to_memory
+from PIL import Image
 
 
 @st.cache_resource
-def init_selenium_driver() -> WebDriver:
+def init_selenium_driver(headless=True) -> WebDriver:
     """Instantiate a WebDriver object (in this case, using Chrome)"""
-    options = Options()
+    options = Options() #either firefox or chrome options
     options.add_argument('--disable-gpu')
-    options.add_argument('--headless')
-    #return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    return webdriver.Firefox(options=opts)
+    if headless:
+        options.add_argument('--headless')
+    return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    #return webdriver.Firefox(options=options)
 
 
 
@@ -65,3 +70,18 @@ def wait_until_dashboard_is_ready(driver: WebDriver, max_time_wait: int = 3):
     except TimeoutException:
         print("Loading took too much time!")
 
+def click_on_create_new(driver):
+    # find the link element by its text content
+    link_element = driver.find_element("link text", "Create")
+    # click on the link
+    link_element.click()
+
+def upload_image(driver, image_pil: Image):
+    # store image to temp memory
+    temp_file_path = save_img_to_memory(image_pil)
+    # find the image upload input element by its text content
+    choose_file = driver.find_element(By.CLASS_NAME, "file-upload-input")
+    # sen image data
+    choose_file.send_keys(temp_file_path)
+    # delete file again
+    os.remove(temp_file_path)
