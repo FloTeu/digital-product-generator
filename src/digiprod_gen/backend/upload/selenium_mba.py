@@ -1,5 +1,6 @@
 import os
 import streamlit as st
+import time
 from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver
 #from selenium.webdriver.firefox.webdriver import WebDriver
@@ -83,5 +84,7 @@ def upload_image(driver, image_pil: Image):
     choose_file = driver.find_element(By.CLASS_NAME, "file-upload-input")
     # sen image data
     choose_file.send_keys(temp_file_path)
+    # wait until file is uploaded to server
+    time.sleep(2)
     # delete file again
     os.remove(temp_file_path)
