@@ -1,5 +1,6 @@
 import streamlit as st
 from selenium.webdriver.chrome.webdriver import WebDriver
+from digiprod_gen.backend.crawling.selenium_fns import init_selenium_driver
 from digiprod_gen.backend.upload import selenium_mba
 from digiprod_gen.frontend.session import write_session, read_session
 from digiprod_gen.backend.image import conversion
@@ -9,7 +10,7 @@ def login_to_mba(tab_upload) -> WebDriver:
     driver = read_session("selenium_driver")
     if not driver:
         with tab_upload, st.spinner('Setup MBA upload...'):
-            driver = selenium_mba.init_selenium_driver(headless=not is_debug())
+            driver = init_selenium_driver(headless=not is_debug())
             # TODO: This might need to be changed as it was copied by browser url directly
             login_post_url = "https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fmerch.amazon.com%2Fdashboard&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=amzn_gear_us&openid.mode=checkid_setup&language=en_US&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0"
             driver.get(login_post_url)

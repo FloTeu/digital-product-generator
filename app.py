@@ -4,7 +4,7 @@ import os, sys
 
 from digiprod_gen.backend.image import conversion as img_conversion
 from digiprod_gen.backend.data_classes import CrawlingMBARequest
-from digiprod_gen.backend.upload.selenium_mba import upload_image, click_on_create_new
+from digiprod_gen.backend.upload.selenium_mba import upload_image, click_on_create_new, insert_listing_text, select_products_and_marketplaces
 from digiprod_gen.frontend.session import read_session, update_mba_request, write_session
 from digiprod_gen.frontend import sidebar
 from digiprod_gen.frontend.tab.image_generation.selected_products import get_selected_mba_products_by_url
@@ -78,7 +78,11 @@ def main():
             display_mba_account_tier(driver)
             if st.button("Upload product to MBA:"):
                 click_on_create_new(driver)
+                select_products_and_marketplaces(driver, products=[request.product_category] , marketplaces=[request.marketplace])
                 upload_image(driver, image_pil_upload_ready)
+                if read_session("bullet1") and read_session("bullet2"):
+                    # TODO: how to handle case with Marketplace different to com (language of bullets is german for example but form takes englisch text input)
+                    insert_listing_text(driver, title="", brand="", bullet_1=read_session("bullet1"), bullet_2=read_session("bullet2"), description=None)
 
     # just for debuging
     #image: bytes | None = get_image_bytes_by_user()

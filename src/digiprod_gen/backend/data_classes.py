@@ -14,7 +14,20 @@ class MBAMarketplaceDomain(str, Enum):
     JP="co.jp"
 
 class MBAProductCategory(str, Enum):
-    SHIRT="shirt"
+    SHIRT="Shirt"
+    PREMIUM_SHIRT="Premium Shirt"
+    V_SHIRT="V-neck Shirt"
+    TANK_TOP="Tank Top"
+    LONG_SLEEVE="Long Sleeve Shirt"
+    RAGLAN="Raglan"
+    SWEATSHIRT="Sweatshirt"
+    HOODIE="Hoodie"
+    ZIP_HOODIE="Zip Hoodie"
+    POP_SOCKET="Pop Socket"
+    IPHONE_CASE="iPhone Case"
+    SAMSUNG_GALAXY_CASE="Samsung Galaxy Case"
+    TOTE_BAG="Tote Bag"
+    THROW_PILLOWS="Throw Pillows"
 
 @dataclass
 class CrawlingMBARequest():

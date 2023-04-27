@@ -1,6 +1,6 @@
 from digiprod_gen.backend.crawling import parser
 from digiprod_gen.backend.crawling.mba.utils import is_product_feature_listing
-from digiprod_gen.backend.data_classes import MBAMarketplaceDomain, MBAProduct
+from digiprod_gen.backend.data_classes import MBAMarketplaceDomain, MBAProduct, MBAProductCategory
 
 
 from bs4.element import Tag
@@ -35,3 +35,22 @@ def extend_mba_product(mba_product: MBAProduct, product_tag: Tag, marketplace: M
     except:
         pass
     return mba_product
+
+def mba_product_category2html_row_name(mba_product: MBAProductCategory):
+    translate_dict = {
+        mba_product.SHIRT: "Standard t-shirt",
+        mba_product.PREMIUM_SHIRT: "Premium t-shirt",
+        mba_product.V_SHIRT: "V-neck t-shirt",
+        mba_product.TANK_TOP: "Tank top",
+        mba_product.LONG_SLEEVE: "Long sleeve t-shirt",
+        mba_product.RAGLAN: "Raglan",
+        mba_product.SWEATSHIRT: "Sweatshirt",
+        mba_product.HOODIE: "Pullover hoodie",
+        mba_product.ZIP_HOODIE: "Zip hoodie",
+        mba_product.POP_SOCKET: "PopSockets grip",
+        mba_product.IPHONE_CASE: "iPhone cases",
+        mba_product.SAMSUNG_GALAXY_CASE: "Samsung Galaxy cases",
+        mba_product.TOTE_BAG: "Tote bag",
+        mba_product.THROW_PILLOWS: "Throw pillows"
+    }
+    return translate_dict.get(mba_product, None)
