@@ -15,6 +15,7 @@ def overview_product_tag2mba_product(product_tag: Tag, marketplace: MBAMarketpla
     return MBAProduct(
         asin = parser.overview_product_get_asin(product_tag),
         title = parser.overview_product_get_title(product_tag),
+        brand = parser.overview_product_get_brand(product_tag),
         image_url = parser.overview_product_get_image_url(product_tag),
         product_url = product_url,
         price=price,

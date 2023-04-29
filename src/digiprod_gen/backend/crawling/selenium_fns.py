@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from webdriver_manager.chrome import ChromeDriverManager
 
 
+# TODO: multiple users would potentially use the same browser. This might lead to bot detection trigger 
 @st.cache_resource
 def init_selenium_driver(headless=True) -> WebDriver:
     """Instantiate a WebDriver object (in this case, using Chrome)"""

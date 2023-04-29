@@ -47,6 +47,7 @@ class CrawlingMBARequest():
 class MBAProduct():
     asin: str
     title: str
+    brand: str
     image_url: str
     product_url: str
     price: Optional[float]

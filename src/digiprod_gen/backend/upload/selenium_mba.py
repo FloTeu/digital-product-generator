@@ -127,4 +127,13 @@ def insert_listing_text(driver, title: str, brand: str, bullet_1: str, bullet_2:
     if description:
         description_input.send_keys(description)
 
+def publish_to_mba(driver, searchable=True):
+    # make sure product is public for everyone
+    if searchable:
+        driver.find_element(By.XPATH, "//*[contains(text(), 'Searchable')]").find_element(By.NAME, "isDiscoverable").click()
+    else:
+        driver.find_element(By.XPATH, "//*[contains(text(), 'Non-searchable')]").find_element(By.NAME, "isDiscoverable").click()
+    driver.find_element(By.ID, "submit-button").click()
+
+    
     

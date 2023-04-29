@@ -15,6 +15,9 @@ def overview_product_get_asin(product_tag: Tag) -> str:
 def overview_product_get_image_url(product_tag: Tag) -> str:
     return product_tag.find_next("img", {"class": "s-image"}).attrs["src"]
 
+def overview_product_get_brand(product_tag: Tag) -> str:
+    return product_tag.find_next("h5").text.strip()
+
 def overview_product_get_title_section_tag(product_tag: Tag) -> Tag:
     return product_tag.find_next("h2", {"class": ["a-size-mini"]})
 
