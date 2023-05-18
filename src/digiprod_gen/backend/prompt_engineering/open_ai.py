@@ -40,6 +40,20 @@ def get_generate_bullets_text(marketplace: MBAMarketplaceDomain, max_number_char
     elif marketplace == MBAMarketplaceDomain.DE:
         return f'Erstelle mir sechs ähnliche, aber nicht identische Beschreibungstexte mit maximale {max_number_chars} Zeichen. Schreibe die Antwprt auf deutsch.'
 
+
+def get_generate_title_text(marketplace: MBAMarketplaceDomain, max_number_chars) -> str:
+    if marketplace in [MBAMarketplaceDomain.COM, MBAMarketplaceDomain.UK]:
+        return f"I need you to create six similar but not the same product title texts with a maximum of {max_number_chars} chars. Write the answer in english."
+    elif marketplace == MBAMarketplaceDomain.DE:
+        return f'Erstelle mir sechs ähnliche, aber nicht identische Produkttitel mit maximale {max_number_chars} Zeichen. Schreibe die Antwprt auf deutsch.'
+
+def get_generate_brand_text(marketplace: MBAMarketplaceDomain, max_number_chars) -> str:
+    if marketplace in [MBAMarketplaceDomain.COM, MBAMarketplaceDomain.UK]:
+        return f"I need you to create six similar but not the same product brand names with a maximum of {max_number_chars} chars. Write the answer in english."
+    elif marketplace == MBAMarketplaceDomain.DE:
+        return f'Erstelle mir sechs ähnliche, aber nicht identische Marken Namen mit maximale {max_number_chars} Zeichen. Schreibe die Antwprt auf deutsch.'
+
+
 def get_openai_midjourney_instruction():
     midjourney_example_prompts = get_midjourney_example_prompts()
     messages = [
@@ -121,7 +135,7 @@ def mba_products2midjourney_prompts(mba_products: List[MBAProduct]) -> List[str]
     return prompts if len(prompts) > 0 else [prompt]
 
 
-def mba_products2listings(mba_products: List[MBAProduct], marketplace: MBAMarketplaceDomain, max_number_chars=256) -> List[str]:
+def mba_products2bullets(mba_products: List[MBAProduct], marketplace: MBAMarketplaceDomain, max_number_chars=256) -> List[str]:
     messages = [
         {"role": "system",
          "content": get_instruction_text(marketplace=marketplace)}
@@ -135,6 +149,60 @@ def mba_products2listings(mba_products: List[MBAProduct], marketplace: MBAMarket
                  "content": get_did_you_understand_response_text(marketplace)}
             ])
     messages.append({"role": "user", "content": get_generate_bullets_text(marketplace, max_number_chars)})
+
+    open_ai_response = openai.ChatCompletion.create(
+      model="gpt-3.5-turbo",
+      messages=messages
+    )
+    prompt = open_ai_response["choices"][0]["message"].content
+    # If gpt recommends multiple prompts, try to extract them
+    number_indicator = [str(i) for i in range(10)]
+    prompts = [p[3:] for p in prompt.split("\n") if p[0:1] in number_indicator]
+    prompts = prompts if len(prompts) > 0 else [prompt]
+    assert all([len(prompt) <= max_number_chars for prompt in prompts]), f"Not all prompts have fewer than {max_number_chars} chars"
+    return prompts
+
+
+def mba_products2titles(mba_products: List[MBAProduct], marketplace: MBAMarketplaceDomain, max_number_chars=50) -> List[str]:
+    messages = [
+        {"role": "system",
+         "content": get_instruction_text(marketplace=marketplace)}
+    ]
+    for mba_product in mba_products:
+        title = mba_product.title.replace("T-Shirt", "")
+        messages.extend([
+            {"role": "user",
+                "content": f"{title}. {get_did_you_understand_text(marketplace)}"},
+            {"role": "assistant",
+                "content": get_did_you_understand_response_text(marketplace)}
+        ])
+    messages.append({"role": "user", "content": get_generate_title_text(marketplace, max_number_chars)})
+
+    open_ai_response = openai.ChatCompletion.create(
+      model="gpt-3.5-turbo",
+      messages=messages
+    )
+    prompt = open_ai_response["choices"][0]["message"].content
+    # If gpt recommends multiple prompts, try to extract them
+    number_indicator = [str(i) for i in range(10)]
+    prompts = [p[3:] for p in prompt.split("\n") if p[0:1] in number_indicator]
+    prompts = prompts if len(prompts) > 0 else [prompt]
+    assert all([len(prompt) <= max_number_chars for prompt in prompts]), f"Not all prompts have fewer than {max_number_chars} chars"
+    return prompts
+
+def mba_products2brands(mba_products: List[MBAProduct], marketplace: MBAMarketplaceDomain, max_number_chars=50) -> List[str]:
+    messages = [
+        {"role": "system",
+         "content": get_instruction_text(marketplace=marketplace)}
+    ]
+    for mba_product in mba_products:
+        messages.extend([
+            {"role": "user",
+                "content": f"{mba_product.title}. {get_did_you_understand_text(marketplace)}"},
+            {"role": "assistant",
+                "content": get_did_you_understand_response_text(marketplace)}
+        ])
+    messages.append({"role": "user", "content": get_generate_brand_text(marketplace, max_number_chars)})
 
     open_ai_response = openai.ChatCompletion.create(
       model="gpt-3.5-turbo",

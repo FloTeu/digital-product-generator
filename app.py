@@ -11,7 +11,7 @@ from digiprod_gen.frontend import sidebar
 from digiprod_gen.frontend.tab.image_generation.selected_products import get_selected_mba_products_by_url
 from digiprod_gen.frontend.tab.image_generation.selected_products import display_mba_products
 from digiprod_gen.frontend.tab.image_generation.image_editing import get_image_bytes_by_user, display_image_editor
-from digiprod_gen.frontend.tab.upload.views import display_bullet_selection, display_data_for_upload
+from digiprod_gen.frontend.tab.upload.views import display_listing_selection, display_data_for_upload
 from digiprod_gen.frontend.tab.upload.mba_upload import login_to_mba, display_mba_account_tier
 
 
@@ -39,6 +39,8 @@ def main():
             sidebar.prompt_generation_input(tab_crawling, tab_ig)
             predicted_prompts = read_session([request.get_hash_str(), "predicted_prompts"])
             predicted_bullets = read_session([request.get_hash_str(), "predicted_bullets"])
+            predicted_titles = read_session([request.get_hash_str(), "predicted_titles"])
+            predicted_brands = read_session([request.get_hash_str(), "predicted_brands"])
             display_mba_products(tab_ig, mba_products_selected)
             if predicted_prompts:
                 with tab_ig:
@@ -48,7 +50,7 @@ def main():
                     if image_bytes:
                         image_pil = img_conversion.bytes2pil(image_bytes)
                         print("type", type(image_pil))
-                        image_pil_upload_ready = display_image_editor(image_pil)
+                        image_pil_upload_ready = display_image_editor(image_pil, background_removal_buffer=0)
                         if image_pil_upload_ready:
                             write_session([request.get_hash_str(), "image_pil_upload_ready"], image_pil_upload_ready)
 
@@ -67,8 +69,8 @@ def main():
                 image_pil_upload_ready = img_conversion.bytes2pil(image.getvalue())
                 write_session([request.get_hash_str(), "image_pil_upload_ready"], image_pil_upload_ready)
         
-        if predicted_bullets:
-            display_bullet_selection(predicted_bullets, tab_crawling)
+        if predicted_bullets and predicted_brands and predicted_titles:
+            display_listing_selection(predicted_titles, predicted_brands, predicted_bullets, tab_crawling)
 
         if image_pil_upload_ready:
             display_data_for_upload(image_pil_upload_ready, title=read_session("mba_upload_title"), brand=read_session("mba_upload_brand"), bullet_1=read_session("mba_upload_bullet_1"), bullet_2=read_session("mba_upload_bullet_2"), description=read_session("mba_upload_description"))
@@ -83,8 +85,8 @@ def main():
                     st.error('You not defined your listings yet', icon="🚨")
                 else:
                     # TODO: how to handle case with Marketplace different to com (language of bullets is german for example but form takes englisch text input)
-                    insert_listing_text(driver, title="", brand="", bullet_1=read_session("mba_upload_bullet_1"), bullet_2=read_session("mba_upload_bullet_2"), description=None)
-                    publish_to_mba(searchable=not is_debug())
+                    insert_listing_text(driver, title=read_session("mba_upload_title"), brand=read_session("mba_upload_brand"), bullet_1=read_session("mba_upload_bullet_1"), bullet_2=read_session("mba_upload_bullet_2"), description=read_session("mba_upload_description"))
+                    #publish_to_mba(searchable=not is_debug())
 
 
 

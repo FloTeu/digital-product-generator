@@ -14,14 +14,15 @@ def image_url2image_bytes_io(image_url: str) -> BytesIO:
     return BytesIO(response.content)
 
 
-def send_mba_overview_request(request: CrawlingMBARequest):
+def send_mba_overview_request(request: CrawlingMBARequest, **kwargs):
     response = requests.get(
         url=request.mba_overview_url,
         headers=request.headers,
         proxies = {
             "http": request.proxy,
             "https": request.proxy
-        }
+        },
+        **kwargs
     )
     return response
 

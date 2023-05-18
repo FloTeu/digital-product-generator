@@ -4,9 +4,9 @@ from PIL import Image
 from typing import Tuple
 from digiprod_gen.backend.image.conversion import pil2cv, cv2pil, np2pil
 
-def get_outer_greyscaled_pixel_range(img_np: np.ndarray) -> Tuple[int, int]:
+def get_outer_greyscaled_pixel_range(img_np: np.ndarray, until_n_col=10) -> Tuple[int, int]:
     """Returns grey scaled min and max value of outer (first 30) pixels"""
-    return img_np[0:30].min(), img_np[0:30].max()
+    return img_np[0:until_n_col].min(), img_np[0:until_n_col].max()
 
 def remove_outer_pixels(img_pil: Image, buffer: int=0) -> Image:
     """Background removal of outer pixels

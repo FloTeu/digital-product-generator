@@ -15,9 +15,9 @@ def get_image_bytes_by_user() -> bytes | None:
     return image if image == None else image.getvalue()
 
 
-def display_image_editor(image_pil: Image) -> Image:
+def display_image_editor(image_pil: Image, background_removal_buffer=0) -> Image:
     st.image(image_pil)
-    image_pil_br: Image = image_background_removal(image_pil)
+    image_pil_br: Image = image_background_removal(image_pil, buffer=background_removal_buffer)
     return image_upscaling(image_pil_br)
 
 def image_upscaling(image_pil: Image) -> Image:
@@ -28,10 +28,10 @@ def image_upscaling(image_pil: Image) -> Image:
         st.image(image_pil_br_upscale)
         return image_pil_br_upscale
 
-def image_background_removal(image_pil: Image) -> Image:
+def image_background_removal(image_pil: Image, buffer) -> Image:
     if st.button("Remove Background"):
         st.write("Removed Background")
-        image_pil_br = remove_outer_pixels(image_pil, buffer=0)
+        image_pil_br = remove_outer_pixels(image_pil, buffer=buffer)
         write_session("image_pil_br", image_pil_br)
         # TODO: How to handle result pil
         st.image(image_pil_br)

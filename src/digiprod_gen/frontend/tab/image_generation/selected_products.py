@@ -97,6 +97,7 @@ def display_mba_products(st_tab_ig: DeltaGenerator, mba_products_selected: List[
                 for i, mba_product in enumerate(mba_products_splitted_list):
                     image_bytes_io: BytesIO = image_url2image_bytes_io(mba_product.image_url)
                     display_cols[i].image(image_bytes_io)
-                    display_cols[i].markdown(f":black[{mba_product.title}]")
+                    display_cols[i].markdown(f":black[Brand: {mba_product.brand}]")
+                    display_cols[i].markdown(f":black[Title: {mba_product.title}]")
                     for bullet_i, bullet in enumerate(mba_product.bullets):
                         display_cols[i].write(f"Bullets {bullet_i+1}: {bullet}")

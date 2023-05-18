@@ -20,7 +20,13 @@ def prompt_generation_refresh_overview(st_tab_ig: DeltaGenerator, st_tab_crawlin
         predicted_prompts = open_ai.mba_products2midjourney_prompts(mba_products_selected)
         write_session([request.get_hash_str(), "predicted_prompts"], predicted_prompts)
         # bullet generation
-        predicted_bullets = open_ai.mba_products2listings(mba_products_selected, marketplace=request.marketplace)
+        predicted_bullets = open_ai.mba_products2bullets(mba_products_selected, marketplace=request.marketplace)
         write_session([request.get_hash_str(), "predicted_bullets"], predicted_bullets)
+        # title generation
+        predicted_titles = open_ai.mba_products2titles(mba_products_selected, marketplace=request.marketplace)
+        write_session([request.get_hash_str(), "predicted_titles"], predicted_titles)
+        # brand generation
+        predicted_brand = open_ai.mba_products2brands(mba_products_selected, marketplace=request.marketplace)
+        write_session([request.get_hash_str(), "predicted_brands"], predicted_brand)
 
 

@@ -7,7 +7,13 @@ import streamlit as st
 from collections import deque
 
 
-def display_bullet_selection(predicted_bullets, tab_crawling):
+def display_listing_selection(predicted_titles, predicted_brands, predicted_bullets, tab_crawling):
+    st.subheader("Suggested Title")
+    st.selectbox("Title:", predicted_titles, on_change=crawl_mba_overview_and_display, args=(tab_crawling, ), key="mba_upload_title")
+    
+    st.subheader("Suggested Brand")
+    st.selectbox("Brand:", predicted_brands, on_change=crawl_mba_overview_and_display, args=(tab_crawling, ), key="mba_upload_brand")
+
     st.subheader("Suggested Bullets")
     st.selectbox("Bullet 1:", predicted_bullets, on_change=crawl_mba_overview_and_display, args=(tab_crawling, ), key="mba_upload_bullet_1")
     predicted_bullets_shifted = deque(predicted_bullets)

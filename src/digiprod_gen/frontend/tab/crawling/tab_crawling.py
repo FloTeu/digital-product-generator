@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from io import BytesIO
 from typing import List
 
+import requests
 import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 
@@ -43,16 +44,23 @@ def crawl_mba_overview2mba_products(request: CrawlingMBARequest):
     """ Crawl mba overview page and retry until the server returns a 200 status code.
         Transforms html to list of MBAProduct objects and stores them in session.
     """
-    mba_products: List[MBAProduct] = []
-    # TODO: how to handle error raises?
-    response = send_mba_overview_request(request)
-    if response.status_code != 200:
+    def resend_request():
         # retry with new headers
         update_mba_request()
         request = read_session("request")
-        response = send_mba_overview_request(request)
+        response = send_mba_overview_request(request, timeout=2)
         if response.status_code != 200:
             st.write("Crawling was not successfull")
+        return response
+    
+    mba_products: List[MBAProduct] = []
+    # TODO: how to handle error raises?
+    try:
+        response = send_mba_overview_request(request, timeout=2)
+        if response.status_code != 200:
+            response = resend_request()
+    except requests.exceptions.ConnectTimeout:
+        response = resend_request()
 
     # Parse to beautiful soup
     soup = BeautifulSoup(response.content, 'html.parser')
