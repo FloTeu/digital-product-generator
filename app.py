@@ -38,6 +38,7 @@ def main():
         if mba_products_selected and read_session([request.get_hash_str(), "detail_pages_crawled"]):
             sidebar.prompt_generation_input(tab_crawling, tab_ig)
             predicted_prompts = read_session([request.get_hash_str(), "predicted_prompts"])
+            predicted_prompt = read_session([request.get_hash_str(), "predicted_prompt"])
             predicted_bullets = read_session([request.get_hash_str(), "predicted_bullets"])
             predicted_titles = read_session([request.get_hash_str(), "predicted_titles"])
             predicted_brands = read_session([request.get_hash_str(), "predicted_brands"])
@@ -45,6 +46,7 @@ def main():
             if predicted_prompts:
                 with tab_ig:
                     st.subheader("Suggested Prompts")
+                    st.write(predicted_prompt)
                     st.write(predicted_prompts)
                     image_bytes: bytes | None = get_image_bytes_by_user()
                     if image_bytes:

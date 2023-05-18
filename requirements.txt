@@ -10,5 +10,6 @@ bitsandbytes
 openai
 opencv-python
 numpy
+langchain
 seleniumbase
 webdriver-manager
