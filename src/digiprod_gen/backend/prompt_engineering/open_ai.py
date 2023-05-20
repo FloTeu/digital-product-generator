@@ -40,7 +40,6 @@ def get_generate_bullets_text(marketplace: MBAMarketplaceDomain, max_number_char
     elif marketplace == MBAMarketplaceDomain.DE:
         return f'Erstelle mir sechs ähnliche, aber nicht identische Beschreibungstexte mit maximale {max_number_chars} Zeichen. Schreibe die Antwprt auf deutsch.'
 
-
 def get_generate_title_text(marketplace: MBAMarketplaceDomain, max_number_chars) -> str:
     if marketplace in [MBAMarketplaceDomain.COM, MBAMarketplaceDomain.UK]:
         return f"I need you to create six similar but not the same product title texts with a maximum of {max_number_chars} chars. Write the answer in english."

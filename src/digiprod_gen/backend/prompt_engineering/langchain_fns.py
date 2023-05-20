@@ -20,7 +20,6 @@ from digiprod_gen.backend.prompt_engineering import midjourney
 from digiprod_gen.backend.prompt_engineering.utils import get_midjourney_example_prompts, extract_list_from_output
 
 
-os.environ["OPENAI_API_KEY"] = st.secrets["open_ai_api_key"]
 INSTRUCTOR_USER_NAME = "instructor"
 
 def get_chat_gpt_model(temperature=0.7) -> ChatOpenAI:
@@ -68,12 +67,3 @@ def get_midjourney_prompt_generator_chain(llm, multiple_suggestions=False) -> LL
     ]
     chat_prompt = ChatPromptTemplate.from_messages(messages)
     return LLMChain(llm=llm, prompt=chat_prompt)
-
-
-# text3 = """Pew Madafakas Tshirt is a Funny Black Cat with Guns Tee for Lovers of Sarcasm, Joke, Irony - men, women, dad, mom, friend, wife, husband. 
-# Great Birthday Gift for cat lover, cat owner, cat mom, cat dad, cat mama, cat papa for casual or special wearing Pew Madafakas T-Shirt great pairs with funny cat lover accessories, stuff, supplies, clothes, decorations, long sleeve, cap, hat, collar, sticker, decal, shorts, mug, cup, balloons, bandana.
-#  Great cat lover gifts for women funny cat owner must haves"""
-# llm = get_chat_gpt_model(temperature=0.7)
-# answer_chain = get_midjourney_prompt_generator_chain(llm, multiple_suggestions=True)
-# llm_output = answer_chain.run(text=text3)
-# prompts = extract_list_from_output(llm_output)

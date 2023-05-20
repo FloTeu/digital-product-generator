@@ -29,6 +29,12 @@ class MBAProductCategory(str, Enum):
     TOTE_BAG="Tote Bag"
     THROW_PILLOWS="Throw Pillows"
 
+class MBAProductTextType(str, Enum):
+    BRAND="brand"
+    TITLE="title"
+    BULLET="bullet"
+
+
 @dataclass
 class CrawlingMBARequest():
     search_term: str
@@ -53,3 +59,4 @@ class MBAProduct():
     price: Optional[float]
     bullets: Optional[List[str]]
     description: Optional[str]
+

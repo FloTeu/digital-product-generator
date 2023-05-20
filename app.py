@@ -14,6 +14,7 @@ from digiprod_gen.frontend.tab.image_generation.image_editing import get_image_b
 from digiprod_gen.frontend.tab.upload.views import display_listing_selection, display_data_for_upload
 from digiprod_gen.frontend.tab.upload.mba_upload import login_to_mba, display_mba_account_tier
 
+os.environ["OPENAI_API_KEY"] = st.secrets["open_ai_api_key"]
 
 st.header("MBA Bullet Feature Extractor")
 tab_crawling, tab_ig, tab_upload = st.tabs(["Crawling", "Image Generation", "MBA Upload"])
