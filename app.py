@@ -19,7 +19,7 @@ from digiprod_gen.frontend.tab.upload.mba_upload import login_to_mba, display_mb
 
 os.environ["OPENAI_API_KEY"] = st.secrets["open_ai_api_key"]
 
-st.header("MBA Bullet Feature Extractor")
+st.header("MBA Product Generator")
 tab_crawling, tab_ig, tab_upload = st.tabs(["Crawling", "Image Generation", "MBA Upload"])
 
 def read_request():
