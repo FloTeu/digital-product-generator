@@ -1,10 +1,13 @@
 
 import streamlit as st
 import os, sys
+import digiprod_gen
+
+from selenium.common.exceptions import WebDriverException
 
 from digiprod_gen.backend.utils import is_debug
 from digiprod_gen.backend.image import conversion as img_conversion
-from digiprod_gen.backend.data_classes import CrawlingMBARequest
+from digiprod_gen.backend.data_classes import CrawlingMBARequest, DigiProdGenConfig
 from digiprod_gen.backend.upload.selenium_mba import upload_image, click_on_create_new, insert_listing_text, select_products_and_marketplaces, publish_to_mba
 from digiprod_gen.frontend.session import read_session, update_mba_request, write_session
 from digiprod_gen.frontend import sidebar
@@ -62,13 +65,17 @@ def main():
 
     sidebar.mab_login_input(tab_upload)
     driver = read_session("selenium_driver")
-    sidebar.mba_otp_input(driver)
-
+    try:
+        sidebar.mba_otp_input(driver)
+    except WebDriverException:
+        # TODO: Find out why this error is thrown
+        pass
+        
     with tab_upload:
         image_pil_upload_ready = read_session([request.get_hash_str(), "image_pil_upload_ready"])
         # User can either choose newly created image or choose a existing one
         if not image_pil_upload_ready:
-            image = st.file_uploader("Image:", type=["png", "jpg", "jpeg"])
+            image = st.file_uploader("Image:", type=["png", "jpg", "jpeg"], key="image_upload_tab")
             if image:
                 image_pil_upload_ready = img_conversion.bytes2pil(image.getvalue())
                 write_session([request.get_hash_str(), "image_pil_upload_ready"], image_pil_upload_ready)

@@ -1,7 +1,8 @@
 import hashlib
 from enum import Enum
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import Optional, List, Dict
+from pydantic import BaseModel
 
 
 class MBAMarketplaceDomain(str, Enum):
@@ -60,3 +61,8 @@ class MBAProduct():
     bullets: Optional[List[str]]
     description: Optional[str]
 
+class DigiProdGenMBAMarketplaceConfig(BaseModel):
+    postcode: str
+
+class DigiProdGenConfig(BaseModel):
+    mba_marketplace: Dict[str, DigiProdGenMBAMarketplaceConfig]

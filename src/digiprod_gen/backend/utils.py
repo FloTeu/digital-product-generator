@@ -1,9 +1,17 @@
 import os
+import streamlit as st
+from pydantic import parse_file_as
 
+import digiprod_gen
 from digiprod_gen.backend.crawling.mba.utils import get_mba_overview_urls
 from digiprod_gen.backend.data_classes import (CrawlingMBARequest,
-                                               MBAMarketplaceDomain)
+                                               MBAMarketplaceDomain, DigiProdGenConfig)
 
+
+@st.cache_resource
+def get_config() -> DigiProdGenConfig:
+    module_file_path = os.path.dirname(digiprod_gen.__file__)
+    return parse_file_as(DigiProdGenConfig, f"{module_file_path}/backend/config.json")
 
 def is_debug():
     return bool(os.environ.get("DEBUG", False))

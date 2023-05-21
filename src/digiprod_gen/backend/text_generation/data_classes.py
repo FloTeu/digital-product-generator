@@ -87,7 +87,7 @@ class MBAMidjourneyPromptGenerator(MidjourneyPromptGenerator):
         """Human message which contains the input for the text generation"""
         human_template = """
                             I want you to act as a professional merch by amazon image creator. 
-                            Write a five concise english prompts for the text delimited by ```. 
+                            Write five concise english prompts enumeratete with the format 1. for the text delimited by ```. 
                             The output prompt should focus on visual descriptions. 
                             Take inspiration from the formating from the example prompts, dont copy them, but use the same format.
                             Your output should only contain the single prompt without further details.

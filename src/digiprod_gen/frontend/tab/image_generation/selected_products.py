@@ -1,7 +1,12 @@
 from io import BytesIO
 import requests
+import time
 from bs4 import BeautifulSoup
 from streamlit.delta_generator import DeltaGenerator
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, MBAProduct
 
 
@@ -36,7 +41,7 @@ def get_selected_mba_products_by_url(request: CrawlingMBARequest) -> List[MBAPro
     return get_selected_mba_products(mba_products)
 
 
-def crawl_mba_details(request):
+def crawl_mba_details(request, driver):
     # with tab_crawling:
     mba_products = read_session([request.get_hash_str(), "mba_products"])
     headers = request.headers
@@ -50,16 +55,27 @@ def crawl_mba_details(request):
             continue
         # Else crawl detail information
         mba_product_detailed = mba_product
-        headers["referer"] = request.mba_overview_url
-        response_product_url = requests.get(
-            url=mba_product_detailed.product_url,
-            headers=headers,
-            proxies = {
-                "http": request.proxy,
-                "https": request.proxy
-            }
-        )
-        soup = BeautifulSoup(response_product_url.content, 'html.parser')
+
+        time.sleep(0.5)
+        element = driver.find_element(By.XPATH, f"//*[@data-asin='{mba_product.asin}']")
+        element.click()
+        html_str = driver.page_source
+        time.sleep(1)
+        # Go back to overview page again
+        driver.execute_script("window.history.go(-1)")
+
+        # headers["referer"] = request.mba_overview_url
+        # response_product_url = requests.get(
+        #     url=mba_product_detailed.product_url,
+        #     headers=headers,
+        #     proxies = {
+        #         "http": request.proxy,
+        #         "https": request.proxy
+        #     }
+        # )
+        # html_str = response_product_url.content
+
+        soup = BeautifulSoup(html_str, 'html.parser')
         if "captcha" in soup.prettify():
             raise ValueError("Got a captcha :(")
         # call by reference change of mba_products
@@ -74,12 +90,13 @@ def crawl_mba_details(request):
 
 def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator, st_tab_crawling: DeltaGenerator):
     request: CrawlingMBARequest = read_session("request")
+    driver = read_session("selenium_driver")
     # Make sure user sees overview page and recreate it from session
     crawl_mba_overview_and_display(st_tab_crawling)
 
     with st_tab_ig, st.spinner('Crawling detail pages...'):
         # crawl new detail pages
-        crawl_mba_details(request)
+        crawl_mba_details(request, driver)
         # refresh overview page
         display_overview_products = read_session([request.get_hash_str(), "display_overview_products"])
         display_overview_products.empty()

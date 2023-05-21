@@ -5,9 +5,8 @@ import streamlit as st
 from digiprod_gen.backend.crawling.proxies import get_random_private_proxy
 from digiprod_gen.backend.crawling.mba.utils import get_random_headers
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, MBAProductCategory
-from digiprod_gen.backend.utils import request2mba_overview_url
-
-
+from digiprod_gen.backend.utils import request2mba_overview_url, is_debug
+from digiprod_gen.backend.crawling.selenium_fns import init_selenium_driver
 
 def write_session(keys: str | List[str], value: Any):
     keys = keys if type(keys) == list else [keys]
@@ -42,4 +41,7 @@ def update_mba_request():
                                  search_term=search_term, headers=get_random_headers(marketplace), proxy=proxy, mba_overview_url=None)
     request.mba_overview_url = request2mba_overview_url(request)
     write_session("request", request)
+    # reset browser
+    selenium_driver = init_selenium_driver(headless=not is_debug())
+    write_session("selenium_driver", selenium_driver)
 

@@ -11,7 +11,7 @@ from digiprod_gen.frontend.session import read_session, write_session
 def get_image_bytes_by_user() -> bytes | None:
     st.markdown("Please use one of the example Prompts to generate an image with Midjourney. \nYou can upload the image afterwards and proceed.")
     st.subheader("Upload Image to MBA")
-    image = st.file_uploader("Image:", type=["png", "jpg", "jpeg"])
+    image = st.file_uploader("Image:", type=["png", "jpg", "jpeg"], key="image_gen_tab")
     return image if image == None else image.getvalue()
 
 

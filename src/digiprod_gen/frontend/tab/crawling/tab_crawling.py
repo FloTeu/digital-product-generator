@@ -1,5 +1,6 @@
 
 import math
+import time
 from bs4 import BeautifulSoup
 from io import BytesIO
 from typing import List
@@ -7,21 +8,24 @@ from typing import List
 import requests
 import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
+from selenium.webdriver.common.by import By
 
 from digiprod_gen.backend.crawling.mba.utils import is_mba_product
+from digiprod_gen.backend.crawling.selenium_fns import mba_click_ignore_cookies, mba_search_overview_page, mba_change_postcode
 from digiprod_gen.backend.transform.transform_fns import overview_product_tag2mba_product
 from digiprod_gen.constants import MAX_SHIRTS_PER_ROW
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, MBAProduct, MBAMarketplaceDomain
 from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io, send_mba_overview_request
 from digiprod_gen.backend.utils import get_price_display_str, marketplace2currency, split_list
 from digiprod_gen.frontend.session import read_session, update_mba_request, write_session
-from digiprod_gen.backend.utils import is_debug
+from digiprod_gen.backend.utils import is_debug, get_config
 
 def crawl_mba_overview_and_display(st_element: DeltaGenerator):
     """ Display overview products to frontend.
         If data is not available in session already, the data is crawled.
     """
     request: CrawlingMBARequest = read_session("request")
+    driver = read_session("selenium_driver")
     marketplace = request.marketplace
     with st_element:
         display_start_crawling = st.empty()
@@ -30,7 +34,7 @@ def crawl_mba_overview_and_display(st_element: DeltaGenerator):
 
         mba_products = read_session([request.get_hash_str(), "mba_products"])
         if not mba_products:
-            crawl_mba_overview2mba_products(request)
+            crawl_mba_overview2mba_products(request, driver)
             mba_products = read_session([request.get_hash_str(), "mba_products"])
 
         if read_session("speed_up"):
@@ -40,30 +44,45 @@ def crawl_mba_overview_and_display(st_element: DeltaGenerator):
         display_start_crawling.empty()
 
 
-def crawl_mba_overview2mba_products(request: CrawlingMBARequest):
+def crawl_mba_overview2mba_products(request: CrawlingMBARequest, driver):
     """ Crawl mba overview page and retry until the server returns a 200 status code.
         Transforms html to list of MBAProduct objects and stores them in session.
     """
-    def resend_request():
-        # retry with new headers
-        update_mba_request()
-        request = read_session("request")
-        response = send_mba_overview_request(request, timeout=2)
-        if response.status_code != 200:
-            st.write("Crawling was not successfull")
-        return response
+    # def resend_request():
+    #     # retry with new headers
+    #     update_mba_request()
+    #     request = read_session("request")
+    #     response = send_mba_overview_request(request, timeout=2)
+    #     if response.status_code != 200:
+    #         st.write("Crawling was not successfull")
+    #     return response
+    
+    # # TODO: how to handle error raises?
+    # try:
+    #     response = send_mba_overview_request(request, timeout=2)
+    #     if response.status_code != 200:
+    #         response = resend_request()
+    # except requests.exceptions.ConnectTimeout:
+    #     response = resend_request()
+    # html_str = response.content
+    config = get_config()
     
     mba_products: List[MBAProduct] = []
-    # TODO: how to handle error raises?
+
+    mba_search_overview_page(request, driver)
+    # wait to act more like a human
+    time.sleep(1)
     try:
-        response = send_mba_overview_request(request, timeout=2)
-        if response.status_code != 200:
-            response = resend_request()
-    except requests.exceptions.ConnectTimeout:
-        response = resend_request()
+        mba_click_ignore_cookies(driver)
+    except:
+        pass
+    mba_change_postcode(driver, config.mba_marketplace[request.marketplace].postcode)
+    time.sleep(4) # wait until page is refreshed with new products
+
+    html_str = driver.page_source
 
     # Parse to beautiful soup
-    soup = BeautifulSoup(response.content, 'html.parser')
+    soup = BeautifulSoup(html_str, 'html.parser')
     product_tags = soup.find_all("div", {"class": "sg-col-inner"})
     mba_product_tags = [p for p in product_tags if is_mba_product(p)]
     for product_tag in mba_product_tags:
