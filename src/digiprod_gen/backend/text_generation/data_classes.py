@@ -5,11 +5,12 @@ from langchain.prompts import HumanMessagePromptTemplate, SystemMessagePromptTem
 
 
 from mid_prompt_gen.backend.abstract_classes import AbstractFewShotGenerator
+from mid_prompt_gen.backend.prompt_gen import MidjourneyPromptGenerator
 from mid_prompt_gen.constants import INSTRUCTOR_USER_NAME
 from digiprod_gen.backend.text_generation import mba_context
 from digiprod_gen.backend.data_classes import MBAProductTextType
 from digiprod_gen.backend.data_classes import MBAProduct, MBAMarketplaceDomain
-
+from digiprod_gen.backend.text_generation.mba_banned_word import MBA_BANNED_WORDS
 
 def get_generate_bullets_text(marketplace: MBAMarketplaceDomain, max_number_chars) -> str:
     if marketplace in [MBAMarketplaceDomain.COM, MBAMarketplaceDomain.UK]:
@@ -72,16 +73,24 @@ class ProductTextGenerator(AbstractFewShotGenerator):
 
     def _set_human_message(self, mba_text_type: MBAProductTextType, marketplace: MBAMarketplaceDomain):
         """Human message which contains the input for the text generation"""
-        human_template = f"""
-                            I want you to act as a professional Merch by Amazon vendor. 
-                            Write a 5 {mba_text_type}s based on the examples that you received. 
-                            Take inspiration from the formating from the example {mba_text_type}, dont copy them, but use the same format.
-                            Remember to format the {mba_text_type} semantically similarly to the example {mba_text_type}s and address the same target group. 
-                         """
+        human_template = f"Do not include any of the following words: {MBA_BANNED_WORDS}.\n"
         if mba_text_type == MBAProductTextType.BULLET:
-            human_template = get_generate_bullets_text(marketplace, 256)
+            human_template = human_template + get_generate_bullets_text(marketplace, 256)
         if mba_text_type == MBAProductTextType.BRAND:
-            human_template = get_generate_brand_text(marketplace, 50)
+            human_template = human_template + get_generate_brand_text(marketplace, 50)
         if mba_text_type == MBAProductTextType.TITLE:
-            human_template = get_generate_title_text(marketplace, 50)
+            human_template = human_template + get_generate_title_text(marketplace, 50)
+        self.messages.human_message = HumanMessagePromptTemplate.from_template(human_template)
+
+class MBAMidjourneyPromptGenerator(MidjourneyPromptGenerator):
+    def _set_human_message(self):
+        """Human message which contains the input for the text generation"""
+        human_template = """
+                            I want you to act as a professional merch by amazon image creator. 
+                            Write a five concise english prompts for the text delimited by ```. 
+                            The output prompt should focus on visual descriptions. 
+                            Take inspiration from the formating from the example prompts, dont copy them, but use the same format.
+                            Your output should only contain the single prompt without further details.
+                            ```{text}```
+                         """
         self.messages.human_message = HumanMessagePromptTemplate.from_template(human_template)

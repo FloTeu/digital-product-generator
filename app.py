@@ -43,6 +43,7 @@ def main():
             predicted_bullets = read_session([request.get_hash_str(), "predicted_bullets"])
             predicted_titles = read_session([request.get_hash_str(), "predicted_titles"])
             predicted_brands = read_session([request.get_hash_str(), "predicted_brands"])
+
             display_mba_products(tab_ig, mba_products_selected)
             if predicted_prompts:
                 with tab_ig:
@@ -76,7 +77,8 @@ def main():
             display_listing_selection(predicted_titles, predicted_brands, predicted_bullets, tab_crawling)
 
         if image_pil_upload_ready:
-            display_data_for_upload(image_pil_upload_ready, title=read_session("mba_upload_title"), brand=read_session("mba_upload_brand"), bullet_1=read_session("mba_upload_bullet_1"), bullet_2=read_session("mba_upload_bullet_2"), description=read_session("mba_upload_description"))
+            predicted_description = f'{read_session("mba_upload_title")} by "{read_session("mba_upload_brand")}". {read_session("mba_upload_bullet_1")} {read_session("mba_upload_bullet_2")}'
+            display_data_for_upload(image_pil_upload_ready, title=read_session("mba_upload_title"), brand=read_session("mba_upload_brand"), bullet_1=read_session("mba_upload_bullet_1"), bullet_2=read_session("mba_upload_bullet_2"), description=predicted_description)
 
         if read_session("mba_login_successfull"):
             display_mba_account_tier(driver)
@@ -88,7 +90,7 @@ def main():
                     st.error('You not defined your listings yet', icon="🚨")
                 else:
                     # TODO: how to handle case with Marketplace different to com (language of bullets is german for example but form takes englisch text input)
-                    insert_listing_text(driver, title=read_session("mba_upload_title"), brand=read_session("mba_upload_brand"), bullet_1=read_session("mba_upload_bullet_1"), bullet_2=read_session("mba_upload_bullet_2"), description=read_session("mba_upload_description"))
+                    insert_listing_text(driver, title=read_session("mba_upload_title"), brand=read_session("mba_upload_brand"), bullet_1=read_session("mba_upload_bullet_1"), bullet_2=read_session("mba_upload_bullet_2"), description=predicted_description)
                     #publish_to_mba(searchable=not is_debug())
 
 

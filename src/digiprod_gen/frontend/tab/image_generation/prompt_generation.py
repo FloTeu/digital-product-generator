@@ -1,3 +1,4 @@
+import time
 from typing import List
 import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
@@ -10,8 +11,9 @@ from digiprod_gen.frontend.session import read_session, write_session
 
 from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
 from digiprod_gen.frontend.tab.image_generation.selected_products import get_selected_mba_products_by_url
-from digiprod_gen.backend.text_generation.data_classes import ProductTextGenerator
+from digiprod_gen.backend.text_generation.data_classes import ProductTextGenerator, MBAMidjourneyPromptGenerator
 from digiprod_gen.backend.data_classes import MBAProductTextType
+from digiprod_gen.backend.text_generation.mba_banned_word import MBA_BANNED_WORDS
 from mid_prompt_gen.backend.prompt_gen import MidjourneyPromptGenerator
 from mid_prompt_gen.backend.langchain_fns import get_chat_gpt_model
 from mid_prompt_gen.backend.midjourney.utils import get_shirt_design_prompt_examples
@@ -23,8 +25,8 @@ def combine_bullets(products: List[MBAProduct]) -> str:
             combined_bullets += ' '.join(product.bullets) + ' '
     return combined_bullets.strip()
 
-def get_midjourney_prompt_gen(llm) -> MidjourneyPromptGenerator:
-    midjourney_prompt_gen = MidjourneyPromptGenerator(llm)
+def get_midjourney_prompt_gen(llm) -> MBAMidjourneyPromptGenerator:
+    midjourney_prompt_gen = MBAMidjourneyPromptGenerator(llm)
     midjourney_prompt_gen.set_context()
     prompt_examples = get_shirt_design_prompt_examples()
     midjourney_prompt_gen.set_few_shot_examples(prompt_examples)
@@ -48,6 +50,19 @@ def get_product_text_gen(llm, mba_products, mba_product_text_type: MBAProductTex
     product_text_gen._set_human_message(mba_product_text_type, marketplace)
     return product_text_gen
 
+def remove_banned_words(text_suggestions: List[str], banned_words):
+    result = []
+    for text_suggestion in text_suggestions:
+        # Split the string into words
+        words = text_suggestion.split()
+        # Remove banned words
+        words = [word for word in words if word not in banned_words]
+        # Join the words back into a string
+        modified_string = ' '.join(words)
+        result.append(modified_string)
+    return result
+
+
 def prompt_generation_refresh_overview(st_tab_ig: DeltaGenerator, st_tab_crawling: DeltaGenerator):
     request: CrawlingMBARequest = read_session("request")
     mba_products_selected = get_selected_mba_products_by_url(request)
@@ -63,18 +78,28 @@ def prompt_generation_refresh_overview(st_tab_ig: DeltaGenerator, st_tab_crawlin
         # prompt generation
         #answer_chain = get_midjourney_prompt_generator_chain(llm, multiple_suggestions=True)
         #predicted_prompts = extract_list_from_output(answer_chain.run(text=combine_bullets(mba_products_selected)))
-        predicted_prompt = midjourney_prompt_gen.generate(text=combine_bullets(mba_products_selected))
-        write_session([request.get_hash_str(), "predicted_prompt"], predicted_prompt)
-        predicted_prompts = open_ai.mba_products2midjourney_prompts(mba_products_selected)
+        ts_start = time.time()
+        llm_output = midjourney_prompt_gen.generate(text=combine_bullets(mba_products_selected))
+        predicted_prompts = extract_list_from_output(llm_output)
+        print("mid_gen time elapsed %.2f seconds" % (time.time() - ts_start))
         write_session([request.get_hash_str(), "predicted_prompts"], predicted_prompts)
-        # # bullet generation
-        # predicted_bullets = open_ai.mba_products2bullets(mba_products_selected, marketplace=request.marketplace)
-        # write_session([request.get_hash_str(), "predicted_bullets"], predicted_bullets)
-        # # title generation
-        # predicted_titles = open_ai.mba_products2titles(mba_products_selected, marketplace=request.marketplace)
-        # write_session([request.get_hash_str(), "predicted_titles"], predicted_titles)
-        # # brand generation
-        # predicted_brand = open_ai.mba_products2brands(mba_products_selected, marketplace=request.marketplace)
-        # write_session([request.get_hash_str(), "predicted_brands"], predicted_brand)
+        
+        # ts_start = time.time()
+        # predicted_prompts = open_ai.mba_products2midjourney_prompts(mba_products_selected)
+        # print("openai time elapsed %.2f seconds" % (time.time() - ts_start))
+        # write_session([request.get_hash_str(), "predicted_prompts"], predicted_prompts)
+
+
+        ts_start = time.time()
+        # bullet generation
+        predicted_bullets = extract_list_from_output(product_text_gen_bullet.generate(mba_text_type=MBAProductTextType.BULLET))
+        write_session([request.get_hash_str(), "predicted_bullets"], remove_banned_words(predicted_bullets, MBA_BANNED_WORDS))
+        # title generation
+        predicted_titles = extract_list_from_output(product_text_gen_title.generate(mba_text_type=MBAProductTextType.TITLE))
+        write_session([request.get_hash_str(), "predicted_titles"], remove_banned_words(predicted_titles, MBA_BANNED_WORDS))
+        # brand generation
+        predicted_brand = extract_list_from_output(product_text_gen_brand.generate(mba_text_type=MBAProductTextType.BRAND))
+        write_session([request.get_hash_str(), "predicted_brands"], remove_banned_words(predicted_brand, MBA_BANNED_WORDS))
+        print("product texts elapsed %.2f seconds" % (time.time() - ts_start))
 
 
