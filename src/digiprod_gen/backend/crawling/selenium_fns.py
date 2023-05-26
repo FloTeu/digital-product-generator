@@ -49,9 +49,15 @@ def mba_change_postcode(driver, postcode):
     # Submit the form
     driver.find_element(By.ID, "GLUXZipUpdate").click() # apply new postcode
     time.sleep(0.25)
-    # Find all submit buttons on the page
-    submit_buttons = driver.find_elements(By.XPATH, "//input[@type='submit']")
-    submit_buttons[-1].click()
+
+    # submit form
+    # Find the element with class "a-popover-footer"
+    popover_footer = driver.find_element(By.CLASS_NAME, "a-popover-footer")
+    # Find all submit buttons within the "a-popover-footer" element
+    submit_buttons = popover_footer.find_elements(By.XPATH, ".//input[@type='submit']")
+    if len(submit_buttons) == 0:
+        submit_buttons = popover_footer.find_elements(By.XPATH, ".//button")
+    submit_buttons[0].click()
     #driver.find_element(By.NAME, "glowDoneButton").click() # submit form
     #driver.find_element(By.NAME, "GLUXConfirmClose").click() # submit form
 
