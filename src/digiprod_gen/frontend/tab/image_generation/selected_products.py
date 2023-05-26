@@ -19,7 +19,7 @@ from typing import List
 from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io
 from digiprod_gen.backend.transform.transform_fns import extend_mba_product
 from digiprod_gen.backend.utils import split_list, get_config
-from digiprod_gen.backend.crawling.selenium_fns import mba_overview_search
+from digiprod_gen.backend.crawling.selenium_fns import mba_search_overview_and_change_postcode
 from digiprod_gen.constants import MAX_SHIRTS_PER_ROW
 from digiprod_gen.frontend.session import reset_selenium_driver
 from digiprod_gen.frontend.session import read_session, write_session
@@ -53,7 +53,7 @@ def crawl_mba_details(request):
         reset_selenium_driver()
         driver = read_session("selenium_driver")
         config = get_config()
-        mba_overview_search(request, driver, config.mba_marketplace[request.marketplace].postcode)
+        mba_search_overview_and_change_postcode(request, driver, config.mba_marketplace[request.marketplace].postcode)
         driver.get(request.mba_overview_url)
 
     mba_products_selected = get_selected_mba_products(mba_products)

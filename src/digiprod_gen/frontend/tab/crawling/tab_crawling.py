@@ -10,7 +10,7 @@ from streamlit.delta_generator import DeltaGenerator
 from selenium.webdriver.common.by import By
 
 from digiprod_gen.backend.crawling.mba.utils import is_mba_product
-from digiprod_gen.backend.crawling.selenium_fns import mba_overview_search
+from digiprod_gen.backend.crawling.selenium_fns import mba_search_overview_and_change_postcode
 from digiprod_gen.backend.transform.transform_fns import overview_product_tag2mba_product
 from digiprod_gen.constants import MAX_SHIRTS_PER_ROW
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, MBAProduct, MBAMarketplaceDomain
@@ -68,7 +68,7 @@ def crawl_mba_overview2mba_products(request: CrawlingMBARequest, driver):
     
     mba_products: List[MBAProduct] = []
 
-    mba_overview_search(request, driver, config.mba_marketplace[request.marketplace].postcode)
+    mba_search_overview_and_change_postcode(request, driver, config.mba_marketplace[request.marketplace].postcode)
 
     html_str = driver.page_source
 

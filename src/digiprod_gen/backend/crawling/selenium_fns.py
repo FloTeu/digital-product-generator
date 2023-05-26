@@ -14,6 +14,8 @@ def init_selenium_driver(headless=True) -> WebDriver:
     """Instantiate a WebDriver object (in this case, using Chrome)"""
     options = Options() #either firefox or chrome options
     options.add_argument('--disable-gpu')
+    # sandbox may cause error on environments like Docker containers
+    options.add_argument('--no-sandbox')
     if headless:
         options.add_argument('--headless')
     return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
@@ -48,7 +50,7 @@ def mba_change_postcode(driver, postcode):
     driver.find_element(By.NAME, "glowDoneButton").click() # submit form
 
 
-def mba_overview_search(request: CrawlingMBARequest, driver, postcode):
+def mba_search_overview_and_change_postcode(request: CrawlingMBARequest, driver, postcode):
 
     mba_search_overview_page(request, driver)
     # wait to act more like a human
