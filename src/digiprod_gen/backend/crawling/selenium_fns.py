@@ -5,6 +5,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 from webdriver_manager.chrome import ChromeDriverManager
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, DigiProdGenConfig, MBAMarketplaceDomain
 
@@ -64,6 +65,10 @@ def mba_search_overview_and_change_postcode(request: CrawlingMBARequest, driver,
         mba_click_ignore_cookies(driver)
     except:
         pass
-    mba_change_postcode(driver, postcode)
+    try:
+        mba_change_postcode(driver, postcode)
+    except NoSuchElementException:
+        print("Could not change postcode")
+        pass
     time.sleep(4) # wait until page is refreshed with new products
     #driver.find_element(By.ID, "GLUXConfirmClose").click() # submit form
