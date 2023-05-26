@@ -40,6 +40,7 @@ def crawl_mba_overview_and_display(st_element: DeltaGenerator):
             mba_products = mba_products[0:8]
 
         display_mba_overview_products(mba_products, currency_str, marketplace, request)
+        # Temp button to download html
         st.download_button('Download HTML', driver.page_source, file_name='mba_overview.html', on_click=crawl_mba_overview_and_display, args=(st_element, ))
         display_start_crawling.empty()
 
