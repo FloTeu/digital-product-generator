@@ -6,6 +6,7 @@ from streamlit.delta_generator import DeltaGenerator
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import WebDriverException
 
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, MBAProduct
 
@@ -46,7 +47,6 @@ def crawl_mba_details(request, driver):
     mba_products = read_session([request.get_hash_str(), "mba_products"])
     headers = request.headers
     mba_products_selected = get_selected_mba_products(mba_products)
-
     for i, mba_product in enumerate(mba_products_selected):
         mba_product_detailed = read_session(mba_product.asin)
         if mba_product_detailed != None:
@@ -57,12 +57,17 @@ def crawl_mba_details(request, driver):
         mba_product_detailed = mba_product
 
         time.sleep(0.5)
-        element = driver.find_element(By.XPATH, f"//*[@data-asin='{mba_product.asin}']")
-        element.click()
-        html_str = driver.page_source
-        time.sleep(1)
-        # Go back to overview page again
-        driver.execute_script("window.history.go(-1)")
+        try:
+            element = driver.find_element(By.XPATH, f"//*[@data-asin='{mba_product.asin}']")
+            element.click()
+            html_str = driver.page_source
+            time.sleep(1)
+            # Go back to overview page again
+            driver.execute_script("window.history.go(-1)")
+        except WebDriverException as e:
+            html_str = driver.page_source
+            str.write(html_str)   
+            st.exception(e)    
 
         # headers["referer"] = request.mba_overview_url
         # response_product_url = requests.get(
