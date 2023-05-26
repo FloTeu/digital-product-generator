@@ -47,7 +47,12 @@ def mba_change_postcode(driver, postcode):
 
     # Submit the form
     driver.find_element(By.ID, "GLUXZipUpdate").click() # apply new postcode
-    driver.find_element(By.NAME, "glowDoneButton").click() # submit form
+    time.sleep(0.25)
+    # Find all submit buttons on the page
+    submit_buttons = driver.find_elements(By.XPATH, "//input[@type='submit']")
+    submit_buttons[-1].click()
+    #driver.find_element(By.NAME, "glowDoneButton").click() # submit form
+    #driver.find_element(By.NAME, "GLUXConfirmClose").click() # submit form
 
 
 def mba_search_overview_and_change_postcode(request: CrawlingMBARequest, driver, postcode):
