@@ -68,7 +68,7 @@ def crawl_mba_overview2mba_products(request: CrawlingMBARequest, driver):
     
     mba_products: List[MBAProduct] = []
 
-    mba_overview_search(config.mba_marketplace[request.marketplace].postcode)
+    mba_overview_search(request, driver, config.mba_marketplace[request.marketplace].postcode)
 
     html_str = driver.page_source
 
