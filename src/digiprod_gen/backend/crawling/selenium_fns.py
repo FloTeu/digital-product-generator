@@ -9,8 +9,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, DigiProdGenConfig, MBAMarketplaceDomain
 
 
-# TODO: multiple users would potentially use the same browser. This might lead to bot detection trigger 
-@st.cache_resource
+
 def init_selenium_driver(headless=True) -> WebDriver:
     """Instantiate a WebDriver object (in this case, using Chrome)"""
     options = Options() #either firefox or chrome options
@@ -47,4 +46,17 @@ def mba_change_postcode(driver, postcode):
     # Submit the form
     driver.find_element(By.ID, "GLUXZipUpdate").click() # apply new postcode
     driver.find_element(By.NAME, "glowDoneButton").click() # submit form
+
+
+def mba_overview_search(request: CrawlingMBARequest, driver, postcode):
+
+    mba_search_overview_page(request, driver)
+    # wait to act more like a human
+    time.sleep(1)
+    try:
+        mba_click_ignore_cookies(driver)
+    except:
+        pass
+    mba_change_postcode(driver, postcode)
+    time.sleep(4) # wait until page is refreshed with new products
     #driver.find_element(By.ID, "GLUXConfirmClose").click() # submit form

@@ -8,6 +8,7 @@ from digiprod_gen.backend.data_classes import CrawlingMBARequest, MBAProductCate
 from digiprod_gen.backend.utils import request2mba_overview_url, is_debug
 from digiprod_gen.backend.crawling.selenium_fns import init_selenium_driver
 
+
 def write_session(keys: str | List[str], value: Any):
     keys = keys if type(keys) == list else [keys]
     current_session_dict = st.session_state
@@ -36,12 +37,21 @@ def read_session(keys: str | List[str]) -> Any:
 def update_mba_request():
     marketplace = st.session_state["marketplace"]
     search_term = st.session_state["search_term"]
-    proxy = get_random_private_proxy(st.secrets.proxy_perfect_privacy.user_name, st.secrets.proxy_perfect_privacy.password,marketplace=marketplace)
+    proxy = get_random_private_proxy(st.secrets.proxy_perfect_privacy.user_name,
+                                     st.secrets.proxy_perfect_privacy.password, marketplace=marketplace)
     request = CrawlingMBARequest(marketplace=marketplace, product_category=MBAProductCategory.SHIRT,
                                  search_term=search_term, headers=get_random_headers(marketplace), proxy=proxy, mba_overview_url=None)
     request.mba_overview_url = request2mba_overview_url(request)
     write_session("request", request)
-    # reset browser
+    reset_selenium_driver()
+
+
+def reset_selenium_driver():
+    """ If possible quits the existing selenium driver and starts a new one"""
+    selenium_driver = read_session("selenium_driver")
+    try:
+        selenium_driver.quit()
+    except:
+        pass
     selenium_driver = init_selenium_driver(headless=not is_debug())
     write_session("selenium_driver", selenium_driver)
-

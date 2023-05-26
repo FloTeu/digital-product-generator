@@ -19,8 +19,9 @@ from typing import List
 from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io
 from digiprod_gen.backend.transform.transform_fns import extend_mba_product
 from digiprod_gen.backend.utils import split_list
+from digiprod_gen.backend.crawling.selenium_fns import mba_overview_search
 from digiprod_gen.constants import MAX_SHIRTS_PER_ROW
-
+from digiprod_gen.frontend.session import reset_selenium_driver
 from digiprod_gen.frontend.session import read_session, write_session
 from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
 
@@ -42,10 +43,17 @@ def get_selected_mba_products_by_url(request: CrawlingMBARequest) -> List[MBAPro
     return get_selected_mba_products(mba_products)
 
 
-def crawl_mba_details(request, driver):
+def crawl_mba_details(request):
     # with tab_crawling:
     mba_products = read_session([request.get_hash_str(), "mba_products"])
     headers = request.headers
+    driver = read_session("selenium_driver")
+    # if driver is not active anymore, restart an klick to overview page
+    if not driver.service.is_connectable():
+        reset_selenium_driver()
+        driver = read_session("selenium_driver")
+        driver.get(request.mba_overview_url)
+
     mba_products_selected = get_selected_mba_products(mba_products)
     for i, mba_product in enumerate(mba_products_selected):
         mba_product_detailed = read_session(mba_product.asin)
@@ -64,10 +72,12 @@ def crawl_mba_details(request, driver):
             time.sleep(1)
             # Go back to overview page again
             driver.execute_script("window.history.go(-1)")
-        except WebDriverException as e:
-            html_str = driver.page_source
-            str.write(html_str)   
+        except Exception as e:
+            #print(e.message)
             st.exception(e)    
+
+            #html_str = driver.page_source
+            #str.write(html_str)   
 
         # headers["referer"] = request.mba_overview_url
         # response_product_url = requests.get(
@@ -95,13 +105,12 @@ def crawl_mba_details(request, driver):
 
 def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator, st_tab_crawling: DeltaGenerator):
     request: CrawlingMBARequest = read_session("request")
-    driver = read_session("selenium_driver")
     # Make sure user sees overview page and recreate it from session
     crawl_mba_overview_and_display(st_tab_crawling)
 
     with st_tab_ig, st.spinner('Crawling detail pages...'):
         # crawl new detail pages
-        crawl_mba_details(request, driver)
+        crawl_mba_details(request)
         # refresh overview page
         display_overview_products = read_session([request.get_hash_str(), "display_overview_products"])
         display_overview_products.empty()

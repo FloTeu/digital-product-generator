@@ -1,6 +1,5 @@
 
 import math
-import time
 from bs4 import BeautifulSoup
 from io import BytesIO
 from typing import List
@@ -11,7 +10,7 @@ from streamlit.delta_generator import DeltaGenerator
 from selenium.webdriver.common.by import By
 
 from digiprod_gen.backend.crawling.mba.utils import is_mba_product
-from digiprod_gen.backend.crawling.selenium_fns import mba_click_ignore_cookies, mba_search_overview_page, mba_change_postcode
+from digiprod_gen.backend.crawling.selenium_fns import mba_overview_search
 from digiprod_gen.backend.transform.transform_fns import overview_product_tag2mba_product
 from digiprod_gen.constants import MAX_SHIRTS_PER_ROW
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, MBAProduct, MBAMarketplaceDomain
@@ -69,15 +68,7 @@ def crawl_mba_overview2mba_products(request: CrawlingMBARequest, driver):
     
     mba_products: List[MBAProduct] = []
 
-    mba_search_overview_page(request, driver)
-    # wait to act more like a human
-    time.sleep(1)
-    try:
-        mba_click_ignore_cookies(driver)
-    except:
-        pass
-    mba_change_postcode(driver, config.mba_marketplace[request.marketplace].postcode)
-    time.sleep(4) # wait until page is refreshed with new products
+    mba_overview_search(config.mba_marketplace[request.marketplace].postcode)
 
     html_str = driver.page_source
 
@@ -112,3 +103,4 @@ def display_mba_overview_products(mba_products: List[MBAProduct], currency_str: 
 
     crawling_progress_bar.empty()
     write_session([request.get_hash_str(), "display_overview_products"], display_overview_products)
+

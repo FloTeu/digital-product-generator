@@ -13,7 +13,7 @@ from digiprod_gen.backend.utils import is_debug
 def crawling_mba_overview_input(tab_crawling: DeltaGenerator):
     st.sidebar.subheader("1. Crawling MBA Overview")
     st.sidebar.checkbox(label="Speed up Crawling", value=is_debug(), key="speed_up")
-    st.sidebar.text_input(value="Coffee bear", label="Search Term", on_change=update_mba_request, key="search_term")
+    st.sidebar.text_input(value="Unicorn", label="Search Term", on_change=update_mba_request, key="search_term")
     st.sidebar.selectbox("MBA Marketplace",
                                        options=[MBAMarketplaceDomain.COM, MBAMarketplaceDomain.DE], on_change=update_mba_request, key="marketplace")
     st.sidebar.button("Start Crawling", on_click=crawl_mba_overview_and_display, args=(tab_crawling, ))
