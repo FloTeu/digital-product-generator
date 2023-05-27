@@ -54,10 +54,8 @@ def crawl_mba_details(request):
         driver = read_session("selenium_driver")
         config = get_config()
         mba_search_overview_and_change_postcode(request, driver, config.mba_marketplace[request.marketplace].postcode)
-        driver.get(request.mba_overview_url)
 
     mba_products_selected = get_selected_mba_products(mba_products)
-    mba_products_selected = []
     for i, mba_product in enumerate(mba_products_selected):
         mba_product_detailed = read_session(mba_product.asin)
         if mba_product_detailed != None:
@@ -69,16 +67,17 @@ def crawl_mba_details(request):
 
         time.sleep(0.5)
         try:
-            element = driver.find_element(By.XPATH, f"//*[@data-asin='{mba_product.asin}']")
-
+            #element = driver.find_element(By.XPATH, f"//*[@data-asin='{mba_product.asin}']")
             # Find the title (clickable) element
-            title_element = element.find_element(By.XPATH, "//h2//a")
-            title_element.click()
+            #title_element = element.find_element(By.XPATH, "//h2//a")
+            #title_element.click()
 
+            driver.get(mba_product.product_url)
             html_str = driver.page_source
             time.sleep(1)
             # Go back to overview page again
-            driver.execute_script("window.history.go(-1)")
+            #driver.execute_script("window.history.go(-1)")
+
         except Exception as e:
             #print(e.message)
             st.exception(e)
@@ -107,13 +106,14 @@ def crawl_mba_details(request):
         write_session(mba_product.asin, mba_product_detailed)
         mba_products_selected[i] = mba_product_detailed
         #mba_products[selected_designs_i[i]] = mba_product_detailed
+    # move back to overview page
+    driver.get(request.mba_overview_url)
     write_session([request.get_hash_str(), "mba_products"], mba_products)
     return mba_products_selected
 
 
 def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator, st_tab_crawling: DeltaGenerator):
     request: CrawlingMBARequest = read_session("request")
-    # Make sure user sees overview page and recreate it from session
     # crawl_mba_overview_and_display(st_tab_crawling)
 
     with st_tab_ig, st.spinner('Crawling detail pages...'):
@@ -122,8 +122,10 @@ def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator, st_tab_crawlin
         # refresh overview page
         display_overview_products = read_session([request.get_hash_str(), "display_overview_products"])
         display_overview_products.empty()
-
+        
+    # Make sure user sees overview page and recreate it from session
     crawl_mba_overview_and_display(st_tab_crawling)
+
     write_session([request.get_hash_str(), "detail_pages_crawled"], True)
 
 
