@@ -57,6 +57,7 @@ def crawl_mba_details(request):
         driver.get(request.mba_overview_url)
 
     mba_products_selected = get_selected_mba_products(mba_products)
+    mba_products_selected = []
     for i, mba_product in enumerate(mba_products_selected):
         mba_product_detailed = read_session(mba_product.asin)
         if mba_product_detailed != None:
@@ -73,7 +74,7 @@ def crawl_mba_details(request):
             # Find the title (clickable) element
             title_element = element.find_element(By.XPATH, "//h2//a")
             title_element.click()
-            
+
             html_str = driver.page_source
             time.sleep(1)
             # Go back to overview page again
@@ -113,7 +114,7 @@ def crawl_mba_details(request):
 def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator, st_tab_crawling: DeltaGenerator):
     request: CrawlingMBARequest = read_session("request")
     # Make sure user sees overview page and recreate it from session
-    crawl_mba_overview_and_display(st_tab_crawling)
+    # crawl_mba_overview_and_display(st_tab_crawling)
 
     with st_tab_ig, st.spinner('Crawling detail pages...'):
         # crawl new detail pages
