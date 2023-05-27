@@ -76,7 +76,7 @@ def crawl_mba_details(request):
             driver.execute_script("window.history.go(-1)")
         except Exception as e:
             #print(e.message)
-            st.exception(e)    
+            st.exception(e)
             continue
 
             #html_str = driver.page_source
@@ -133,5 +133,6 @@ def display_mba_products(st_tab_ig: DeltaGenerator, mba_products_selected: List[
                     display_cols[i].image(image_bytes_io)
                     display_cols[i].markdown(f":black[Brand: {mba_product.brand}]")
                     display_cols[i].markdown(f":black[Title: {mba_product.title}]")
-                    for bullet_i, bullet in enumerate(mba_product.bullets):
-                        display_cols[i].write(f"Bullets {bullet_i+1}: {bullet}")
+                    if mba_product.bullets:
+                        for bullet_i, bullet in enumerate(mba_product.bullets):
+                            display_cols[i].write(f"Bullets {bullet_i+1}: {bullet}")
