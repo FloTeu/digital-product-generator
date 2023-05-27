@@ -16,6 +16,7 @@ from digiprod_gen.frontend.tab.image_generation.selected_products import display
 from digiprod_gen.frontend.tab.image_generation.image_editing import get_image_bytes_by_user, display_image_editor
 from digiprod_gen.frontend.tab.upload.views import display_listing_selection, display_data_for_upload
 from digiprod_gen.frontend.tab.upload.mba_upload import login_to_mba, display_mba_account_tier
+from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
 
 os.environ["OPENAI_API_KEY"] = st.secrets["open_ai_api_key"]
 
@@ -50,6 +51,7 @@ def main():
             total_size_mb = total_size / (1024 * 1024)
             st.write("Selenium data dir disk size (in MB)")
             st.write(total_size_mb)
+            crawl_mba_overview_and_display(tab_crawling)
 
     
     mba_products = read_session([request.get_hash_str(), "mba_products"])
