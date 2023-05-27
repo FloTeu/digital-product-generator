@@ -77,6 +77,7 @@ def crawl_mba_details(request):
         except Exception as e:
             #print(e.message)
             st.exception(e)    
+            continue
 
             #html_str = driver.page_source
             #str.write(html_str)   
