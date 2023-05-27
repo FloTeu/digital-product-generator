@@ -18,7 +18,7 @@ def booleanize(s):
     return s.lower() in ['true', '1']
     
 def is_debug():
-    return booleanize(os.environ.get("DEBUG", False))
+    return booleanize(os.environ.get("DEBUG", "False"))
 
 def delete_files_in_path(path):
     for root, dirs, files in os.walk(path):
