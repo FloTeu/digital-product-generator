@@ -69,7 +69,11 @@ def crawl_mba_details(request):
         time.sleep(0.5)
         try:
             element = driver.find_element(By.XPATH, f"//*[@data-asin='{mba_product.asin}']")
-            element.click()
+
+            # Find the title (clickable) element
+            title_element = element.find_element(By.XPATH, "//h2//a")
+            title_element.click()
+            
             html_str = driver.page_source
             time.sleep(1)
             # Go back to overview page again

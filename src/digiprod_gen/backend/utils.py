@@ -13,15 +13,19 @@ def get_config() -> DigiProdGenConfig:
     module_file_path = os.path.dirname(digiprod_gen.__file__)
     return parse_file_as(DigiProdGenConfig, f"{module_file_path}/backend/config.json")
 
+
+def booleanize(s):
+    return s.lower() in ['true', '1']
+    
 def is_debug():
-    return bool(os.environ.get("DEBUG", False))
+    return booleanize(os.environ.get("DEBUG", False))
 
 def delete_files_in_path(path):
     for root, dirs, files in os.walk(path):
         for file in files:
             file_path = os.path.join(root, file)
             os.remove(file_path)
-            
+
 def split_list(list_obj, split_size):
     return [list_obj[i:i+split_size] for i in range(0, len(list_obj), split_size)]
 

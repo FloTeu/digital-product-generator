@@ -6,9 +6,10 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.remote.webelement import WebElement
 from webdriver_manager.chrome import ChromeDriverManager
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, DigiProdGenConfig, MBAMarketplaceDomain
-
+from digiprod_gen.backend.image.conversion import bytes2pil
 
 
 def init_selenium_driver(headless=True, data_dir_path=None) -> WebDriver:
@@ -30,6 +31,10 @@ def init_selenium_driver(headless=True, data_dir_path=None) -> WebDriver:
 
 def close_selenium_driver(driver: WebDriver):
     driver.quit()
+
+def save_web_element_png(element: WebElement):
+    image_pil = bytes2pil(element.screenshot_as_png)
+    image_pil.save("web_element.png")
 
 
 # TODO: Refactor folowwing mba functions (upload has also some mba specific functions)
@@ -71,6 +76,10 @@ def mba_change_postcode(driver, postcode):
 def mba_search_overview_and_change_postcode(request: CrawlingMBARequest, driver, postcode):
 
     mba_search_overview_page(request, driver)
+    # If selenium is running with headless mode the first request sometimes fails
+    if "something went wrong" in driver.title.lower():
+        mba_search_overview_page(request, driver)
+
     # wait to act more like a human
     time.sleep(1)
     try:
