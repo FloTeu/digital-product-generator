@@ -5,7 +5,7 @@ import digiprod_gen
 
 from selenium.common.exceptions import WebDriverException
 
-from digiprod_gen.backend.utils import is_debug
+from digiprod_gen.backend.utils import is_debug, get_config
 from digiprod_gen.backend.image import conversion as img_conversion
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, DigiProdGenConfig
 from digiprod_gen.backend.upload.selenium_mba import upload_image, click_on_create_new, insert_listing_text, select_products_and_marketplaces, publish_to_mba
@@ -33,6 +33,24 @@ def main():
     sidebar.crawling_mba_overview_input(tab_crawling)
     request: CrawlingMBARequest = read_request()
     predicted_bullets = None
+
+    # TODO: Temp code, please remove again
+    with tab_crawling:
+        if st.button("Get selenium data dir disk size"):
+            config = get_config()
+            total_size = 0
+            for dirpath, dirnames, filenames in os.walk(config.selenium_data_dir_path):
+                for filename in filenames:
+                    filepath = os.path.join(dirpath, filename)
+                    try:
+                        total_size += os.path.getsize(filepath)
+                    except:
+                        pass
+            # Convert size to megabytes
+            total_size_mb = total_size / (1024 * 1024)
+            st.write("Selenium data dir disk size (in MB)")
+            st.write(total_size_mb)
+
     
     mba_products = read_session([request.get_hash_str(), "mba_products"])
     if mba_products != None:

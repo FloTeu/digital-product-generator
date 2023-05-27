@@ -5,7 +5,7 @@ import streamlit as st
 from digiprod_gen.backend.crawling.proxies import get_random_private_proxy
 from digiprod_gen.backend.crawling.mba.utils import get_random_headers
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, MBAProductCategory
-from digiprod_gen.backend.utils import request2mba_overview_url, is_debug
+from digiprod_gen.backend.utils import request2mba_overview_url, is_debug, get_config, delete_files_in_path
 from digiprod_gen.backend.crawling.selenium_fns import init_selenium_driver
 
 
@@ -35,6 +35,7 @@ def read_session(keys: str | List[str]) -> Any:
 
 
 def update_mba_request():
+    config = get_config()
     marketplace = st.session_state["marketplace"]
     search_term = st.session_state["search_term"]
     proxy = get_random_private_proxy(st.secrets.proxy_perfect_privacy.user_name,
@@ -43,15 +44,16 @@ def update_mba_request():
                                  search_term=search_term, headers=get_random_headers(marketplace), proxy=proxy, mba_overview_url=None)
     request.mba_overview_url = request2mba_overview_url(request)
     write_session("request", request)
-    reset_selenium_driver()
+    reset_selenium_driver(config.selenium_data_dir_path)
 
 
-def reset_selenium_driver():
+def reset_selenium_driver(data_dir_path):
     """ If possible quits the existing selenium driver and starts a new one"""
     selenium_driver = read_session("selenium_driver")
     try:
+        delete_files_in_path(data_dir_path)
         selenium_driver.quit()
     except:
         pass
-    selenium_driver = init_selenium_driver(headless=not is_debug())
+    selenium_driver = init_selenium_driver(headless=not is_debug(), data_dir_path=data_dir_path)
     write_session("selenium_driver", selenium_driver)

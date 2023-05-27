@@ -11,12 +11,18 @@ from digiprod_gen.backend.data_classes import CrawlingMBARequest, DigiProdGenCon
 
 
 
-def init_selenium_driver(headless=True) -> WebDriver:
+def init_selenium_driver(headless=True, data_dir_path=None) -> WebDriver:
     """Instantiate a WebDriver object (in this case, using Chrome)"""
     options = Options() #either firefox or chrome options
     options.add_argument('--disable-gpu')
     # sandbox may cause error on environments like Docker containers
     options.add_argument('--no-sandbox')
+    options.add_argument("--disable-extensions")
+    options.add_argument('--blink-settings=imagesEnabled=false')
+    options.add_argument('--disk-cache-size=10000000')  # Set cache size to 10 MB
+    if data_dir_path:
+        options.add_argument(f'--user-data-dir={data_dir_path}')
+
     if headless:
         options.add_argument('--headless')
     return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
@@ -48,7 +54,7 @@ def mba_change_postcode(driver, postcode):
 
     # Submit the form
     driver.find_element(By.ID, "GLUXZipUpdate").click() # apply new postcode
-    time.sleep(0.25)
+    time.sleep(1)
 
     # submit form
     # Find the element with class "a-popover-footer"
