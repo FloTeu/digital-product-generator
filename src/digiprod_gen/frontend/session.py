@@ -14,9 +14,23 @@ class SeleniumBrowser():
     def __init__(self) -> None:
         self.driver = None
         self.is_ready = False
+        self.data_dir_path = None
+        self.headless = None
 
     def setup(self, headless=False, data_dir_path=None):
         self.driver = init_selenium_driver(headless=headless, data_dir_path=data_dir_path)
+        self.headless = headless
+        self.data_dir_path = data_dir_path
+        self.is_ready = True
+
+    def reset_driver(self):
+        """ If possible quits the existing selenium driver and starts a new one"""
+        try:
+            delete_files_in_path(self.data_dir_path)
+            self.driver.quit()
+        except:
+            pass
+        self.driver = init_selenium_driver(headless=self.headless, data_dir_path=self.data_dir_path)
 
 @dataclass
 class SessionState:
@@ -26,8 +40,9 @@ class SessionState:
 def create_session_state():
     """Creates a session state if its not already exists"""
     if read_session("session_state") == None:
+        config = get_config()
         browser = SeleniumBrowser()
-        browser.setup()
+        browser.setup(headless=not is_debug(), data_dir_path=config.selenium_data_dir_path)
         marketplace = st.session_state["marketplace"]
         search_term = st.session_state["search_term"]
         proxy = get_random_private_proxy(st.secrets.proxy_perfect_privacy.user_name,
