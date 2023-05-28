@@ -43,11 +43,10 @@ def get_selected_mba_products_by_url(request: CrawlingMBARequest) -> List[MBAPro
     return get_selected_mba_products(mba_products)
 
 
-def crawl_mba_details(request):
+def crawl_mba_details(request, driver):
     # with tab_crawling:
     mba_products = read_session([request.get_hash_str(), "mba_products"])
     headers = request.headers
-    driver = read_session("selenium_driver")
     # if driver is not active anymore, restart an klick to overview page
     if not driver.service.is_connectable():
         reset_selenium_driver()
@@ -112,13 +111,13 @@ def crawl_mba_details(request):
     return mba_products_selected
 
 
-def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator, st_tab_crawling: DeltaGenerator):
+def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator, st_tab_crawling: DeltaGenerator, driver):
     request: CrawlingMBARequest = read_session("request")
     # crawl_mba_overview_and_display(st_tab_crawling)
 
     with st_tab_ig, st.spinner('Crawling detail pages...'):
         # crawl new detail pages
-        crawl_mba_details(request)
+        crawl_mba_details(request, driver)
         # refresh overview page
         display_overview_products = read_session([request.get_hash_str(), "display_overview_products"])
         display_overview_products.empty()

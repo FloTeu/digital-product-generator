@@ -7,11 +7,10 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.remote.webelement import WebElement
-from webdriver_manager.chrome import ChromeDriverManager
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, DigiProdGenConfig, MBAMarketplaceDomain
 from digiprod_gen.backend.image.conversion import bytes2pil
 
-
+@st.cache(allow_output_mutation=True)
 def init_selenium_driver(headless=True, data_dir_path=None) -> WebDriver:
     """Instantiate a WebDriver object (in this case, using Chrome)"""
     options = Options() #either firefox or chrome options
@@ -21,12 +20,17 @@ def init_selenium_driver(headless=True, data_dir_path=None) -> WebDriver:
     options.add_argument("--disable-extensions")
     options.add_argument('--blink-settings=imagesEnabled=false')
     options.add_argument('--disk-cache-size=10000000')  # Set cache size to 10 MB
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-features=NetworkService")
+    options.add_argument("--window-size=1920x1080")
+    options.add_argument("--disable-features=VizDisplayCompositor")
     if data_dir_path:
         options.add_argument(f'--user-data-dir={data_dir_path}')
 
     if headless:
         options.add_argument('--headless')
-    return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    return webdriver.Chrome(options=options)
+    #return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 
 def close_selenium_driver(driver: WebDriver):

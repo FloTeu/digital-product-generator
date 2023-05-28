@@ -19,10 +19,10 @@ def crawling_mba_overview_input(tab_crawling: DeltaGenerator):
     st.sidebar.button("Start Crawling", on_click=crawl_mba_overview_and_display, args=(tab_crawling, ))
 
 
-def crawling_mba_details_input(mba_products, tab_crawling: DeltaGenerator, tab_ig: DeltaGenerator):
+def crawling_mba_details_input(mba_products, tab_crawling: DeltaGenerator, tab_ig: DeltaGenerator, driver):
     st.sidebar.subheader("2. Crawling MBA Product Pages")
     st.sidebar.multiselect("Select Designs for prompt generation:", [i+1 for i in range(len(mba_products))], key='selected_designs', on_change=crawl_mba_overview_and_display, args=(tab_crawling, ))
-    st.sidebar.button("Start Crawling Details", on_click=crawl_details_update_overview_page, args=(tab_ig, tab_crawling, ), key="button_crawl_detail")
+    st.sidebar.button("Start Crawling Details", on_click=crawl_details_update_overview_page, args=(tab_ig, tab_crawling, driver), key="button_crawl_detail")
 
 
 def prompt_generation_input(tab_crawling: DeltaGenerator, tab_ig: DeltaGenerator):

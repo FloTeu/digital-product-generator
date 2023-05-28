@@ -38,6 +38,21 @@ If it not exists yet, you have to create some credentials/api keys:
 2. scrape ops api key: https://scrapeops.io/app/settings
 3. perfect privacy credentials: https://www.perfect-privacy.com/en
 
+## Local Setup
+### Setup Docker Container similar to streamlit cloud container
+```console
+docker build --progress=plain --tag digiprod-gen:latest .
+```
+
+### Run custom Docker Container
+
+```console
+docker run -ti -p 8501:8501 --rm digiprod-gen:latest
+docker run -ti -p 8501:8501 --rm digiprod-gen:latest /bin/bash
+docker run -ti -p 8501:8501 -v $(pwd):/app --rm digiprod-gen:latest  # linux
+docker run -ti -p 8501:8501 -v ${pwd}:/app --rm digiprod-gen:latest  # powershell
+docker run -ti -p 8501:8501 -v %cd%:/app --rm digiprod-gen:latest  # cmd.exe
+```
 
 
 

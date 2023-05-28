@@ -56,7 +56,8 @@ def main():
     
     mba_products = read_session([request.get_hash_str(), "mba_products"])
     if mba_products != None:
-        sidebar.crawling_mba_details_input(mba_products, tab_crawling, tab_ig)
+        driver = read_session("selenium_driver")
+        sidebar.crawling_mba_details_input(mba_products, tab_crawling, tab_ig, driver)
 
         mba_products_selected = get_selected_mba_products_by_url(request)
         if mba_products_selected and read_session([request.get_hash_str(), "detail_pages_crawled"]):
