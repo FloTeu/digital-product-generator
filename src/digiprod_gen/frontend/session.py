@@ -5,32 +5,11 @@ import streamlit as st
 
 from digiprod_gen.backend.crawling.proxies import get_random_private_proxy
 from digiprod_gen.backend.crawling.mba.utils import get_random_headers
+from digiprod_gen.backend.crawling.selenium_fns import SeleniumBrowser
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, MBAProductCategory
 from digiprod_gen.backend.utils import request2mba_overview_url, is_debug, get_config, delete_files_in_path
 from digiprod_gen.backend.crawling.selenium_fns import init_selenium_driver
 
-
-class SeleniumBrowser():
-    def __init__(self) -> None:
-        self.driver = None
-        self.is_ready = False
-        self.data_dir_path = None
-        self.headless = None
-
-    def setup(self, headless=False, data_dir_path=None):
-        self.driver = init_selenium_driver(headless=headless, data_dir_path=data_dir_path)
-        self.headless = headless
-        self.data_dir_path = data_dir_path
-        self.is_ready = True
-
-    def reset_driver(self):
-        """ If possible quits the existing selenium driver and starts a new one"""
-        try:
-            delete_files_in_path(self.data_dir_path)
-            self.driver.quit()
-        except:
-            pass
-        self.driver = init_selenium_driver(headless=self.headless, data_dir_path=self.data_dir_path)
 
 @dataclass
 class SessionState:
