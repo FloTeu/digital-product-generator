@@ -111,9 +111,13 @@ def crawl_mba_details(request, driver):
     return mba_products_selected
 
 
-def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator, st_tab_crawling: DeltaGenerator, driver):
-    request: CrawlingMBARequest = read_session("request")
+def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator, st_tab_crawling: DeltaGenerator, driver=None):
+    #request: CrawlingMBARequest = read_session("request")
     # crawl_mba_overview_and_display(st_tab_crawling)
+
+    session_state = read_session("session_state")
+    request: CrawlingMBARequest = session_state.crawling_request
+    driver = session_state.browser.driver
 
     with st_tab_ig, st.spinner('Crawling detail pages...'):
         # crawl new detail pages

@@ -16,15 +16,17 @@ from digiprod_gen.constants import MAX_SHIRTS_PER_ROW
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, MBAProduct, MBAMarketplaceDomain
 from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io, send_mba_overview_request
 from digiprod_gen.backend.utils import get_price_display_str, marketplace2currency, split_list
-from digiprod_gen.frontend.session import read_session, update_mba_request, write_session
+from digiprod_gen.frontend.session import read_session, update_mba_request, write_session, create_session_state, SessionState
 from digiprod_gen.backend.utils import is_debug, get_config
 
 def crawl_mba_overview_and_display(st_element: DeltaGenerator):
     """ Display overview products to frontend.
         If data is not available in session already, the data is crawled.
     """
-    request: CrawlingMBARequest = read_session("request")
-    driver = read_session("selenium_driver")
+    create_session_state()
+    session_state: SessionState = read_session("session_state")
+    request: CrawlingMBARequest = session_state.crawling_request
+    driver = session_state.browser.driver
     marketplace = request.marketplace
     with st_element:
         display_start_crawling = st.empty()

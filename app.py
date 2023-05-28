@@ -23,6 +23,7 @@ os.environ["OPENAI_API_KEY"] = st.secrets["open_ai_api_key"]
 st.header("MBA Product Generator")
 tab_crawling, tab_ig, tab_upload = st.tabs(["Crawling", "Image Generation", "MBA Upload"])
 
+
 def read_request():
     request = read_session("request")
     if request == None:
@@ -37,7 +38,6 @@ def main():
 
     # TODO: Temp code, please remove again
     config = get_config()
-    reset_selenium_driver(config.selenium_data_dir_path)
     with tab_crawling:
         if st.button("Get selenium data dir disk size"):
             total_size = 0
@@ -57,8 +57,8 @@ def main():
     
     mba_products = read_session([request.get_hash_str(), "mba_products"])
     if mba_products != None:
-        driver = read_session("selenium_driver")
-        sidebar.crawling_mba_details_input(mba_products, tab_crawling, tab_ig, driver)
+        #driver = read_session("selenium_driver")
+        sidebar.crawling_mba_details_input(mba_products, tab_crawling, tab_ig, None)
 
         mba_products_selected = get_selected_mba_products_by_url(request)
         if mba_products_selected and read_session([request.get_hash_str(), "detail_pages_crawled"]):
