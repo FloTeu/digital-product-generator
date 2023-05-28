@@ -5,7 +5,7 @@ from typing import Optional
 
 from digiprod_gen.backend.image.background_removal import remove_outer_pixels
 from digiprod_gen.backend.image.upscale import pil_upscale
-from digiprod_gen.frontend.session import read_session, write_session
+from digiprod_gen.backend.data_classes.session import ImageGenData
 
 
 def get_image_bytes_by_user() -> bytes | None:
@@ -15,9 +15,9 @@ def get_image_bytes_by_user() -> bytes | None:
     return image if image == None else image.getvalue()
 
 
-def display_image_editor(image_pil: Image, background_removal_buffer=0) -> Image:
+def display_image_editor(image_pil: Image, session_image_gen_data: ImageGenData, background_removal_buffer=0) -> Image:
     st.image(image_pil)
-    image_pil_br: Image = image_background_removal(image_pil, buffer=background_removal_buffer)
+    image_pil_br: Image = image_background_removal(image_pil, buffer=background_removal_buffer, session_image_gen_data=session_image_gen_data)
     return image_upscaling(image_pil_br)
 
 def image_upscaling(image_pil: Image) -> Image:
@@ -28,13 +28,13 @@ def image_upscaling(image_pil: Image) -> Image:
         st.image(image_pil_br_upscale)
         return image_pil_br_upscale
 
-def image_background_removal(image_pil: Image, buffer) -> Image:
+def image_background_removal(image_pil: Image, buffer, session_image_gen_data: ImageGenData) -> Image:
     if st.button("Remove Background"):
         st.write("Removed Background")
         image_pil_br = remove_outer_pixels(image_pil, buffer=buffer)
-        write_session("image_pil_br", image_pil_br)
+        session_image_gen_data.image_pil_background_removed = image_pil_br
         # TODO: How to handle result pil
         st.image(image_pil_br)
         return image_pil_br
     else:
-        return read_session("image_pil_br")
+        return session_image_gen_data.image_pil_background_removed

@@ -8,58 +8,42 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import WebDriverException
 
-from digiprod_gen.backend.data_classes import CrawlingMBARequest, MBAProduct
+from digiprod_gen.backend.data_classes.mba import MBAProduct
 
 
 import streamlit as st
 
 
-from operator import itemgetter
 from typing import List
+from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest
+from digiprod_gen.backend.data_classes.session import CrawlingData, SessionState
 from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io
 from digiprod_gen.backend.transform.transform_fns import extend_mba_product
 from digiprod_gen.backend.utils import split_list, get_config
-from digiprod_gen.backend.browser.selenium_fns import mba_search_overview_and_change_postcode
+from digiprod_gen.backend.browser.crawling.selenium_mba import search_overview_and_change_postcode
+from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser
 from digiprod_gen.constants import MAX_SHIRTS_PER_ROW
-from digiprod_gen.frontend.session import reset_selenium_driver
 from digiprod_gen.frontend.session import read_session, write_session
 from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
 
 
-def get_selected_mba_products(mba_products) -> List[MBAProduct]:
-    selected_designs = st.session_state['selected_designs']
-    # transform human selection to machine index
-    selected_designs_i = [i - 1 for i in selected_designs]
-    if not selected_designs:
-        return []
-    if len(selected_designs_i) == 1:
-        return [mba_products[selected_designs_i[0]]]
-    else:
-        return list(itemgetter(*selected_designs_i)(mba_products))
 
 
-def get_selected_mba_products_by_url(request: CrawlingMBARequest) -> List[MBAProduct]:
-    mba_products = read_session([request.get_hash_str(), "mba_products"])
-    return get_selected_mba_products(mba_products)
-
-
-def crawl_mba_details(request, driver):
-    # with tab_crawling:
-    mba_products = read_session([request.get_hash_str(), "mba_products"])
-    headers = request.headers
-    # if driver is not active anymore, restart an klick to overview page
-    if not driver.service.is_connectable():
-        reset_selenium_driver()
-        driver = read_session("selenium_driver")
+def crawl_mba_details(session_state: SessionState):
+    request = session_state.crawling_request
+    browser: SeleniumBrowser = session_state.browser
+    crawling_data: CrawlingData = session_state.crawling_data
+    
+    # if driver is not active anymore, restart an click to overview page
+    if not browser.driver.service.is_connectable():
+        browser.reset_driver()
         config = get_config()
-        mba_search_overview_and_change_postcode(request, driver, config.mba_marketplace[request.marketplace].postcode)
+        search_overview_and_change_postcode(request, browser.driver, config.mba_marketplace[request.marketplace].postcode)
 
-    mba_products_selected = get_selected_mba_products(mba_products)
+    mba_products_selected = crawling_data.get_selected_mba_products(read_session("selected_designs"))
     for i, mba_product in enumerate(mba_products_selected):
-        mba_product_detailed = read_session(mba_product.asin)
-        if mba_product_detailed != None:
-            # Detailed mba product is already available in session
-            mba_products_selected[i] = mba_product_detailed
+        # Detailed mba product is already available in session
+        if mba_product.bullets != None:
             continue
         # Else crawl detail information
         mba_product_detailed = mba_product
@@ -71,8 +55,8 @@ def crawl_mba_details(request, driver):
             #title_element = element.find_element(By.XPATH, "//h2//a")
             #title_element.click()
 
-            driver.get(mba_product.product_url)
-            html_str = driver.page_source
+            browser.driver.get(mba_product.product_url)
+            html_str = browser.driver.page_source
             time.sleep(1)
             # Go back to overview page again
             #driver.execute_script("window.history.go(-1)")
@@ -102,12 +86,11 @@ def crawl_mba_details(request, driver):
         # call by reference change of mba_products
         extend_mba_product(mba_product_detailed, soup, request.marketplace)
         # save data to session
-        write_session(mba_product.asin, mba_product_detailed)
+        # write_session(mba_product.asin, mba_product_detailed)
         mba_products_selected[i] = mba_product_detailed
         #mba_products[selected_designs_i[i]] = mba_product_detailed
     # move back to overview page
-    driver.get(request.mba_overview_url)
-    write_session([request.get_hash_str(), "mba_products"], mba_products)
+    browser.driver.get(request.mba_overview_url)
     return mba_products_selected
 
 
@@ -115,21 +98,19 @@ def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator, st_tab_crawlin
     #request: CrawlingMBARequest = read_session("request")
     # crawl_mba_overview_and_display(st_tab_crawling)
 
-    session_state = read_session("session_state")
+    session_state: SessionState = read_session("session_state")
     request: CrawlingMBARequest = session_state.crawling_request
-    driver = session_state.browser.driver
 
     with st_tab_ig, st.spinner('Crawling detail pages...'):
         # crawl new detail pages
-        crawl_mba_details(request, driver)
+        crawl_mba_details(session_state)
         # refresh overview page
         display_overview_products = read_session([request.get_hash_str(), "display_overview_products"])
         display_overview_products.empty()
         
     # Make sure user sees overview page and recreate it from session
     crawl_mba_overview_and_display(st_tab_crawling)
-
-    write_session([request.get_hash_str(), "detail_pages_crawled"], True)
+    session_state.status.detail_pages_crawled = True
 
 
 def display_mba_products(st_tab_ig: DeltaGenerator, mba_products_selected: List[MBAProduct]):

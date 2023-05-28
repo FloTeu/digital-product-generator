@@ -3,7 +3,8 @@ import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 
 from digiprod_gen.frontend.session import update_mba_request
-from digiprod_gen.backend.data_classes import MBAMarketplaceDomain
+from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
+from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
 from digiprod_gen.frontend.tab.image_generation.selected_products import crawl_details_update_overview_page
 from digiprod_gen.frontend.tab.image_generation.prompt_generation import prompt_generation_refresh_overview
@@ -36,8 +37,9 @@ def mab_login_input(tab_upload: DeltaGenerator):
     st.sidebar.text_input("MBA Password", type="password", value=os.environ.get("mba_password", ""), key="mba_password")
     st.sidebar.button("Login", on_click=login_to_mba, args=(tab_upload, ), key="button_mba_login")
 
-def mba_otp_input(driver):
+def mba_otp_input(session_state: SessionState):
     # Only show input if amazon asks for otp
+    driver = session_state.browser.driver
     if driver and "verification" in driver.page_source.lower() and "otp" in driver.page_source.lower():
         otp_code = st.sidebar.text_input("OTP")
-        st.sidebar.button("Send OTP Token", on_click=mba_otp_verification, args=(driver, otp_code, ), key="button_send_otp_token")
+        st.sidebar.button("Send OTP Token", on_click=mba_otp_verification, args=(session_state, otp_code, ), key="button_send_otp_token")

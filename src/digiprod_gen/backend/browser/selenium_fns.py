@@ -4,7 +4,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
-from digiprod_gen.backend.data_classes import DigiProdGenConfig, MBAMarketplaceDomain
+from digiprod_gen.backend.data_classes.common import DigiProdGenConfig
+from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
 from digiprod_gen.backend.image.conversion import bytes2pil
 from digiprod_gen.backend.utils import delete_files_in_path
 

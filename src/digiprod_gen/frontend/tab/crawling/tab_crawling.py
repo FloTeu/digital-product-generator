@@ -10,20 +10,22 @@ from streamlit.delta_generator import DeltaGenerator
 from selenium.webdriver.common.by import By
 
 from digiprod_gen.backend.browser.crawling.mba.utils import is_mba_product
-from digiprod_gen.backend.browser.selenium_fns import mba_search_overview_and_change_postcode
+from digiprod_gen.backend.browser.crawling.selenium_mba import search_overview_and_change_postcode
+from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketplaceDomain
+from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.transform.transform_fns import overview_product_tag2mba_product
 from digiprod_gen.constants import MAX_SHIRTS_PER_ROW
-from digiprod_gen.backend.data_classes import CrawlingMBARequest, MBAProduct, MBAMarketplaceDomain
+from digiprod_gen.backend.data_classes.mba import MBAProduct
 from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io, send_mba_overview_request
 from digiprod_gen.backend.utils import get_price_display_str, marketplace2currency, split_list
-from digiprod_gen.frontend.session import read_session, update_mba_request, write_session, create_session_state, SessionState
+from digiprod_gen.frontend.session import read_session, update_mba_request, write_session, set_session_state_if_not_exists
 from digiprod_gen.backend.utils import is_debug, get_config
 
 def crawl_mba_overview_and_display(st_element: DeltaGenerator):
     """ Display overview products to frontend.
         If data is not available in session already, the data is crawled.
     """
-    create_session_state()
+    set_session_state_if_not_exists()
     session_state: SessionState = read_session("session_state")
     request: CrawlingMBARequest = session_state.crawling_request
     driver = session_state.browser.driver
@@ -33,10 +35,9 @@ def crawl_mba_overview_and_display(st_element: DeltaGenerator):
         display_start_crawling.write("Start crawling...")
         currency_str = marketplace2currency(marketplace)
 
-        mba_products = read_session([request.get_hash_str(), "mba_products"])
+        mba_products = session_state.crawling_data.mba_products
         if not mba_products:
-            crawl_mba_overview2mba_products(request, driver)
-            mba_products = read_session([request.get_hash_str(), "mba_products"])
+            crawl_mba_overview2mba_products(session_state)
 
         if read_session("speed_up"):
             mba_products = mba_products[0:8]
@@ -47,7 +48,7 @@ def crawl_mba_overview_and_display(st_element: DeltaGenerator):
         display_start_crawling.empty()
 
 
-def crawl_mba_overview2mba_products(request: CrawlingMBARequest, driver):
+def crawl_mba_overview2mba_products(session_state: SessionState):
     """ Crawl mba overview page and retry until the server returns a 200 status code.
         Transforms html to list of MBAProduct objects and stores them in session.
     """
@@ -68,11 +69,13 @@ def crawl_mba_overview2mba_products(request: CrawlingMBARequest, driver):
     # except requests.exceptions.ConnectTimeout:
     #     response = resend_request()
     # html_str = response.content
+    request = session_state.crawling_request
+    driver = session_state.browser.driver
     config = get_config()
     
     mba_products: List[MBAProduct] = []
 
-    mba_search_overview_and_change_postcode(request, driver, config.mba_marketplace[request.marketplace].postcode)
+    search_overview_and_change_postcode(request, driver, config.mba_marketplace[request.marketplace].postcode)
 
     html_str = driver.page_source
 
@@ -83,9 +86,10 @@ def crawl_mba_overview2mba_products(request: CrawlingMBARequest, driver):
     for product_tag in mba_product_tags:
         mba_product: MBAProduct = overview_product_tag2mba_product(product_tag, marketplace=request.marketplace)
         mba_products.append(mba_product)
-    # save to session
-    write_session([request.get_hash_str(), "mba_products"], mba_products)
-
+    # Save to session
+    session_state.crawling_data.mba_products = mba_products
+    # Update status
+    session_state.status.overview_page_crawled = True
 
 def display_mba_overview_products(mba_products: List[MBAProduct], currency_str: str, marketplace: MBAMarketplaceDomain, request: CrawlingMBARequest):
     """ Displays already crawled mba overview products to frontend.
@@ -106,5 +110,6 @@ def display_mba_overview_products(mba_products: List[MBAProduct], currency_str: 
             display_cols[i].write(f"Price: {get_price_display_str(marketplace, mba_product.price, currency_str)}")
 
     crawling_progress_bar.empty()
+    # TODO: Might put into sessionstate as well, or check if this is really required in session?
     write_session([request.get_hash_str(), "display_overview_products"], display_overview_products)
 

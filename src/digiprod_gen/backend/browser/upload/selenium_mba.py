@@ -8,8 +8,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver import FirefoxOptions
 import tempfile
+from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
 from digiprod_gen.backend.io.io_fns import save_img_to_memory
-from digiprod_gen.backend.data_classes import MBAMarketplaceDomain, MBAProductCategory
+from digiprod_gen.backend.data_classes.mba import MBAProductCategory
 from digiprod_gen.backend.transform.transform_fns import mba_product_category2html_row_name
 from PIL import Image
 from typing import List

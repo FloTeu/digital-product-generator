@@ -1,7 +1,7 @@
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 import time
-from digiprod_gen.backend.data_classes import CrawlingMBARequest
+from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest
 
 
 from selenium.webdriver.chrome.webdriver import WebDriver

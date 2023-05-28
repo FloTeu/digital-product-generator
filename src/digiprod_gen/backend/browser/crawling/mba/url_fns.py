@@ -1,5 +1,5 @@
 
-from digiprod_gen.backend.data_classes import MBAMarketplaceDomain
+from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
 
 
 

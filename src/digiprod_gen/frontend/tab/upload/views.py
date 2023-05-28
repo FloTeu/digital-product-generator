@@ -1,4 +1,3 @@
-from digiprod_gen.frontend.session import read_session
 from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
 
 
