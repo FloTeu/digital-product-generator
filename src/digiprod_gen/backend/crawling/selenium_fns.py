@@ -10,7 +10,6 @@ from selenium.webdriver.remote.webelement import WebElement
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, DigiProdGenConfig, MBAMarketplaceDomain
 from digiprod_gen.backend.image.conversion import bytes2pil
 
-@st.cache(allow_output_mutation=True)
 def init_selenium_driver(headless=True, data_dir_path=None) -> WebDriver:
     """Instantiate a WebDriver object (in this case, using Chrome)"""
     options = Options() #either firefox or chrome options

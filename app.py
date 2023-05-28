@@ -9,7 +9,7 @@ from digiprod_gen.backend.utils import is_debug, get_config
 from digiprod_gen.backend.image import conversion as img_conversion
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, DigiProdGenConfig
 from digiprod_gen.backend.upload.selenium_mba import upload_image, click_on_create_new, insert_listing_text, select_products_and_marketplaces, publish_to_mba
-from digiprod_gen.frontend.session import read_session, update_mba_request, write_session
+from digiprod_gen.frontend.session import read_session, update_mba_request, write_session, reset_selenium_driver
 from digiprod_gen.frontend import sidebar
 from digiprod_gen.frontend.tab.image_generation.selected_products import get_selected_mba_products_by_url
 from digiprod_gen.frontend.tab.image_generation.selected_products import display_mba_products
@@ -36,9 +36,10 @@ def main():
     predicted_bullets = None
 
     # TODO: Temp code, please remove again
+    config = get_config()
+    reset_selenium_driver(config.selenium_data_dir_path)
     with tab_crawling:
         if st.button("Get selenium data dir disk size"):
-            config = get_config()
             total_size = 0
             for dirpath, dirnames, filenames in os.walk(config.selenium_data_dir_path):
                 for filename in filenames:
