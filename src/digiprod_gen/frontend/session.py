@@ -3,12 +3,11 @@ from dataclasses import dataclass
 
 import streamlit as st
 
-from digiprod_gen.backend.crawling.proxies import get_random_private_proxy
-from digiprod_gen.backend.crawling.mba.utils import get_random_headers
-from digiprod_gen.backend.crawling.selenium_fns import SeleniumBrowser
+from digiprod_gen.backend.browser.crawling.proxies import get_random_private_proxy
+from digiprod_gen.backend.browser.crawling.mba.utils import get_random_headers
+from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser, init_selenium_driver
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, MBAProductCategory
 from digiprod_gen.backend.utils import request2mba_overview_url, is_debug, get_config, delete_files_in_path
-from digiprod_gen.backend.crawling.selenium_fns import init_selenium_driver
 
 
 @dataclass

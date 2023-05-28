@@ -1,7 +1,7 @@
 import streamlit as st
 from selenium.webdriver.chrome.webdriver import WebDriver
-from digiprod_gen.backend.crawling.selenium_fns import init_selenium_driver
-from digiprod_gen.backend.upload import selenium_mba
+from digiprod_gen.backend.browser.selenium_fns import init_selenium_driver
+from digiprod_gen.backend.browser.upload import selenium_mba
 from digiprod_gen.frontend.session import write_session, read_session
 from digiprod_gen.backend.image import conversion
 from digiprod_gen.backend.utils import is_debug

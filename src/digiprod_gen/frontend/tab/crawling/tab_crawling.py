@@ -9,8 +9,8 @@ import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 from selenium.webdriver.common.by import By
 
-from digiprod_gen.backend.crawling.mba.utils import is_mba_product
-from digiprod_gen.backend.crawling.selenium_fns import mba_search_overview_and_change_postcode
+from digiprod_gen.backend.browser.crawling.mba.utils import is_mba_product
+from digiprod_gen.backend.browser.selenium_fns import mba_search_overview_and_change_postcode
 from digiprod_gen.backend.transform.transform_fns import overview_product_tag2mba_product
 from digiprod_gen.constants import MAX_SHIRTS_PER_ROW
 from digiprod_gen.backend.data_classes import CrawlingMBARequest, MBAProduct, MBAMarketplaceDomain

@@ -19,7 +19,7 @@ from typing import List
 from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io
 from digiprod_gen.backend.transform.transform_fns import extend_mba_product
 from digiprod_gen.backend.utils import split_list, get_config
-from digiprod_gen.backend.crawling.selenium_fns import mba_search_overview_and_change_postcode
+from digiprod_gen.backend.browser.selenium_fns import mba_search_overview_and_change_postcode
 from digiprod_gen.constants import MAX_SHIRTS_PER_ROW
 from digiprod_gen.frontend.session import reset_selenium_driver
 from digiprod_gen.frontend.session import read_session, write_session
