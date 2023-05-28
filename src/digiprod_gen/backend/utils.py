@@ -3,7 +3,7 @@ import streamlit as st
 from pydantic import parse_file_as
 
 import digiprod_gen
-from digiprod_gen.backend.crawling.mba.utils import get_mba_overview_urls
+from digiprod_gen.backend.browser.crawling.mba.utils import get_mba_overview_urls
 from digiprod_gen.backend.data_classes import (CrawlingMBARequest,
                                                MBAMarketplaceDomain, DigiProdGenConfig)
 

@@ -1,13 +1,13 @@
 import random
 import numpy as np
 from typing import List
-from digiprod_gen.backend.crawling import parser
+from digiprod_gen.backend.browser.crawling import parser
 
 
 from bs4.element import Tag
 
-from digiprod_gen.backend.crawling.mba import url_creator
-from digiprod_gen.backend.crawling.utils import get_headers_list
+from digiprod_gen.backend.browser.crawling.mba import url_creator
+from digiprod_gen.backend.browser.crawling.utils import get_headers_list
 from digiprod_gen.backend.data_classes import MBAMarketplaceDomain, MBAProductCategory
 
 

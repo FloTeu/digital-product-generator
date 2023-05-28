@@ -1,5 +1,5 @@
-from digiprod_gen.backend.crawling import parser
-from digiprod_gen.backend.crawling.mba.utils import is_product_feature_listing
+from digiprod_gen.backend.browser.crawling import parser
+from digiprod_gen.backend.browser.crawling.mba.utils import is_product_feature_listing
 from digiprod_gen.backend.data_classes import MBAMarketplaceDomain, MBAProduct, MBAProductCategory
 
 
