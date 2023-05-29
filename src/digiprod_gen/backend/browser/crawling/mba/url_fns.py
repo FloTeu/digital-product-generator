@@ -16,7 +16,7 @@ def get_main_url(marketplace: MBAMarketplaceDomain):
 
 def get_hidden_keywordys(marketplace):
     if marketplace == MBAMarketplaceDomain.COM:
-        return "ORCA"
+        return "Solid colors: 100% Cotton; Heather Grey: 90% Cotton, 10% Polyester; All Other Heathers: Classic Fit -Sweatshirt"
     elif marketplace == MBAMarketplaceDomain.UK:
         return "Solid colors: 100% Cotton; Heather Grey: 90% Cotton, 10% Polyester; All Other Heathers: Classic Fit -Sweatshirt"
     elif marketplace == MBAMarketplaceDomain.DE:

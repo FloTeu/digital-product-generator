@@ -48,7 +48,7 @@ def init_selenium_driver(headless=True, data_dir_path=None) -> WebDriver:
     # sandbox may cause error on environments like Docker containers
     options.add_argument('--no-sandbox')
     options.add_argument("--disable-extensions")
-    options.add_argument('--blink-settings=imagesEnabled=false')
+    #options.add_argument('--blink-settings=imagesEnabled=false')
     options.add_argument('--disk-cache-size=10000000')  # Set cache size to 10 MB
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-features=NetworkService")

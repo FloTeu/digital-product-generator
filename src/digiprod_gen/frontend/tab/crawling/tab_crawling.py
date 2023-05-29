@@ -36,39 +36,22 @@ def crawl_mba_overview_and_display(st_element: DeltaGenerator):
         currency_str = marketplace2currency(marketplace)
 
         mba_products = session_state.crawling_data.mba_products
-        if not mba_products:
-            crawl_mba_overview2mba_products(session_state)
+        if not mba_products or not session_state.status.overview_page_crawled:
+            mba_products = crawl_mba_overview2mba_products(session_state)
 
         if read_session("speed_up"):
             mba_products = mba_products[0:8]
 
         display_mba_overview_products(mba_products, currency_str, marketplace, request)
-        # Temp button to download html
-        st.download_button('Download HTML', driver.page_source, file_name='mba_overview.html', on_click=crawl_mba_overview_and_display, args=(st_element, ), key="download_overview_html")
-        display_start_crawling.empty()
+        # # Temp button to download html
+        # st.download_button('Download HTML', driver.page_source, file_name='mba_overview.html', on_click=crawl_mba_overview_and_display, args=(st_element, ), key="download_overview_html")
+        # display_start_crawling.empty()
 
 
 def crawl_mba_overview2mba_products(session_state: SessionState):
     """ Crawl mba overview page and retry until the server returns a 200 status code.
         Transforms html to list of MBAProduct objects and stores them in session.
     """
-    # def resend_request():
-    #     # retry with new headers
-    #     update_mba_request()
-    #     request = read_session("request")
-    #     response = send_mba_overview_request(request, timeout=2)
-    #     if response.status_code != 200:
-    #         st.write("Crawling was not successfull")
-    #     return response
-    
-    # # TODO: how to handle error raises?
-    # try:
-    #     response = send_mba_overview_request(request, timeout=2)
-    #     if response.status_code != 200:
-    #         response = resend_request()
-    # except requests.exceptions.ConnectTimeout:
-    #     response = resend_request()
-    # html_str = response.content
     request = session_state.crawling_request
     driver = session_state.browser.driver
     config = get_config()
@@ -90,6 +73,7 @@ def crawl_mba_overview2mba_products(session_state: SessionState):
     session_state.crawling_data.mba_products = mba_products
     # Update status
     session_state.status.overview_page_crawled = True
+    return mba_products
 
 def display_mba_overview_products(mba_products: List[MBAProduct], currency_str: str, marketplace: MBAMarketplaceDomain, request: CrawlingMBARequest):
     """ Displays already crawled mba overview products to frontend.
@@ -110,6 +94,4 @@ def display_mba_overview_products(mba_products: List[MBAProduct], currency_str: 
             display_cols[i].write(f"Price: {get_price_display_str(marketplace, mba_product.price, currency_str)}")
 
     crawling_progress_bar.empty()
-    # TODO: Might put into sessionstate as well, or check if this is really required in session?
-    write_session([request.get_hash_str(), "display_overview_products"], display_overview_products)
 

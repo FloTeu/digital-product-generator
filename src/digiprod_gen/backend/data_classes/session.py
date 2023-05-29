@@ -60,3 +60,4 @@ class SessionState:
     image_gen_data: ImageGenData
     upload_data: MBAUploadData
     status: DigiProdGenStatus
+    session_id: str

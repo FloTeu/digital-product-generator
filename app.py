@@ -9,7 +9,7 @@ from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketp
 from digiprod_gen.backend.utils import is_debug, get_config
 from digiprod_gen.backend.image import conversion as img_conversion
 from digiprod_gen.backend.data_classes.common import DigiProdGenConfig
-from digiprod_gen.backend.data_classes.session import SessionState
+from digiprod_gen.backend.data_classes.session import SessionState, DigiProdGenStatus
 from digiprod_gen.backend.browser.upload.selenium_mba import upload_image, click_on_create_new, insert_listing_text, select_products_and_marketplaces, publish_to_mba
 from digiprod_gen.frontend.session import read_session, update_mba_request, write_session
 from digiprod_gen.frontend import sidebar
@@ -21,8 +21,7 @@ from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_a
 
 os.environ["OPENAI_API_KEY"] = st.secrets["open_ai_api_key"]
 
-st.header("MBA Product Generator")
-tab_crawling, tab_ig, tab_upload = st.tabs(["Crawling", "Image Generation", "MBA Upload"])
+
 
 
 def read_request():
@@ -37,7 +36,7 @@ def read_request():
                                   proxy=None, 
                                   mba_overview_url=None)
     
-def display_selenium_data_dir_size_in_mb():
+def display_selenium_data_dir_size_in_mb(tab_crawling):
     config = get_config()
     with tab_crawling:
         if st.button("Get selenium data dir disk size"):
@@ -55,15 +54,28 @@ def display_selenium_data_dir_size_in_mb():
             st.write(total_size_mb)
             crawl_mba_overview_and_display(tab_crawling)
 
+def display_views(session_state: SessionState | None, tab_crawling, tab_ig, tab_upload):
+    if session_state == None:
+        return None
+    status: DigiProdGenStatus = session_state.status
+    with tab_crawling:
+        if status.overview_page_crawled:
+            crawl_mba_overview_and_display(tab_crawling)
+
 def main():
+    st.header("MBA Product Generator")
+    tab_crawling, tab_ig, tab_upload = st.tabs(["Crawling", "Image Generation", "MBA Upload"])
+    
     sidebar.crawling_mba_overview_input(tab_crawling)
     #request: CrawlingMBARequest = read_request()
     session_state: SessionState | None = read_session("session_state")
 
+    display_views(session_state, tab_crawling, tab_ig, tab_upload)
+
     predicted_bullets = None
 
     # TODO: Temp code, please remove again
-    display_selenium_data_dir_size_in_mb()
+    display_selenium_data_dir_size_in_mb(tab_crawling)
     
     if session_state and session_state.status.overview_page_crawled:
         mba_products = session_state.crawling_data.mba_products

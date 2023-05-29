@@ -104,12 +104,7 @@ def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator, st_tab_crawlin
     with st_tab_ig, st.spinner('Crawling detail pages...'):
         # crawl new detail pages
         crawl_mba_details(session_state)
-        # refresh overview page
-        display_overview_products = read_session([request.get_hash_str(), "display_overview_products"])
-        display_overview_products.empty()
         
-    # Make sure user sees overview page and recreate it from session
-    crawl_mba_overview_and_display(st_tab_crawling)
     session_state.status.detail_pages_crawled = True
 
 

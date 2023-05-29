@@ -12,9 +12,6 @@ from digiprod_gen.backend.utils import request2mba_overview_url, is_debug, get_c
 
 def creat_session_state() -> SessionState:
     config = get_config()
-    browser = SeleniumBrowser()
-    browser.setup(headless=not is_debug(),
-                    data_dir_path=config.selenium_data_dir_path)
     marketplace = st.session_state["marketplace"]
     search_term = st.session_state["search_term"]
     proxy = get_random_private_proxy(st.secrets.proxy_perfect_privacy.user_name,
@@ -25,9 +22,17 @@ def creat_session_state() -> SessionState:
     crawling_data=CrawlingData()
     image_gen_data = ImageGenData()
     upload_data = MBAUploadData()
-    status = DigiProdGenStatus
-    return SessionState(crawling_request=request, browser=browser, crawling_data=crawling_data, image_gen_data=image_gen_data, upload_data=upload_data, status=status)
+    status = DigiProdGenStatus()
+    session_id = get_session_id()
 
+    # selenium browser setup
+    browser = SeleniumBrowser()
+    browser.setup(headless=not is_debug(),
+                    data_dir_path=config.selenium_data_dir_path)
+    return SessionState(crawling_request=request, browser=browser, crawling_data=crawling_data, image_gen_data=image_gen_data, upload_data=upload_data, status=status, session_id=session_id)
+
+def get_session_id():
+    return st.runtime.scriptrunner.add_script_run_ctx().streamlit_script_run_ctx.session_id
 
 def set_session_state_if_not_exists():
     """Creates a session state if its not already exists"""
@@ -72,6 +77,8 @@ def update_mba_request():
     # request = CrawlingMBARequest(marketplace=marketplace, product_category=MBAProductCategory.SHIRT,
     #                              search_term=search_term, headers=get_random_headers(marketplace), proxy=proxy, mba_overview_url=None)
     request.mba_overview_url = request2mba_overview_url(request)
-
+    
+    # TODO: Maybe reset also other status as well
+    session_state.status.overview_page_crawled = False
 
 

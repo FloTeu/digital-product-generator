@@ -1,4 +1,4 @@
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
 import time
 from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest
@@ -58,7 +58,7 @@ def search_overview_and_change_postcode(request: CrawlingMBARequest, driver, pos
         pass
     try:
         change_postcode(driver, postcode)
-    except NoSuchElementException:
+    except (NoSuchElementException, ElementNotInteractableException):
         print("Could not change postcode")
         pass
     time.sleep(3)  # wait until page is refreshed with new products
