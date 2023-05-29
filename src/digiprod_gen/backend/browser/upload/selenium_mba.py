@@ -1,5 +1,7 @@
 import os
 import time
+
+import streamlit as st
 from selenium.webdriver.chrome.webdriver import WebDriver
 #from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.common.by import By
@@ -9,11 +11,14 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver import FirefoxOptions
 import tempfile
 from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
+from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.io.io_fns import save_img_to_memory
 from digiprod_gen.backend.data_classes.mba import MBAProductCategory
 from digiprod_gen.backend.transform.transform_fns import mba_product_category2html_row_name
 from PIL import Image
 from typing import List
+
+from digiprod_gen.frontend.session import set_session_state_if_not_exists, read_session
 
 
 def login_mba(driver: WebDriver, email: str, password: str):
@@ -104,7 +109,7 @@ def upload_image(driver, image_pil: Image):
     # delete file again
     os.remove(temp_file_path)
 
-def insert_listing_text(driver, title: str, brand: str, bullet_1: str, bullet_2: str, description: str | None = None):
+def insert_listing_text(driver, title: str, brand: str, bullet_1: str, bullet_2: str, description: str):
     """Inserts all mba listings i.e. Text, Brand, bullets and description"""
     # Get input objects
     title_input = driver.find_element(By.ID, "designCreator-productEditor-title")
@@ -136,5 +141,18 @@ def publish_to_mba(driver, searchable=True):
         driver.find_element(By.XPATH, "//*[contains(text(), 'Non-searchable')]").find_element(By.NAME, "isDiscoverable").click()
     driver.find_element(By.ID, "submit-button").click()
 
-    
-    
+
+def login_to_mba(tab_upload):
+    set_session_state_if_not_exists()
+    session_state: SessionState = read_session("session_state")
+    with tab_upload, st.spinner('Setup MBA upload...'):
+        # TODO: This might need to be changed as it was copied by browser url directly
+        login_post_url = "https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fmerch.amazon.com%2Fdashboard&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=amzn_gear_us&openid.mode=checkid_setup&language=en_US&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0"
+        session_state.browser.driver.get(login_post_url)
+        if not session_state.status.mba_login_successfull:
+            login_mba(session_state.browser.driver, read_session("mba_email"), read_session("mba_password"))
+    if "your password is incorrect" in session_state.browser.driver.page_source.lower():
+        st.exception(ValueError("Password is incorrect"))
+    elif "verification" not in session_state.browser.driver.page_source.lower():
+        wait_until_dashboard_is_ready(session_state.browser.driver)
+        session_state.status.mba_login_successfull = True

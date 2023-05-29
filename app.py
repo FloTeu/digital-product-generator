@@ -21,9 +21,6 @@ from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_a
 
 os.environ["OPENAI_API_KEY"] = st.secrets["open_ai_api_key"]
 
-
-
-
 def read_request():
     session_state = read_session("session_state")
     if session_state:
@@ -125,20 +122,33 @@ def main():
             if image_pil_upload_ready:
                 predicted_description = f'{read_session("mba_upload_title")} by "{read_session("mba_upload_brand")}". {read_session("mba_upload_bullet_1")} {read_session("mba_upload_bullet_2")}'
                 display_data_for_upload(image_pil_upload_ready, title=read_session("mba_upload_title"), brand=read_session("mba_upload_brand"), bullet_1=read_session("mba_upload_bullet_1"), bullet_2=read_session("mba_upload_bullet_2"), description=predicted_description)
-
-            if read_session("mba_login_successfull"):
+            if not session_state.status.mba_login_successfull:
+                st.warning("Please login with your MBA credentials")
+            else:
                 display_mba_account_tier(session_state.browser.driver)
                 if st.button("Upload product to MBA"):
-                    click_on_create_new(session_state.browser.driver)
-                    select_products_and_marketplaces(session_state.browser.driver, products=[session_state.crawling_request.product_category] , marketplaces=[session_state.crawling_request.marketplace])
-                    upload_image(session_state.browser.driver, image_pil_upload_ready)
-                    if read_session("mba_upload_bullet_1") and read_session("mba_upload_bullet_2"):
-                        st.error('You not defined your listings yet', icon="🚨")
-                    else:
-                        # TODO: how to handle case with Marketplace different to com (language of bullets is german for example but form takes englisch text input)
-                        insert_listing_text(session_state.browser.driver, title=read_session("mba_upload_title"), brand=read_session("mba_upload_brand"), bullet_1=read_session("mba_upload_bullet_1"), bullet_2=read_session("mba_upload_bullet_2"), description=predicted_description)
-                        #publish_to_mba(searchable=not is_debug())
+                    upload_mba_product(session_state, predicted_description, tab_upload)
 
+
+def upload_mba_product(session_state, predicted_description, tab_upload):
+    from digiprod_gen.backend.browser.upload.selenium_mba import login_to_mba
+    import time
+    login_to_mba(tab_upload)
+    image_pil_upload_ready = session_state.image_gen_data.image_pil_upload_ready
+    click_on_create_new(session_state.browser.driver)
+    time.sleep(1)
+    select_products_and_marketplaces(session_state.browser.driver,
+                                     products=[session_state.crawling_request.product_category],
+                                     marketplaces=[session_state.crawling_request.marketplace])
+    upload_image(session_state.browser.driver, image_pil_upload_ready)
+    if read_session("mba_upload_bullet_1") == None and read_session("mba_upload_bullet_2") == None:
+        st.error('You not defined your listings yet', icon="🚨")
+    else:
+        # TODO: how to handle case with Marketplace different to com (language of bullets is german for example but form takes englisch text input)
+        insert_listing_text(session_state.browser.driver, title=read_session("mba_upload_title"),
+                            brand=read_session("mba_upload_brand"), bullet_1=read_session("mba_upload_bullet_1"),
+                            bullet_2=read_session("mba_upload_bullet_2"), description=predicted_description)
+        # publish_to_mba(searchable=not is_debug())
 
 
 if __name__ == "__main__":

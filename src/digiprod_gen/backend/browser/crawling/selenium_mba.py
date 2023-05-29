@@ -18,7 +18,7 @@ def click_ignore_cookies(driver: WebDriver):
 
 def change_postcode(driver, postcode):
     driver.find_element(By.ID, "nav-global-location-popover-link").click()
-    time.sleep(1)
+    time.sleep(1.5)
     try:
         # try to change postcode
         driver.find_element(By.ID, "GLUXChangePostalCodeLink").click()

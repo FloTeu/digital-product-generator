@@ -26,6 +26,7 @@ def creat_session_state() -> SessionState:
     session_id = get_session_id()
 
     # selenium browser setup
+    delete_files_in_path(config.selenium_data_dir_path)
     browser = SeleniumBrowser()
     browser.setup(headless=not is_debug(),
                     data_dir_path=config.selenium_data_dir_path)
