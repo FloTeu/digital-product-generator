@@ -7,7 +7,8 @@ from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
 from digiprod_gen.frontend.tab.image_generation.selected_products import crawl_details_update_overview_page
-from digiprod_gen.frontend.tab.image_generation.prompt_generation import prompt_generation_refresh_overview
+from digiprod_gen.frontend.tab.image_generation.prompt_generation import prompt_generation
+from digiprod_gen.frontend.tab.upload.listing_generation import listing_generation
 from digiprod_gen.frontend.tab.upload.mba_upload import mba_otp_verification
 from digiprod_gen.backend.browser.upload.selenium_mba import login_to_mba
 from digiprod_gen.backend.utils import is_debug
@@ -27,13 +28,17 @@ def crawling_mba_details_input(mba_products, tab_crawling: DeltaGenerator, tab_i
     st.sidebar.button("Start Crawling Details", on_click=crawl_details_update_overview_page, args=(tab_ig, tab_crawling, driver), key="button_crawl_detail")
 
 
-def prompt_generation_input(tab_crawling: DeltaGenerator, tab_ig: DeltaGenerator):
+def prompt_generation_input(tab_ig: DeltaGenerator):
     st.sidebar.subheader("3. Prompt Generation")
-    st.sidebar.button("Start Prompt Generation", on_click=prompt_generation_refresh_overview, args=(tab_ig, tab_crawling, ), key="button_prompt_generation")
+    st.sidebar.button("Start Prompt Generation", on_click=prompt_generation, args=(tab_ig, ), key="button_prompt_generation")
+
+def listing_generation_input(tab_ig: DeltaGenerator):
+    st.sidebar.subheader("4. Listing Generation")
+    st.sidebar.button("Start Listing Generation", on_click=listing_generation, args=(tab_ig, ), key="button_listing_generation")
 
 
 def mab_login_input(tab_upload: DeltaGenerator):
-    st.sidebar.subheader("4. MBA Upload")
+    st.sidebar.subheader("5. MBA Upload")
     st.sidebar.text_input("MBA Email", value=os.environ.get("mba_user_name", ""), key="mba_email")
     st.sidebar.text_input("MBA Password", type="password", value=os.environ.get("mba_password", ""), key="mba_password")
     st.sidebar.button("Login", on_click=login_to_mba, args=(tab_upload, ), key="button_mba_login")

@@ -1,14 +1,12 @@
 
 import streamlit as st
 import os, sys
-import digiprod_gen
 
 from selenium.common.exceptions import WebDriverException
 from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketplaceDomain, MBAProductCategory
 
 from digiprod_gen.backend.utils import is_debug, get_config
 from digiprod_gen.backend.image import conversion as img_conversion
-from digiprod_gen.backend.data_classes.common import DigiProdGenConfig
 from digiprod_gen.backend.data_classes.session import SessionState, DigiProdGenStatus
 from digiprod_gen.backend.browser.upload.selenium_mba import upload_image, click_on_create_new, insert_listing_text, select_products_and_marketplaces, publish_to_mba
 from digiprod_gen.frontend.session import read_session, update_mba_request, write_session
@@ -69,10 +67,8 @@ def main():
 
     display_views(session_state, tab_crawling, tab_ig, tab_upload)
 
-    predicted_bullets = None
-
     # TODO: Temp code, please remove again
-    display_selenium_data_dir_size_in_mb(tab_crawling)
+    #display_selenium_data_dir_size_in_mb(tab_crawling)
     
     if session_state and session_state.status.overview_page_crawled:
         mba_products = session_state.crawling_data.mba_products
@@ -80,17 +76,16 @@ def main():
         sidebar.crawling_mba_details_input(mba_products, tab_crawling, tab_ig, None)
         mba_products_selected = session_state.crawling_data.get_selected_mba_products(read_session("selected_designs"))
         if mba_products_selected and session_state.status.detail_pages_crawled:
-            sidebar.prompt_generation_input(tab_crawling, tab_ig)
+            sidebar.prompt_generation_input(tab_ig)
             predicted_prompts = session_state.image_gen_data.image_gen_prompts
-            predicted_bullets = session_state.upload_data.predicted_bullets
-            predicted_titles = session_state.upload_data.predicted_titles
-            predicted_brands = session_state.upload_data.predicted_brands
-
             display_mba_products(tab_ig, mba_products_selected)
-            if predicted_prompts:
+            if session_state.status.detail_pages_crawled:
                 with tab_ig:
-                    st.subheader("Suggested Prompts")
-                    st.write(predicted_prompts)
+                    if session_state.status.prompts_generated:
+                        st.subheader("Suggested Prompts")
+                        st.write(predicted_prompts)
+                    else:
+                        st.warning('Please click on 3. Prompt Generation')
                     image_bytes: bytes | None = get_image_bytes_by_user()
                     if image_bytes:
                         image_pil = img_conversion.bytes2pil(image_bytes)
@@ -98,14 +93,7 @@ def main():
                         if image_pil_upload_ready:
                             session_state.image_gen_data.image_pil_upload_ready = image_pil_upload_ready
 
-    sidebar.mab_login_input(tab_upload)
-    try:
-        if session_state:
-            sidebar.mba_otp_input(session_state)
-    except WebDriverException:
-        # TODO: Find out why this error is thrown
-        pass
-        
+    # TODO Clean up
     with tab_upload:
         if session_state:
             image_pil_upload_ready = session_state.image_gen_data.image_pil_upload_ready
@@ -115,7 +103,26 @@ def main():
                 if image:
                     image_pil_upload_ready = img_conversion.bytes2pil(image.getvalue())
                     session_state.image_gen_data.image_pil_upload_ready = image_pil_upload_ready
-            
+
+            # listing generation
+            if not session_state.status.listing_generated:
+                st.warning('Please click on 4. Listing Generation')
+            if session_state.status.detail_pages_crawled:
+                sidebar.listing_generation_input(tab_upload)
+                predicted_bullets = session_state.upload_data.predicted_bullets
+                predicted_titles = session_state.upload_data.predicted_titles
+                predicted_brands = session_state.upload_data.predicted_brands
+
+        # MBA Login
+        sidebar.mab_login_input(tab_upload)
+        try:
+            if session_state:
+                sidebar.mba_otp_input(session_state)
+        except WebDriverException:
+            # TODO: Find out why this error is thrown
+            pass
+
+        if session_state and session_state.status.detail_pages_crawled:
             if predicted_bullets and predicted_brands and predicted_titles:
                 display_listing_selection(predicted_titles, predicted_brands, predicted_bullets, tab_crawling)
 

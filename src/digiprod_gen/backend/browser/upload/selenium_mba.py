@@ -5,6 +5,7 @@ import streamlit as st
 from selenium.webdriver.chrome.webdriver import WebDriver
 #from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
@@ -119,12 +120,12 @@ def insert_listing_text(driver, title: str, brand: str, bullet_1: str, bullet_2:
     description_input = driver.find_element(By.ID, "designCreator-productEditor-description")
 
     # clear forms
-    title_input.clear()
-    brand_input.clear()
-    bullet_one_input.clear()
-    bullet_two_input.clear()
-    description_input.clear()
-    
+    driver.execute_script("arguments[0].value = '';", title_input)
+    driver.execute_script("arguments[0].value = '';", brand_input)
+    driver.execute_script("arguments[0].value = '';", bullet_one_input)
+    driver.execute_script("arguments[0].value = '';", bullet_two_input)
+    driver.execute_script("arguments[0].value = '';", description_input)
+
     # fill data
     title_input.send_keys(title)
     brand_input.send_keys(brand)

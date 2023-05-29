@@ -8,10 +8,10 @@ from mid_prompt_gen.backend.abstract_classes import AbstractFewShotGenerator
 from mid_prompt_gen.backend.prompt_gen import MidjourneyPromptGenerator
 from mid_prompt_gen.constants import INSTRUCTOR_USER_NAME
 from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
-from digiprod_gen.backend.text_generation import mba_context
+from digiprod_gen.backend.generative_ai.text import mba_context
 from digiprod_gen.backend.data_classes.mba import MBAProductTextType
 from digiprod_gen.backend.data_classes.mba import MBAProduct
-from digiprod_gen.backend.text_generation.mba_banned_word import MBA_BANNED_WORDS
+from digiprod_gen.backend.generative_ai.text.mba_banned_word import MBA_BANNED_WORDS
 
 def get_generate_bullets_text(marketplace: MBAMarketplaceDomain, max_number_chars) -> str:
     if marketplace in [MBAMarketplaceDomain.COM, MBAMarketplaceDomain.UK]:
