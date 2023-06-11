@@ -7,7 +7,7 @@ from digiprod_gen.backend.prompt_engineering.utils import extract_list_from_outp
 #from digiprod_gen.backend.prompt_engineering.langchain_fns import get_chat_gpt_model, get_midjourney_prompt_generator_chain
 from digiprod_gen.frontend.session import read_session
 from digiprod_gen.backend.data_classes.session import SessionState
-from mid_prompt_gen.backend.langchain_fns import get_chat_gpt_model
+from llm_few_shot_gen.langchain_fns import get_chat_gpt_model
 
 
 def prompt_generation(st_tab_ig: DeltaGenerator):

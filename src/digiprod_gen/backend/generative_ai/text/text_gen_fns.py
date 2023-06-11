@@ -2,7 +2,7 @@ from typing import List
 
 from digiprod_gen.backend.data_classes.mba import MBAProduct, MBAProductTextType
 from digiprod_gen.backend.generative_ai.text.data_classes import MBAMidjourneyPromptGenerator, ProductTextGenerator
-from mid_prompt_gen.backend.midjourney.utils import get_shirt_design_prompt_examples
+from llm_few_shot_gen.prompt.midjourney.utils import get_shirt_design_prompt_examples
 
 
 def combine_bullets(products: List[MBAProduct]) -> str:

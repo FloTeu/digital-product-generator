@@ -9,7 +9,7 @@ from digiprod_gen.frontend.session import read_session
 from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAProductTextType
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.generative_ai.text.mba_banned_word import MBA_BANNED_WORDS
-from mid_prompt_gen.backend.langchain_fns import get_chat_gpt_model
+from llm_few_shot_gen.langchain_fns import get_chat_gpt_model
 
 
 def listing_generation(st_tab_ig: DeltaGenerator):

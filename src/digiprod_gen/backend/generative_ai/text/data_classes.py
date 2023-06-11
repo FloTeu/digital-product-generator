@@ -4,9 +4,9 @@ from langchain.base_language import BaseLanguageModel
 from langchain.prompts import HumanMessagePromptTemplate, SystemMessagePromptTemplate
 
 
-from mid_prompt_gen.backend.abstract_classes import AbstractFewShotGenerator
-from mid_prompt_gen.backend.prompt_gen import MidjourneyPromptGenerator
-from mid_prompt_gen.constants import INSTRUCTOR_USER_NAME
+from llm_few_shot_gen.abstract_classes import AbstractFewShotGenerator
+from llm_few_shot_gen.prompt.midjourney import MidjourneyPromptGenerator
+from llm_few_shot_gen.constants import INSTRUCTOR_USER_NAME
 from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
 from digiprod_gen.backend.generative_ai.text import mba_context
 from digiprod_gen.backend.data_classes.mba import MBAProductTextType

@@ -1,7 +1,6 @@
-#git+https://github.com/huggingface/transformers.git@main
 # TODO: fix this, so that streamlit takes the code on the fly
 git+https://github.com/FloTeu/digital-product-generator.git@main
-git+https://github.com/FloTeu/midjourney-prompt-generator.git@main
+git+https://github.com/FloTeu/llm-few-shot-generator.git@main
 streamlit
 beautifulsoup4
 requests
