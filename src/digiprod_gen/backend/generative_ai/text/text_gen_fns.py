@@ -1,8 +1,9 @@
 from typing import List
 
 from digiprod_gen.backend.data_classes.mba import MBAProduct, MBAProductTextType
+from digiprod_gen.backend.data_classes.common import MBAMidjourneyOutputModel
 from digiprod_gen.backend.generative_ai.text.data_classes import MBAMidjourneyPromptGenerator, ProductTextGenerator
-from llm_few_shot_gen.prompt.midjourney.utils import get_shirt_design_prompt_examples
+from llm_few_shot_gen.few_shot_examples.utils import get_shirt_design_prompt_examples
 
 
 def combine_bullets(products: List[MBAProduct]) -> str:
@@ -14,8 +15,7 @@ def combine_bullets(products: List[MBAProduct]) -> str:
 
 
 def get_midjourney_prompt_gen(llm) -> MBAMidjourneyPromptGenerator:
-    midjourney_prompt_gen = MBAMidjourneyPromptGenerator(llm)
-    midjourney_prompt_gen.set_context()
+    midjourney_prompt_gen = MBAMidjourneyPromptGenerator(llm, pydantic_cls=MBAMidjourneyOutputModel)
     prompt_examples = get_shirt_design_prompt_examples()
     midjourney_prompt_gen.set_few_shot_examples(prompt_examples)
     return midjourney_prompt_gen
@@ -23,7 +23,7 @@ def get_midjourney_prompt_gen(llm) -> MBAMidjourneyPromptGenerator:
 
 def get_product_text_gen(llm, mba_products, mba_product_text_type: MBAProductTextType, marketplace) -> ProductTextGenerator:
     product_text_gen = ProductTextGenerator(llm)
-    product_text_gen.set_context()
+    product_text_gen._set_context()
     few_shot_examples = []
     if mba_product_text_type == MBAProductTextType.BULLET:
         for mba_product in mba_products:
@@ -36,7 +36,7 @@ def get_product_text_gen(llm, mba_products, mba_product_text_type: MBAProductTex
         for mba_product in mba_products:
             few_shot_examples.append(mba_product.title)
     product_text_gen.set_few_shot_examples(few_shot_examples, mba_product_text_type)
-    product_text_gen._set_human_message(mba_product_text_type, marketplace)
+    product_text_gen._set_io_prompt(mba_product_text_type, marketplace)
     return product_text_gen
 
 

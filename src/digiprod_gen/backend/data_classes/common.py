@@ -1,7 +1,6 @@
 import os
-from typing import Dict
-from pydantic import BaseModel, validator
-from pydantic.types import DirectoryPath
+from typing import Dict, List
+from pydantic import BaseModel, validator, Field
 from pathlib import Path
 
 
@@ -17,6 +16,10 @@ class DigiProdGenConfig(BaseModel):
         # create dir if not exists
         data_dir_path.mkdir(parents=True, exist_ok=True)
         return data_dir_path
+
+class MBAMidjourneyOutputModel(BaseModel):
+    image_prompts: List[str] = Field(description="List of text-to-image prompts")
+
 
 
 

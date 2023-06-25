@@ -1,11 +1,9 @@
 from typing import List
-from enum import Enum
 from langchain.base_language import BaseLanguageModel
 from langchain.prompts import HumanMessagePromptTemplate, SystemMessagePromptTemplate
 
-
-from llm_few_shot_gen.abstract_classes import AbstractFewShotGenerator
-from llm_few_shot_gen.prompt.midjourney import MidjourneyPromptGenerator
+from llm_few_shot_gen.generators.base import BaseFewShotGenerator
+from llm_few_shot_gen.generators.midjourney import MidjourneyPromptGenerator
 from llm_few_shot_gen.constants import INSTRUCTOR_USER_NAME
 from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
 from digiprod_gen.backend.generative_ai.text import mba_context
@@ -32,18 +30,17 @@ def get_generate_brand_text(marketplace: MBAMarketplaceDomain, max_number_chars)
         return f'Erstelle mir sechs ähnliche, aber nicht identische Marken Namen mit maximale {max_number_chars} Zeichen. Schreibe die Antwprt auf deutsch.'
 
 
-class ProductTextGenerator(AbstractFewShotGenerator):
-    def __init__(self, llm: BaseLanguageModel):
-        super().__init__(llm)
+class ProductTextGenerator(BaseFewShotGenerator):
 
-    def _get_system_instruction(self):
-        """System message to instruct the llm model how he should act"""
-        return SystemMessagePromptTemplate.from_template("""
+    def _set_system_instruction(self):
+        """Extends self.messages with instruction and type SystemMessagePromptTemplate"""
+        self.messages.instruction = SystemMessagePromptTemplate.from_template("""
             You are a helpful assistant in helping me create Amazon MBA Product texts like bullet points, title, brand.
             MBA stands for Merch by Amazon, which is an on-demand t-shirt printing service.
             """)
 
-    def set_context(self):
+    def _set_context(self):
+        """Extends self.messages with context and type List[SystemMessagePromptTemplate]"""
         context_messages = []
         context_messages.append(SystemMessagePromptTemplate.from_template(
             f"""Here is some information about MBA product bullet points.
@@ -72,7 +69,7 @@ class ProductTextGenerator(AbstractFewShotGenerator):
                                                           additional_kwargs={"name": INSTRUCTOR_USER_NAME}))
         self.messages.few_shot_examples = messages
 
-    def _set_human_message(self, mba_text_type: MBAProductTextType, marketplace: MBAMarketplaceDomain):
+    def _set_io_prompt(self, mba_text_type: MBAProductTextType, marketplace: MBAMarketplaceDomain):
         """Human message which contains the input for the text generation"""
         human_template = f"Do not include any of the following words: {MBA_BANNED_WORDS}.\n"
         if mba_text_type == MBAProductTextType.BULLET:
@@ -81,17 +78,17 @@ class ProductTextGenerator(AbstractFewShotGenerator):
             human_template = human_template + get_generate_brand_text(marketplace, 50)
         if mba_text_type == MBAProductTextType.TITLE:
             human_template = human_template + get_generate_title_text(marketplace, 50)
-        self.messages.human_message = HumanMessagePromptTemplate.from_template(human_template)
+        self.messages.io_prompt = HumanMessagePromptTemplate.from_template(human_template)
 
 class MBAMidjourneyPromptGenerator(MidjourneyPromptGenerator):
-    def _set_human_message(self):
+
+    def _set_io_prompt(self):
         """Human message which contains the input for the text generation"""
         human_template = """
-                            I want you to act as a professional merch by amazon image creator. 
-                            Write five concise english prompts enumeratete with the format 1. for the text delimited by ```. 
-                            The output prompt should focus on visual descriptions. 
+                            I want you to act as a professional merch by amazon image creator.
+                            Write five concise english prompts for the text delimited by ```.
+                            The output prompt should focus on visual descriptions.
                             Take inspiration from the formating from the example prompts, dont copy them, but use the same format.
-                            Your output should only contain the single prompt without further details.
                             ```{text}```
                          """
-        self.messages.human_message = HumanMessagePromptTemplate.from_template(human_template)
+        self.messages.io_prompt = HumanMessagePromptTemplate.from_template(human_template)

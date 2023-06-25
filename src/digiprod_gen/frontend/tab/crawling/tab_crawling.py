@@ -86,9 +86,9 @@ def display_mba_overview_products(mba_products: List[MBAProduct], currency_str: 
         for i, mba_product in enumerate(mba_products_splitted_list):
             crawling_progress_bar.progress(math.ceil(100 / len(mba_products) * ((j * MAX_SHIRTS_PER_ROW) + i)) + 1,
                                            text=progress_text)
-            image_bytes_io: BytesIO = image_url2image_bytes_io(mba_product.image_url)
+            #image_bytes_io: BytesIO = image_url2image_bytes_io(mba_product.image_url)
             # image_pil = Image.open(image_bytes_io)
-            display_cols[i].image(image_bytes_io)
+            display_cols[i].image(mba_product.image_url)
             color = "black" if not mba_product.bullets else "green"
             display_cols[i].markdown(f":{color}[{(j * MAX_SHIRTS_PER_ROW) + i + 1}. {mba_product.title}]")
             display_cols[i].write(f"Price: {get_price_display_str(marketplace, mba_product.price, currency_str)}")

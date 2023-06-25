@@ -8,7 +8,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 
 
 def search_overview_page(request: CrawlingMBARequest, driver: WebDriver):
-    return driver.get(request.mba_overview_url)
+    driver.get(request.mba_overview_url)
 
 
 def click_ignore_cookies(driver: WebDriver):
