@@ -7,6 +7,10 @@ from digiprod_gen.backend.browser.crawling.mba.utils import get_mba_overview_url
 from digiprod_gen.backend.data_classes.common import DigiProdGenConfig
 from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketplaceDomain
 
+def init_environment():
+    os.environ["OPENAI_API_KEY"] = st.secrets["api_token"]["open_ai"]
+    os.environ["REPLICATE_API_TOKEN"] = st.secrets["api_token"]["replicate"]
+
 
 @st.cache_resource
 def get_config() -> DigiProdGenConfig:

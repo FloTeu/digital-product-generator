@@ -5,7 +5,7 @@ import os, sys
 from selenium.common.exceptions import WebDriverException
 from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketplaceDomain, MBAProductCategory
 
-from digiprod_gen.backend.utils import is_debug, get_config
+from digiprod_gen.backend.utils import is_debug, get_config, init_environment
 from digiprod_gen.backend.image import conversion as img_conversion
 from digiprod_gen.backend.data_classes.session import SessionState, DigiProdGenStatus
 from digiprod_gen.backend.browser.upload.selenium_mba import upload_image, click_on_create_new, insert_listing_text, select_products_and_marketplaces, publish_to_mba
@@ -17,7 +17,7 @@ from digiprod_gen.frontend.tab.upload.views import display_listing_selection, di
 from digiprod_gen.frontend.tab.upload.mba_upload import display_mba_account_tier
 from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
 
-os.environ["OPENAI_API_KEY"] = st.secrets["open_ai_api_key"]
+init_environment()
 
 def read_request():
     session_state = read_session("session_state")
