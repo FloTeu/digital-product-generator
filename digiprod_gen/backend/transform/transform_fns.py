@@ -27,7 +27,10 @@ def overview_product_tag2mba_product(product_tag: Tag, marketplace: MBAMarketpla
         brand=brand,
         price=price,
         bullets=None,
-        description=None
+        description=None,
+        image_pil=None,
+        image_prompt=None,
+        image_text_caption=None,
       )
 
 

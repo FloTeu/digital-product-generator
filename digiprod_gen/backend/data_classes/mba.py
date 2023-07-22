@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
 import hashlib
-from typing import List, Optional
+from typing import List, Optional, Union
+from PIL import Image
 
 
 class MBAMarketplaceDomain(str, Enum):
@@ -55,9 +56,12 @@ class CrawlingMBARequest():
 class MBAProduct():
     asin: str
     title: str
-    brand: str
+    brand: Optional[str]
     image_url: str
     product_url: str
     price: Optional[float]
     bullets: Optional[List[str]]
     description: Optional[str]
+    image_pil: Optional[Image.Image]
+    image_prompt: Optional[str]
+    image_text_caption: Optional[str]

@@ -13,15 +13,16 @@ from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest
 @dataclass
 class CrawlingData:
     mba_products: List[MBAProduct] = field(default_factory=list)  # crawled mba products
+    selected_designs: List[int] = field(default_factory=list) # user selected products for prompt generation
 
-    def get_selected_mba_products(self, selected_designs: List[int]) -> List[MBAProduct]:
+    def get_selected_mba_products(self) -> List[MBAProduct]:
         """
             selected_designs: Human input of selected designs for prompt generation. Starting with 1, 2 and so on.
         """
-        # transform human selection to machine index
-        selected_designs_i = [i - 1 for i in selected_designs]
-        if not selected_designs:
+        if not self.selected_designs:
             return []
+        # transform human selection to machine index
+        selected_designs_i = [i - 1 for i in self.selected_designs]
         if len(selected_designs_i) == 1:
             return [self.mba_products[selected_designs_i[0]]]
         else:

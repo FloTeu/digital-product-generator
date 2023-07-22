@@ -40,7 +40,7 @@ def crawl_mba_details(session_state: SessionState):
         config = get_config()
         search_overview_and_change_postcode(request, browser.driver, config.mba_marketplace[request.marketplace].postcode)
 
-    mba_products_selected = crawling_data.get_selected_mba_products(read_session("selected_designs"))
+    mba_products_selected = crawling_data.get_selected_mba_products()
     for i, mba_product in enumerate(mba_products_selected):
         # Detailed mba product is already available in session
         if mba_product.bullets != None:
@@ -94,17 +94,14 @@ def crawl_mba_details(session_state: SessionState):
     return mba_products_selected
 
 
-def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator, st_tab_crawling: DeltaGenerator, driver=None):
-    #request: CrawlingMBARequest = read_session("request")
-    # crawl_mba_overview_and_display(st_tab_crawling)
-
+def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator):
     session_state: SessionState = read_session("session_state")
-    request: CrawlingMBARequest = session_state.crawling_request
 
     with st_tab_ig, st.spinner('Crawling detail pages...'):
         # crawl new detail pages
         crawl_mba_details(session_state)
-        
+
+    session_state.crawling_data.selected_designs = read_session("selected_designs")
     session_state.status.detail_pages_crawled = True
 
 
@@ -122,3 +119,5 @@ def display_mba_products(st_tab_ig: DeltaGenerator, mba_products_selected: List[
                     if mba_product.bullets:
                         for bullet_i, bullet in enumerate(mba_product.bullets):
                             display_cols[i].write(f"Bullets {bullet_i+1}: {bullet}")
+                    display_cols[i].markdown(f":black[Text Caption: {mba_product.image_text_caption}]")
+                    display_cols[i].markdown(f":black[Image Prompt: {mba_product.image_prompt}]")

@@ -16,7 +16,7 @@ from digiprod_gen.backend.generative_ai.text.mba_banned_word import MBA_BANNED_W
 def listing_generation(st_tab_ig: DeltaGenerator):
     session_state: SessionState = read_session("session_state")
     request: CrawlingMBARequest = session_state.crawling_request
-    mba_products_selected = session_state.crawling_data.get_selected_mba_products(read_session("selected_designs"))
+    mba_products_selected = session_state.crawling_data.get_selected_mba_products()
     llm = ChatOpenAI(temperature=0.7)
     product_text_gen_brand = get_product_text_gen(llm, mba_products_selected, MBAProductTextType.BRAND, request.marketplace)
     product_text_gen_title = get_product_text_gen(llm, mba_products_selected, MBAProductTextType.TITLE, request.marketplace)

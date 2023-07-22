@@ -7,6 +7,7 @@ from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketp
 
 from digiprod_gen.backend.utils import is_debug, get_config, init_environment
 from digiprod_gen.backend.image import conversion as img_conversion
+from digiprod_gen.backend.image.caption import extend_mba_products_with_caption
 from digiprod_gen.backend.data_classes.session import SessionState, DigiProdGenStatus
 from digiprod_gen.backend.browser.upload.selenium_mba import upload_image, click_on_create_new, insert_listing_text, select_products_and_marketplaces, publish_to_mba
 from digiprod_gen.frontend.session import read_session, update_mba_request, write_session, set_session_state_if_not_exists
@@ -57,8 +58,12 @@ def main():
     if session_state and session_state.status.overview_page_crawled:
         mba_products = session_state.crawling_data.mba_products
         #driver = read_session("selenium_driver")
-        sidebar.crawling_mba_details_input(mba_products, tab_crawling, tab_ig, None)
-        mba_products_selected = session_state.crawling_data.get_selected_mba_products(read_session("selected_designs"))
+        sidebar.crawling_mba_details_input(mba_products, tab_crawling, tab_ig)
+        if session_state.status.detail_pages_crawled:
+            mba_products_selected = session_state.crawling_data.get_selected_mba_products()
+            st.sidebar.button("Run AI Image Captioning", on_click=extend_mba_products_with_caption,
+                              args=(mba_products_selected, ), key="button_image_captioning")
+        mba_products_selected = session_state.crawling_data.get_selected_mba_products()
         if mba_products_selected and session_state.status.detail_pages_crawled:
             sidebar.prompt_generation_input(tab_ig)
             predicted_prompts = session_state.image_gen_data.image_gen_prompts

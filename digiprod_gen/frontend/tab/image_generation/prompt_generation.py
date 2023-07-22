@@ -13,7 +13,7 @@ from digiprod_gen.backend.data_classes.session import SessionState
 
 def prompt_generation(st_tab_ig: DeltaGenerator):
     session_state: SessionState = read_session("session_state")
-    mba_products_selected = session_state.crawling_data.get_selected_mba_products(read_session("selected_designs"))
+    mba_products_selected = session_state.crawling_data.get_selected_mba_products()
     llm = ChatOpenAI(temperature=0.7)
     midjourney_prompt_gen = get_midjourney_prompt_gen(llm)
 
