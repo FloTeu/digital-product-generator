@@ -4,17 +4,24 @@ from digiprod_gen.backend.data_classes.mba import MBAProduct, MBAProductTextType
 from digiprod_gen.backend.data_classes.common import MBAMidjourneyOutputModel
 from digiprod_gen.backend.generative_ai.text.data_classes import MBAMidjourneyPromptGenerator, ProductTextGenerator
 from llm_few_shot_gen.few_shot_examples.utils import get_shirt_design_prompt_examples
+from langchain.llms.base import BaseLanguageModel
+
+def combine_bullets(product: MBAProduct) -> str:
+    return ' '.join(product.bullets) + ' ' if product.bullets else ""
 
 
-def combine_bullets(products: List[MBAProduct]) -> str:
-    combined_bullets = ""
-    for product in products:
-        if product.bullets:
-            combined_bullets += ' '.join(product.bullets) + ' '
-    return combined_bullets.strip()
+def mba_products2llm_prompt_gen_input(mba_products: List[MBAProduct]) -> str:
+    llm_prompt_gen_input = ""
+    for i, mba_product in enumerate(mba_products):
+        # Either take image captioning or (with less prio) combine product bullets
+        if mba_product.image_text_caption and mba_product.image_prompt:
+            llm_prompt_gen_input += f"Product {i+1} Description: {mba_product.image_prompt} Text Caption: {mba_product.image_text_caption}\n"
+        else:
+            llm_prompt_gen_input += combine_bullets(mba_product)
+    return llm_prompt_gen_input.strip()
 
 
-def get_midjourney_prompt_gen(llm) -> MBAMidjourneyPromptGenerator:
+def get_midjourney_prompt_gen(llm: BaseLanguageModel) -> MBAMidjourneyPromptGenerator:
     midjourney_prompt_gen = MBAMidjourneyPromptGenerator(llm, pydantic_cls=MBAMidjourneyOutputModel)
     prompt_examples = get_shirt_design_prompt_examples()
     midjourney_prompt_gen.set_few_shot_examples(prompt_examples)

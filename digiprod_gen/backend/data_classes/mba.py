@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 import hashlib
 from typing import List, Optional, Union
@@ -60,8 +60,8 @@ class MBAProduct():
     image_url: str
     product_url: str
     price: Optional[float]
-    bullets: Optional[List[str]]
     description: Optional[str]
     image_pil: Optional[Image.Image]
     image_prompt: Optional[str]
     image_text_caption: Optional[str]
+    bullets: List[str] = field(default_factory=list)

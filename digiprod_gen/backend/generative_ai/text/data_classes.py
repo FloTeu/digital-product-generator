@@ -87,7 +87,10 @@ class MBAMidjourneyPromptGenerator(MidjourneyPromptGenerator):
         human_template = """
                             I want you to act as a professional merch by amazon image creator.
                             Write five concise english prompts for the text delimited by ```.
-                            The output prompt should focus on visual descriptions.
+                            The text may contain visual descriptions, offering bullet points or text captions. 
+                            Create output prompts in order to create similar product images based on the information provided in ```. 
+                            The output prompt should focus on visual descriptions. Do not include the same meta information like "Product x", "Description" or "Text Caption".
+                            If you think that the text heading contains syntactic or semantic errors, do not hesitate to correct it yourself.
                             Take inspiration from the formating from the example prompts, dont copy them, but use the same format.
                             ```{text}```
                          """

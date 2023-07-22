@@ -43,7 +43,7 @@ def crawl_mba_details(session_state: SessionState):
     mba_products_selected = crawling_data.get_selected_mba_products()
     for i, mba_product in enumerate(mba_products_selected):
         # Detailed mba product is already available in session
-        if mba_product.bullets != None:
+        if mba_product.bullets != None and mba_product.bullets != []:
             continue
         # Else crawl detail information
         mba_product_detailed = mba_product
@@ -119,5 +119,7 @@ def display_mba_products(st_tab_ig: DeltaGenerator, mba_products_selected: List[
                     if mba_product.bullets:
                         for bullet_i, bullet in enumerate(mba_product.bullets):
                             display_cols[i].write(f"Bullets {bullet_i+1}: {bullet}")
-                    display_cols[i].markdown(f":black[Text Caption: {mba_product.image_text_caption}]")
-                    display_cols[i].markdown(f":black[Image Prompt: {mba_product.image_prompt}]")
+                    if mba_product.image_text_caption:
+                        display_cols[i].markdown(f":black[Text Caption: {mba_product.image_text_caption}]")
+                    if mba_product.image_prompt:
+                        display_cols[i].markdown(f":black[Image Prompt: {mba_product.image_prompt}]")

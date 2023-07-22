@@ -12,7 +12,7 @@ def display_image_generator(session_image_gen_data: ImageGenData) -> Image:
     text = st.text_area("Image Generation Prompt", value=image_gen_prompt)
     image_gen_model = st.selectbox(
         'What is you preferred image generation model?',
-        (ImageGenerationModel.DEEPFLOYD_IF.value, ImageGenerationModel.OPENJOURNEY.value, ImageGenerationModel.POKEMON.value))
+        (ImageGenerationModel.OPENJOURNEY.value, ImageGenerationModel.DEEPFLOYD_IF.value, ImageGenerationModel.POKEMON.value))
     if st.button("Generate Image"):
         session_image_gen_data.image_pil_generated = text2image(text, image_gen_model)
         session_image_gen_data.reset_image_data()

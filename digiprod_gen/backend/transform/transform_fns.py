@@ -26,7 +26,7 @@ def overview_product_tag2mba_product(product_tag: Tag, marketplace: MBAMarketpla
         product_url = product_url,
         brand=brand,
         price=price,
-        bullets=None,
+        #bullets=[],
         description=None,
         image_pil=None,
         image_prompt=None,
