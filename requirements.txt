@@ -1,5 +1,5 @@
 # TODO: fix this, so that streamlit takes the code on the fly
-git+https://github.com/FloTeu/digital-product-generator.git@main
+#git+https://github.com/FloTeu/digital-product-generator.git@main
 llm-few-shot-gen
 streamlit
 beautifulsoup4
