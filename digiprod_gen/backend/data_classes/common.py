@@ -6,11 +6,17 @@ from enum import Enum
 
 class UpscalerModel(str, Enum):
     PIL="Simple Resize"
-    SOME_UPSCALER="Some Upscaler"
+    SOME_UPSCALER="AI Upscaler"
 
 class BackgroundRemovalModel(str, Enum):
-    OPEN_CV="Open CV"
-    REM_BG="rembg"
+    OPEN_CV="Simple Background Removal"
+    REM_BG="AI Background Removal"
+
+class ImageGenerationModel(str, Enum):
+    DEEPFLOYD_IF="Deepfloyd IF"
+    POKEMON="Pokemon"
+    OPENJOURNEY="Openjourney"
+    MIDJOURNEY="Midjourney"
 
 class DigiProdGenMBAMarketplaceConfig(BaseModel):
     postcode: str
