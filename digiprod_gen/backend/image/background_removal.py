@@ -1,8 +1,19 @@
 
+import requests
 import numpy as np
+import replicate
 from PIL import Image
 from typing import Tuple
-from digiprod_gen.backend.image.conversion import pil2cv, cv2pil, np2pil
+from digiprod_gen.backend.image.conversion import pil2cv, cv2pil, pil2bytes_io, bytes2pil
+
+def rembg(img_pil: Image) -> Image:
+    model = "ilkerc/rembg:e809cddc666ccfd38a044f795cf65baab62eedc4273d096bf05935b9a3059b59"
+    img_url = replicate.run(
+        model,
+        input={"image": pil2bytes_io(img_pil)}
+    )
+    return bytes2pil(requests.get(img_url, stream=True).content)
+
 
 def get_outer_greyscaled_pixel_range(img_np: np.ndarray, until_n_col=10) -> Tuple[int, int]:
     """Returns grey scaled min and max value of outer (first 30) pixels"""

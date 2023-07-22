@@ -5,8 +5,12 @@ from pathlib import Path
 from enum import Enum
 
 class UpscalerModel(str, Enum):
-    PIL="pil"
-    SOME_UPSCALER="some_upscaler"
+    PIL="Simple Resize"
+    SOME_UPSCALER="Some Upscaler"
+
+class BackgroundRemovalModel(str, Enum):
+    OPEN_CV="Open CV"
+    REM_BG="rembg"
 
 class DigiProdGenMBAMarketplaceConfig(BaseModel):
     postcode: str

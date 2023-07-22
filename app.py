@@ -9,7 +9,7 @@ from digiprod_gen.backend.utils import is_debug, get_config, init_environment
 from digiprod_gen.backend.image import conversion as img_conversion
 from digiprod_gen.backend.data_classes.session import SessionState, DigiProdGenStatus
 from digiprod_gen.backend.browser.upload.selenium_mba import upload_image, click_on_create_new, insert_listing_text, select_products_and_marketplaces, publish_to_mba
-from digiprod_gen.frontend.session import read_session, update_mba_request, write_session
+from digiprod_gen.frontend.session import read_session, update_mba_request, write_session, set_session_state_if_not_exists
 from digiprod_gen.frontend import sidebar
 from digiprod_gen.frontend.tab.image_generation.selected_products import display_mba_products
 from digiprod_gen.frontend.tab.image_generation.image_editing import get_image_bytes_by_user, display_image_editor
@@ -47,6 +47,9 @@ def main():
     sidebar.crawling_mba_overview_input(tab_crawling)
     #request: CrawlingMBARequest = read_request()
     session_state: SessionState | None = read_session("session_state")
+    # TODO: This is only a temp solution
+    if not session_state:
+        st.button("Initialize session", on_click=set_session_state_if_not_exists)
 
     display_views(session_state, tab_crawling, tab_ig, tab_upload)
     
@@ -66,12 +69,14 @@ def main():
                         st.write(predicted_prompts)
                     else:
                         st.warning('Please click on 3. Prompt Generation')
-                    image_bytes: bytes | None = get_image_bytes_by_user()
-                    if image_bytes:
-                        image_pil = img_conversion.bytes2pil(image_bytes)
-                        image_pil_upload_ready = display_image_editor(image_pil, session_image_gen_data=session_state.image_gen_data, background_removal_buffer=0)
-                        if image_pil_upload_ready:
-                            session_state.image_gen_data.image_pil_upload_ready = image_pil_upload_ready
+    if session_state:
+        with tab_ig:
+            image_bytes: bytes | None = get_image_bytes_by_user(session_image_gen_data=session_state.image_gen_data)
+            if image_bytes:
+                image_pil = img_conversion.bytes2pil(image_bytes)
+                image_pil_upload_ready = display_image_editor(image_pil, session_image_gen_data=session_state.image_gen_data, background_removal_buffer=0)
+                if image_pil_upload_ready:
+                    session_state.image_gen_data.image_pil_upload_ready = image_pil_upload_ready
 
     # TODO Clean up
     with tab_upload:

@@ -35,6 +35,11 @@ class ImageGenData:
     image_pil_upscaled: Image | None = None
     image_pil_upload_ready: Image | None = None
 
+    def reset_image_data(self):
+        self.image_pil_background_removed = None
+        self.image_pil_upscaled = None
+        self.image_pil_upload_ready = None
+
 
 @dataclass
 class MBAUploadData:
