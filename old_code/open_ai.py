@@ -8,7 +8,6 @@ from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
 
 sys.path.append("...")
 from digiprod_gen.backend.data_classes.mba import MBAProduct
-from digiprod_gen.backend.prompt_engineering import midjourney
 from digiprod_gen.backend.prompt_engineering.utils import get_midjourney_example_prompts
 
 openai.api_key = st.secrets["open_ai_api_key"]

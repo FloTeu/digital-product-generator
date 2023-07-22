@@ -16,7 +16,7 @@ from langchain.schema import (
 )
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain
-from digiprod_gen.backend.prompt_engineering import midjourney
+from digiprod_gen.backend.prompt_engineering import midjourney_prompt_examples
 from digiprod_gen.backend.prompt_engineering.utils import get_midjourney_example_prompts, extract_list_from_output
 
 

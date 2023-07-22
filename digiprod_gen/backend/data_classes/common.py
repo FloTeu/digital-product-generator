@@ -2,7 +2,11 @@ import os
 from typing import Dict, List
 from pydantic import BaseModel, validator, Field
 from pathlib import Path
+from enum import Enum
 
+class UpscalerModel(str, Enum):
+    PIL="pil"
+    SOME_UPSCALER="some_upscaler"
 
 class DigiProdGenMBAMarketplaceConfig(BaseModel):
     postcode: str

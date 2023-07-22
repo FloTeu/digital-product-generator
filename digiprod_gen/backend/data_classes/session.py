@@ -32,7 +32,8 @@ class CrawlingData:
 class ImageGenData:
     image_gen_prompts: List[str] = field(default_factory=list)
     image_pil_background_removed: Image | None = None 
-    image_pil_upload_ready: Image | None = None 
+    image_pil_upscaled: Image | None = None
+    image_pil_upload_ready: Image | None = None
 
 
 @dataclass

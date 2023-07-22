@@ -30,24 +30,7 @@ def read_request():
                                   headers=None,
                                   proxy=None, 
                                   mba_overview_url=None)
-    
-def display_selenium_data_dir_size_in_mb(tab_crawling):
-    config = get_config()
-    with tab_crawling:
-        if st.button("Get selenium data dir disk size"):
-            total_size = 0
-            for dirpath, dirnames, filenames in os.walk(config.selenium_data_dir_path):
-                for filename in filenames:
-                    filepath = os.path.join(dirpath, filename)
-                    try:
-                        total_size += os.path.getsize(filepath)
-                    except:
-                        pass
-            # Convert size to megabytes
-            total_size_mb = total_size / (1024 * 1024)
-            st.write("Selenium data dir disk size (in MB)")
-            st.write(total_size_mb)
-            crawl_mba_overview_and_display(tab_crawling)
+
 
 def display_views(session_state: SessionState | None, tab_crawling, tab_ig, tab_upload):
     if session_state == None:
@@ -66,9 +49,6 @@ def main():
     session_state: SessionState | None = read_session("session_state")
 
     display_views(session_state, tab_crawling, tab_ig, tab_upload)
-
-    # TODO: Temp code, please remove again
-    #display_selenium_data_dir_size_in_mb(tab_crawling)
     
     if session_state and session_state.status.overview_page_crawled:
         mba_products = session_state.crawling_data.mba_products
