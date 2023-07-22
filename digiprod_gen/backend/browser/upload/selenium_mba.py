@@ -68,7 +68,10 @@ def click_on_create_new(driver):
 def select_products_and_marketplaces(driver, products: List[MBAProductCategory], marketplaces: List[MBAMarketplaceDomain]):
     """Selects desired products and target marketplaces in MBA upload/create menu"""
     # open selecton menu
-    select_products_button = driver.find_element(By.ID, "select-marketplace-button")
+    try:
+        select_products_button = driver.find_element(By.ID, "select-marketplace-button")
+    except Exception as e:
+        select_products_button = driver.find_element(By.ID, "select-marketplace-button-original")
     select_products_button.click()
 
     # extract the marketplaces from the html header row
