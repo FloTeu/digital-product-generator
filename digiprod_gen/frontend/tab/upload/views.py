@@ -72,7 +72,6 @@ def update_session_upload_listing(listing_select_change: ListingSelectChange | N
     mba_upload_data: MBAUploadData = session_state.upload_data
 
     # Update data
-    print("Update brand with", st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BRAND else st.session_state["mba_upload_listing_brand"])
     # Either take the select box text or the input text depending on what was updated by user
     mba_upload_data.brand = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BRAND else st.session_state["mba_upload_listing_brand"]
     mba_upload_data.title = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.TITLE else st.session_state["mba_upload_listing_title"]

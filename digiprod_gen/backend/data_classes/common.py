@@ -4,6 +4,11 @@ from pydantic import BaseModel, validator, Field
 from pathlib import Path
 from enum import Enum
 
+
+class ImageCaptioningModel(str, Enum):
+    BLIP2="Blip 2"
+    IMG2PROMPT="Image to Prompt"
+
 class UpscalerModel(str, Enum):
     PIL="Simple Resize"
     SOME_UPSCALER="AI Upscaler"

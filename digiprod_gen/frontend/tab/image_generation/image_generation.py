@@ -7,15 +7,15 @@ from digiprod_gen.backend.data_classes.session import ImageGenData
 from digiprod_gen.backend.data_classes.common import ImageGenerationModel
 from digiprod_gen.backend.image import generation
 
-def update_session_selected_prompt(session_image_gen_data: ImageGenData):
-    session_image_gen_data.image_gen_prompt_selected = st.session_state["image_gen_prompt"]
+def update_session_selected_prompt(session_image_gen_data: ImageGenData, image_gen_prompt=None):
+    session_image_gen_data.image_gen_prompt_selected = image_gen_prompt if image_gen_prompt else st.session_state["image_gen_prompt"]
 
 def display_image_generation_prompt(session_image_gen_data: ImageGenData):
     image_gen_prompt = "" if len(session_image_gen_data.image_gen_prompts) == 0 else session_image_gen_data.image_gen_prompts[0]
     st.text_area("Image Generation Prompt", value=image_gen_prompt, on_change=update_session_selected_prompt, args=(session_image_gen_data,), key="image_gen_prompt")
     # cold start
-    if session_image_gen_data.image_gen_prompt_selected == None:
-        update_session_selected_prompt(session_image_gen_data)
+    if session_image_gen_data.image_gen_prompt_selected == None and image_gen_prompt != "":
+        update_session_selected_prompt(session_image_gen_data, image_gen_prompt)
 
 def display_image_generator(session_image_gen_data: ImageGenData) -> Image:
     image_gen_model = st.selectbox(

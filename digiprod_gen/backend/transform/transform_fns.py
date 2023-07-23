@@ -16,7 +16,7 @@ def overview_product_tag2mba_product(product_tag: Tag, marketplace: MBAMarketpla
         price = None
     # TODO: Try to get brand in detail page crawling
     try:
-        brand = parser.overview_product_get_brand(product_tag),
+        brand = parser.overview_product_get_brand(product_tag)
     except:
         brand = None
     return MBAProduct(

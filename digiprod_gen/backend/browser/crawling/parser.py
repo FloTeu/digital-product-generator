@@ -16,10 +16,14 @@ def overview_product_get_image_url(product_tag: Tag) -> str:
     return product_tag.find_next("img", {"class": "s-image"}).attrs["src"]
 
 def overview_product_get_brand(product_tag: Tag) -> str:
-    return product_tag.find_next("h5").text.strip()
+    return product_tag.find_next("h2").text.strip()
 
 def overview_product_get_title_section_tag(product_tag: Tag) -> Tag:
-    return product_tag.find_next("h2", {"class": ["a-size-mini"]})
+    h2_tags_with_class = product_tag.find_all('h2', class_='a-size-mini')
+    for h2_tag in h2_tags_with_class:
+        # Title tage is the one which contains a "a tag"
+        if len(h2_tag.find_all("a")) > 0:
+            return h2_tag
 
 def overview_product_get_title(product_tag: Tag) -> str:
     return overview_product_get_title_section_tag(product_tag).find_next("span").text.strip()
