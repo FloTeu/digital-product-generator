@@ -96,12 +96,12 @@ def crawl_mba_details(session_state: SessionState):
 
 def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator):
     session_state: SessionState = read_session("session_state")
+    session_state.crawling_data.selected_designs = read_session("selected_designs")
 
     with st_tab_ig, st.spinner('Crawling detail pages...'):
         # crawl new detail pages
         crawl_mba_details(session_state)
 
-    session_state.crawling_data.selected_designs = read_session("selected_designs")
     session_state.status.detail_pages_crawled = True
 
 

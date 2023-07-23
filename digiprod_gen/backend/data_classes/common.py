@@ -14,8 +14,10 @@ class BackgroundRemovalModel(str, Enum):
 
 class ImageGenerationModel(str, Enum):
     DEEPFLOYD_IF="Deepfloyd IF"
-    POKEMON="Pokemon"
+    STABLE_DIFFUSION="Stable Diffusion"
     OPENJOURNEY="Openjourney"
+    POKEMON="Pokemon"
+    WAIFU_DIFFUSION="Waifu"
     MIDJOURNEY="Midjourney"
 
 class DigiProdGenMBAMarketplaceConfig(BaseModel):

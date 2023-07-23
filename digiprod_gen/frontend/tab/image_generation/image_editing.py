@@ -1,10 +1,12 @@
 import time
 import streamlit as st
 from PIL import Image
+from typing import Tuple
 
 from digiprod_gen.backend.image.conversion import pil2bytes_io, bytes2pil
 from digiprod_gen.backend.image.background_removal import remove_outer_pixels, rembg
 from digiprod_gen.backend.image.upscale import pil_upscale, some_upscalers_upscale
+from digiprod_gen.backend.image.outpainting import outpainting_with_paella
 from digiprod_gen.backend.data_classes.session import ImageGenData
 from digiprod_gen.backend.data_classes.common import UpscalerModel, BackgroundRemovalModel
 
@@ -26,13 +28,24 @@ def display_image_editor(session_image_gen_data: ImageGenData, background_remova
     col1, col2 = st.columns(2)
     image_element = col2.empty()
 
+    if col1.button("Outpainting"):
+        if session_image_gen_data.image_pil_generated and session_image_gen_data.image_gen_prompt_selected:
+            with image_element, st.spinner("Outpainting..."):
+                image_outpainted = image_outpainting(session_image_gen_data.image_pil_generated, session_image_gen_data.image_gen_prompt_selected, session_image_gen_data, output_relativ_size=(1.5, 1.5))
+        else:
+            st.warning("Either no image provided or the image generation prompt was not yet selected")
+            image_outpainted = None
+    else:
+        image_outpainted = session_image_gen_data.image_pil_outpainted
+
     t_start = time.time()
     upscaler_method = col1.selectbox(
         'What is you preferred up scaling method?',
         (UpscalerModel.PIL.value, UpscalerModel.SOME_UPSCALER.value))
     if col1.button("Upscale") and session_image_gen_data.image_pil_generated:
         with image_element, st.spinner("Upscaling..."):
-            image_upscaled = image_upscaling(session_image_gen_data.image_pil_generated, session_image_gen_data, upscaler=upscaler_method)
+            image_to_upscale = image_outpainted or session_image_gen_data.image_pil_generated
+            image_upscaled = image_upscaling(image_to_upscale, session_image_gen_data, upscaler=upscaler_method)
     else:
         image_upscaled = session_image_gen_data.image_pil_upscaled
     print(f"Time elapsed for upscaling %.2f seconds" % (time.time() - t_start))
@@ -72,3 +85,8 @@ def image_background_removal(image_pil: Image, buffer, session_image_gen_data: I
         raise NotImplementedError
     session_image_gen_data.image_pil_background_removed = image_pil_br
     return image_pil_br
+
+def image_outpainting(image_pil: Image, prompt: str, session_image_gen_data: ImageGenData, output_relativ_size: Tuple[float, float] = (1.5, 1.5)) -> Image:
+    image_pil_outpainted = outpainting_with_paella(image_pil, prompt, output_relativ_size=output_relativ_size)
+    session_image_gen_data.image_pil_outpainted = image_pil_outpainted
+    return image_pil_outpainted
