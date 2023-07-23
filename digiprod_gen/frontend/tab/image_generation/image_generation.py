@@ -10,18 +10,19 @@ from digiprod_gen.backend.image import generation
 def update_session_selected_prompt(session_image_gen_data: ImageGenData):
     session_image_gen_data.image_gen_prompt_selected = st.session_state["image_gen_prompt"]
 
-def display_image_generator(session_image_gen_data: ImageGenData) -> Image:
+def display_image_generation_prompt(session_image_gen_data: ImageGenData):
     image_gen_prompt = "" if len(session_image_gen_data.image_gen_prompts) == 0 else session_image_gen_data.image_gen_prompts[0]
-    text = st.text_area("Image Generation Prompt", value=image_gen_prompt, on_change=update_session_selected_prompt, args=(session_image_gen_data,), key="image_gen_prompt")
+    st.text_area("Image Generation Prompt", value=image_gen_prompt, on_change=update_session_selected_prompt, args=(session_image_gen_data,), key="image_gen_prompt")
     # cold start
     if session_image_gen_data.image_gen_prompt_selected == None:
         update_session_selected_prompt(session_image_gen_data)
 
+def display_image_generator(session_image_gen_data: ImageGenData) -> Image:
     image_gen_model = st.selectbox(
         'What is you preferred image generation model?',
         (ImageGenerationModel.OPENJOURNEY.value, ImageGenerationModel.STABLE_DIFFUSION.value, ImageGenerationModel.DEEPFLOYD_IF.value, ImageGenerationModel.POKEMON.value, ImageGenerationModel.WAIFU_DIFFUSION.value))
     if st.button("Generate Image"):
-        session_image_gen_data.image_pil_generated = text2image(text, image_gen_model)
+        session_image_gen_data.image_pil_generated = text2image(session_image_gen_data.image_gen_prompt_selected, image_gen_model)
         session_image_gen_data.reset_image_data()
 
 def text2image(text: str, image_gen_model: ImageGenerationModel) -> Image:

@@ -40,8 +40,10 @@ class ImageGenData:
     image_pil_upload_ready: Image | None = None
 
     def reset_image_data(self):
-        self.image_pil_background_removed = None
+        """Reset all image editings after the base generated one"""
+        self.image_pil_outpainted = None
         self.image_pil_upscaled = None
+        self.image_pil_background_removed = None
         self.image_pil_upload_ready = None
 
 

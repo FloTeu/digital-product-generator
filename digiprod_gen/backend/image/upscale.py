@@ -7,7 +7,6 @@ from digiprod_gen.backend.image.common import replicate_generate, OutputFormat
 
 def pil_upscale(img_pil: Image, shape: Tuple[int, int]) -> Image:
     img_rs = img_pil.resize(shape, resample=Image.BOX)
-    print(img_rs.size)
     return img_rs
 
 
