@@ -45,6 +45,12 @@ def extend_mba_product(mba_product: MBAProduct, product_tag: Tag, marketplace: M
         mba_product.price = parser.get_price(product_tag)
     except:
         pass
+    if not mba_product.brand:
+        try:
+            mba_product.brand = parser.get_brand(product_tag)
+        except:
+            pass
+
     return mba_product
 
 def mba_product_category2html_row_name(mba_product: MBAProductCategory):

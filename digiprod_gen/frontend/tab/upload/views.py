@@ -1,8 +1,7 @@
-from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
-
-
 import streamlit as st
 
+from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
+from digiprod_gen.backend.data_classes.session import MBAUploadData, SessionState
 from collections import deque
 
 
@@ -23,17 +22,26 @@ def display_data_for_upload(image_pil, title, brand, bullet_1, bullet_2, descrip
     col1, col2 = st.columns(2)
     col2_1, col2_2 = col2.columns(2)
     col1.image(image_pil)
-    col2_1.markdown(f"""
-        ### Title
-        {title}
-        ### Bullet 1
-        {bullet_1}
-        ### Description
-        {description}
-    """)
-    col2_2.markdown(f"""
-        ### Brand
-        {brand}
-        ### Bullet 2
-        {bullet_2}
-    """)
+
+    session_state: SessionState = st.session_state["session_state"]
+    mba_upload_data: MBAUploadData = session_state.upload_data
+
+    # Column 1
+    col2_1.text_area("**Title**", value=title, on_change=update_session_upload_listing, args=(mba_upload_data, ), key="mba_upload_listing_title")
+    col2_1.text_area("**Bullet 1**", value=bullet_1, on_change=update_session_upload_listing, args=(mba_upload_data, ), key="mba_upload_listing_bullet_1")
+    col2_1.text_area("**Description**", value=description, on_change=update_session_upload_listing, args=(mba_upload_data, ), key="mba_upload_listing_description")
+    # Column 2
+    col2_2.text_area("**Brand**", value=brand, on_change=update_session_upload_listing, args=(mba_upload_data, ), key="mba_upload_listing_brand")
+    col2_2.text_area("**Bullet 2**", value=bullet_2, on_change=update_session_upload_listing, args=(mba_upload_data, ), key="mba_upload_listing_bullet_2")
+
+    # cold start
+    if mba_upload_data.title == None:
+        update_session_upload_listing(mba_upload_data)
+
+def update_session_upload_listing(mba_upload_data: MBAUploadData):
+    # Update data
+    mba_upload_data.brand = st.session_state["mba_upload_listing_brand"]
+    mba_upload_data.title = st.session_state["mba_upload_listing_title"]
+    mba_upload_data.bullet_1 = st.session_state["mba_upload_listing_bullet_1"]
+    mba_upload_data.bullet_2 = st.session_state["mba_upload_listing_bullet_2"]
+    mba_upload_data.description = st.session_state["mba_upload_listing_description"]

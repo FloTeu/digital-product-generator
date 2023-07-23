@@ -9,7 +9,7 @@ from digiprod_gen.backend.utils import is_debug, get_config, init_environment
 from digiprod_gen.backend.image import conversion as img_conversion
 from digiprod_gen.backend.image.caption import extend_mba_products_with_caption
 from digiprod_gen.backend.data_classes.session import SessionState, DigiProdGenStatus
-from digiprod_gen.backend.browser.upload.selenium_mba import upload_image, click_on_create_new, insert_listing_text, select_products_and_marketplaces, publish_to_mba
+from digiprod_gen.backend.browser.upload.selenium_mba import click_on_create_new, insert_listing_text, select_products_and_marketplaces, publish_to_mba
 from digiprod_gen.frontend.session import read_session, update_mba_request, write_session, set_session_state_if_not_exists
 from digiprod_gen.frontend import sidebar
 from digiprod_gen.frontend.tab.image_generation.selected_products import display_mba_products
@@ -132,11 +132,12 @@ def main():
             else:
                 display_mba_account_tier(session_state.browser.driver)
                 if st.button("Upload product to MBA"):
-                    upload_mba_product(session_state, predicted_description, tab_upload)
+                    upload_mba_product(session_state, tab_upload)
 
 
-def upload_mba_product(session_state, predicted_description, tab_upload):
+def upload_mba_product(session_state, tab_upload):
     from digiprod_gen.backend.browser.upload.selenium_mba import login_to_mba
+    from digiprod_gen.backend.browser.upload.selenium_mba import upload_image
     import time
     login_to_mba(tab_upload)
     image_pil_upload_ready = session_state.image_gen_data.image_pil_upload_ready
@@ -150,9 +151,9 @@ def upload_mba_product(session_state, predicted_description, tab_upload):
         st.error('You not defined your listings yet', icon="🚨")
     else:
         # TODO: how to handle case with Marketplace different to com (language of bullets is german for example but form takes englisch text input)
-        insert_listing_text(session_state.browser.driver, title=read_session("mba_upload_title"),
-                            brand=read_session("mba_upload_brand"), bullet_1=read_session("mba_upload_bullet_1"),
-                            bullet_2=read_session("mba_upload_bullet_2"), description=predicted_description)
+        insert_listing_text(session_state.browser.driver, title=session_state.upload_data.title,
+                            brand=session_state.upload_data.brand, bullet_1=session_state.upload_data.bullet_1,
+                            bullet_2=session_state.upload_data.bullet_2, description=session_state.upload_data.description)
         # publish_to_mba(searchable=not is_debug())
 
 

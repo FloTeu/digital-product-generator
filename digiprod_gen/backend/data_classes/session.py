@@ -52,6 +52,11 @@ class MBAUploadData:
     predicted_brands: List[str] = field(default_factory=list)
     predicted_titles: List[str] = field(default_factory=list)
     predicted_bullets: List[str] = field(default_factory=list)
+    title: str | None = None
+    brand: str | None = None
+    bullet_1: str | None = None
+    bullet_2: str | None = None
+    description: str | None = None
 
 
 @dataclass

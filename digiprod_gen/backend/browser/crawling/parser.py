@@ -53,3 +53,7 @@ def get_bullets(product_tag: Tag) -> List[str]:
 def get_description(product_tag: Tag) -> str:
     return product_tag.find_all("div", {"id": "productDescription"})[0].text.strip()
 
+
+def get_brand(product_tag: Tag) -> str:
+    return product_tag.find_all("a", {"id": "bylineInfo"})[0].text.strip()
+

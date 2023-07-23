@@ -19,7 +19,7 @@ def display_image_generation_prompt(session_image_gen_data: ImageGenData):
 
 def display_image_generator(session_image_gen_data: ImageGenData) -> Image:
     image_gen_model = st.selectbox(
-        'What is you preferred image generation model?',
+        'Image Generation Model',
         (ImageGenerationModel.OPENJOURNEY.value, ImageGenerationModel.STABLE_DIFFUSION.value, ImageGenerationModel.DEEPFLOYD_IF.value, ImageGenerationModel.POKEMON.value, ImageGenerationModel.WAIFU_DIFFUSION.value))
     if st.button("Generate Image"):
         session_image_gen_data.image_pil_generated = text2image(session_image_gen_data.image_gen_prompt_selected, image_gen_model)
