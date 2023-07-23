@@ -15,7 +15,7 @@ from digiprod_gen.frontend import sidebar
 from digiprod_gen.frontend.tab.image_generation.selected_products import display_mba_products
 from digiprod_gen.frontend.tab.image_generation.image_editing import set_image_pil_generated_by_user, display_image_editor
 from digiprod_gen.frontend.tab.image_generation.image_generation import display_image_generator, display_image_generation_prompt
-from digiprod_gen.frontend.tab.upload.views import display_listing_selection, display_data_for_upload
+from digiprod_gen.frontend.tab.upload.views import display_listing_selection, display_data_for_upload, ListingSelectChange
 from digiprod_gen.frontend.tab.upload.mba_upload import display_mba_account_tier
 from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
 
@@ -125,8 +125,7 @@ def main():
                 display_listing_selection(predicted_titles, predicted_brands, predicted_bullets, tab_crawling)
 
             if image_pil_upload_ready:
-                predicted_description = f'{read_session("mba_upload_title")} by "{read_session("mba_upload_brand")}". {read_session("mba_upload_bullet_1")} {read_session("mba_upload_bullet_2")}'
-                display_data_for_upload(image_pil_upload_ready, title=read_session("mba_upload_title"), brand=read_session("mba_upload_brand"), bullet_1=read_session("mba_upload_bullet_1"), bullet_2=read_session("mba_upload_bullet_2"), description=predicted_description)
+                display_data_for_upload(image_pil_upload_ready, title=read_session(ListingSelectChange.TITLE.value), brand=read_session(ListingSelectChange.BRAND.value), bullet_1=read_session(ListingSelectChange.BULLET_1.value), bullet_2=read_session(ListingSelectChange.BULLET_2.value))
             if not session_state.status.mba_login_successfull:
                 st.warning("Please login with your MBA credentials")
             else:
