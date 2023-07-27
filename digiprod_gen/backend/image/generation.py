@@ -20,6 +20,6 @@ def generate_with_waifu(prompt: str) -> Image:
     return replicate_generate(model, {"prompt": prompt}, output_format=OutputFormat.GENERATOR)
 
 def generate_with_stable_diffusion(prompt: str) -> Image:
-    model = "stability-ai/stable-diffusion:ac732df83cea7fff18b8472768c88ad041fa750ff7682a21affe81863cbe77e4"
+    model = "stability-ai/sdxl:2b017d9b67edd2ee1401238df49d75da53c523f36e363881e057f5dc3ed3c5b2"
     return replicate_generate(model, {"prompt": prompt}, output_format=OutputFormat.GENERATOR)
 
