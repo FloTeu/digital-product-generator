@@ -3,9 +3,9 @@ from enum import Enum
 import hashlib
 from typing import List, Optional, Union
 from PIL import Image
+from digiprod_gen.backend.data_classes.common import EnumBase
 
-
-class MBAMarketplaceDomain(str, Enum):
+class MBAMarketplaceDomain(str, EnumBase):
     COM="com"
     DE="de"
     UK="co.uk"
@@ -15,7 +15,7 @@ class MBAMarketplaceDomain(str, Enum):
     JP="co.jp"
 
 
-class MBAProductCategory(str, Enum):
+class MBAProductCategory(str, EnumBase):
     SHIRT="Shirt"
     PREMIUM_SHIRT="Premium Shirt"
     V_SHIRT="V-neck Shirt"
@@ -31,13 +31,13 @@ class MBAProductCategory(str, Enum):
     TOTE_BAG="Tote Bag"
     THROW_PILLOWS="Throw Pillows"
 
-class MBAProductFitType(str, Enum):
+class MBAProductFitType(str, EnumBase):
     MEN="Men"
     WOMAN="Women"
     YOUTH="Youth"
 
 
-class MBAProductColor(str, Enum):
+class MBAProductColor(str, EnumBase):
     ASPHALT_GREY="Asphalt Grey"
     BABY_BLUE="Baby Blue"
     BLACK="Black"

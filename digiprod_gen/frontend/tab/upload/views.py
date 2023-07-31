@@ -1,7 +1,9 @@
 import streamlit as st
+from typing import List
 
 from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
-from digiprod_gen.backend.data_classes.session import MBAUploadData, SessionState
+from digiprod_gen.backend.data_classes.session import MBAUploadData, SessionState, MBAUploadSettings
+from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProductCategory, MBAProductColor, MBAProductFitType
 from collections import deque
 from PIL import Image, ImageOps
 from enum import Enum
@@ -78,3 +80,40 @@ def update_session_upload_listing(listing_select_change: ListingSelectChange | N
     mba_upload_data.bullet_1 = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BULLET_1 else st.session_state["mba_upload_listing_bullet_1"]
     mba_upload_data.bullet_2 = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BULLET_2 else st.session_state["mba_upload_listing_bullet_2"]
     mba_upload_data.description = f'{mba_upload_data.title} by "{mba_upload_data.brand}". {mba_upload_data.bullet_1} {mba_upload_data.bullet_2}'
+
+
+def display_multiselect(label: str, options: List[str], values: List[str]):
+    container = st.container()
+    all_marketplaces = st.checkbox("Select all", key=label)
+    if all_marketplaces:
+        return container.multiselect(label, options, options)
+    else:
+        return container.multiselect(label, options, values)
+
+
+def display_marketplace_delector(session_mba_upload_settings: MBAUploadSettings):
+    session_mba_upload_settings.marketplaces = display_multiselect("MBA Marketplace",
+                                                                       MBAMarketplaceDomain.to_list(),
+                                                                       [MBAMarketplaceDomain.COM.value])
+
+def display_product_category_delector(session_mba_upload_settings: MBAUploadSettings):
+    session_mba_upload_settings.product_categories = display_multiselect("MBA Product Category",
+                                                                       MBAProductCategory.to_list(),
+                                                                       [MBAProductCategory.SHIRT.value])
+
+def display_product_color_delector(session_mba_upload_settings: MBAUploadSettings):
+    default_values = [MBAProductColor.BLACK.value, MBAProductColor.ASPHALT_GREY.value, MBAProductColor.NAVY_BLUE.value,
+                      MBAProductColor.WHITE.value, MBAProductColor.BROWN.value, MBAProductColor.DARK_HEATHER_GREY.value,
+                      MBAProductColor.HEATHER_BLUE.value, MBAProductColor.SILVER_GREY.value, MBAProductColor.SLATE_GREY]
+
+    session_mba_upload_settings.colors = display_multiselect("MBA Product Colors",
+                                                               MBAProductColor.to_list(),
+                                                                default_values)
+
+
+def display_product_fit_type_delector(session_mba_upload_settings: MBAUploadSettings):
+    session_mba_upload_settings.fit_types = display_multiselect("MBA Product Fit Type",
+                                                               MBAProductFitType.to_list(),
+                                                        [MBAProductFitType.MEN.value, MBAProductFitType.WOMAN.value])
+
+

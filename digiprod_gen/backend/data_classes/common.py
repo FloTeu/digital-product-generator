@@ -5,6 +5,12 @@ from pathlib import Path
 from enum import Enum
 
 
+class EnumBase(Enum):
+    @classmethod
+    def to_list(cls):
+        return list(map(lambda c: c.value, cls))
+
+
 class ImageCaptioningModel(str, Enum):
     BLIP2="Blip 2"
     IMG2PROMPT="Image to Prompt"
