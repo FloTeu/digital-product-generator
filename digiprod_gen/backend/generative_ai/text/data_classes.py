@@ -69,7 +69,7 @@ class ProductTextGenerator(BaseFewShotGenerator):
                                                           additional_kwargs={"name": INSTRUCTOR_USER_NAME}))
         self.messages.few_shot_examples = messages
 
-    def _set_io_prompt(self, mba_text_type: MBAProductTextType, marketplace: MBAMarketplaceDomain):
+    def _set_io_prompt(self, mba_text_type: MBAProductTextType, marketplace: MBAMarketplaceDomain = MBAMarketplaceDomain.COM):
         """Human message which contains the input for the text generation"""
         human_template = f"Do not include any of the following words: {MBA_BANNED_WORDS}.\n"
         if mba_text_type == MBAProductTextType.BULLET:

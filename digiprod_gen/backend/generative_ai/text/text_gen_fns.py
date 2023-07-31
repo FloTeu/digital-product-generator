@@ -1,6 +1,6 @@
 from typing import List
 
-from digiprod_gen.backend.data_classes.mba import MBAProduct, MBAProductTextType
+from digiprod_gen.backend.data_classes.mba import MBAProduct, MBAProductTextType, MBAMarketplaceDomain
 from digiprod_gen.backend.data_classes.common import MBAMidjourneyOutputModel
 from digiprod_gen.backend.generative_ai.text.data_classes import MBAMidjourneyPromptGenerator, ProductTextGenerator
 from llm_few_shot_gen.few_shot_examples.utils import get_shirt_design_prompt_examples
@@ -28,7 +28,7 @@ def get_midjourney_prompt_gen(llm: BaseLanguageModel) -> MBAMidjourneyPromptGene
     return midjourney_prompt_gen
 
 
-def get_product_text_gen(llm, mba_products, mba_product_text_type: MBAProductTextType, marketplace) -> ProductTextGenerator:
+def get_product_text_gen(llm, mba_products, mba_product_text_type: MBAProductTextType, marketplace: MBAMarketplaceDomain) -> ProductTextGenerator:
     product_text_gen = ProductTextGenerator(llm)
     product_text_gen._set_context()
     few_shot_examples = []

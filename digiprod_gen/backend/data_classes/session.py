@@ -1,6 +1,6 @@
 from PIL.Image import Image
 from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser
-from digiprod_gen.backend.data_classes.mba import MBAProduct
+from digiprod_gen.backend.data_classes.mba import MBAProduct, MBAProductCategory
 
 
 from dataclasses import dataclass, field
@@ -48,6 +48,12 @@ class ImageGenData:
 
 
 @dataclass
+class MBAUploadSettings:
+    product_category: List[MBAProductCategory]
+
+
+
+@dataclass
 class MBAUploadData:
     predicted_brands: List[str] = field(default_factory=list)
     predicted_titles: List[str] = field(default_factory=list)
@@ -57,6 +63,7 @@ class MBAUploadData:
     bullet_1: str | None = None
     bullet_2: str | None = None
     description: str | None = None
+    settings: MBAUploadSettings | None = None
 
 
 @dataclass

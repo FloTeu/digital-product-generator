@@ -31,6 +31,34 @@ class MBAProductCategory(str, Enum):
     TOTE_BAG="Tote Bag"
     THROW_PILLOWS="Throw Pillows"
 
+class MBAProductFitType(str, Enum):
+    MEN="Men"
+    WOMAN="Women"
+    YOUTH="Youth"
+
+
+class MBAProductColor(str, Enum):
+    ASPHALT_GREY="Asphalt Grey"
+    BABY_BLUE="Baby Blue"
+    BLACK="Black"
+    CRANBERRY_RED="Cranberry Red"
+    HEATHER_GREY="Heather Grey"
+    DARK_HEATHER_GREY="Dark Heather Grey"
+    HEATHER_BLUE="Heather Blue"
+    SILVER_GREY="Silver Grey"
+    SLATE_GREY="Slate Grey"
+    GRASS_GREEN="Grass Green"
+    BROWN="Brown"
+    KELLY_GREEN="Kelly Green"
+    LEMON_YELLOW="Lemon Yellow"
+    NAVY_BLUE="Navy Blue"
+    OLIVE_GREEN="Olive Green"
+    ORANGE="Orange"
+    PINK="Pink"
+    PURPLE="Purple"
+    RED="Red"
+    ROYAL="Royal"
+    WHITE="White"
 
 class MBAProductTextType(str, Enum):
     BRAND="brand"
