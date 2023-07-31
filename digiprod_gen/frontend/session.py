@@ -5,15 +5,14 @@ import streamlit as st
 from digiprod_gen.backend.browser.crawling.proxies import get_random_private_proxy
 from digiprod_gen.backend.browser.crawling.mba.utils import get_random_headers
 from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser, init_selenium_driver
-from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest
-from digiprod_gen.backend.data_classes.mba import MBAProductCategory
+from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketplaceDomain, MBAProductCategory
 from digiprod_gen.backend.data_classes.session import SessionState, ImageGenData, CrawlingData, MBAUploadData, DigiProdGenStatus
 from digiprod_gen.backend.utils import request2mba_overview_url, is_debug, get_config, delete_files_in_path
 
 def creat_session_state() -> SessionState:
     config = get_config()
-    marketplace = st.session_state["marketplace"]
-    search_term = st.session_state["search_term"]
+    marketplace = read_session("marketplace") or MBAMarketplaceDomain.COM
+    search_term = read_session("search_term") or ""
     proxy = get_random_private_proxy(st.secrets.proxy_perfect_privacy.user_name,
                                         st.secrets.proxy_perfect_privacy.password, marketplace=marketplace)
     request = CrawlingMBARequest(marketplace=marketplace, product_category=MBAProductCategory.SHIRT,
@@ -39,6 +38,11 @@ def set_session_state_if_not_exists():
     """Creates a session state if its not already exists"""
     if read_session("session_state") == None:
         write_session("session_state", creat_session_state())
+
+# def init_session_state():
+#     """Creates a session state if its not already exists"""
+#     if "session_state" not in st.session_state:
+#         st.session_state.session_state = creat_session_state()
 
 
 def write_session(keys: str | List[str], value: Any):
