@@ -12,7 +12,7 @@ from selenium.webdriver.common.by import By
 from digiprod_gen.backend.browser.crawling.mba.utils import is_mba_product
 from digiprod_gen.backend.browser.crawling.selenium_mba import search_overview_and_change_postcode
 from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketplaceDomain
-from digiprod_gen.backend.data_classes.session import SessionState
+from digiprod_gen.backend.data_classes.session import SessionState, CrawlingData
 from digiprod_gen.backend.transform.transform_fns import overview_product_tag2mba_product
 from digiprod_gen.constants import MAX_SHIRTS_PER_ROW
 from digiprod_gen.backend.data_classes.mba import MBAProduct
@@ -28,21 +28,15 @@ def crawl_mba_overview_and_display(st_element: DeltaGenerator):
     session_state: SessionState = read_session("session_state")
     start_browser(session_state)
     request: CrawlingMBARequest = session_state.crawling_request
-    driver = session_state.browser.driver
-    marketplace = request.marketplace
     with st_element:
         display_start_crawling = st.empty()
         display_start_crawling.write("Start crawling...")
-        currency_str = marketplace2currency(marketplace)
 
         mba_products = session_state.crawling_data.mba_products
         if not mba_products or not session_state.status.overview_page_crawled:
-            mba_products = crawl_mba_overview2mba_products(session_state)
+            crawl_mba_overview2mba_products(session_state)
 
-        if read_session("speed_up"):
-            mba_products = mba_products[0:8]
-
-        display_mba_overview_products(mba_products, currency_str, marketplace, request)
+        display_mba_overview_products(session_state.crawling_data, request)
         # # Temp button to download html
         # st.download_button('Download HTML', driver.page_source, file_name='mba_overview.html', on_click=crawl_mba_overview_and_display, args=(st_element, ), key="download_overview_html")
         # display_start_crawling.empty()
@@ -75,9 +69,11 @@ def crawl_mba_overview2mba_products(session_state: SessionState):
     session_state.status.overview_page_crawled = True
     return mba_products
 
-def display_mba_overview_products(mba_products: List[MBAProduct], currency_str: str, marketplace: MBAMarketplaceDomain, request: CrawlingMBARequest):
+def display_mba_overview_products(crawling_data: CrawlingData, request: CrawlingMBARequest):
     """ Displays already crawled mba overview products to frontend.
     """
+    mba_products: List[MBAProduct] = crawling_data.mba_products
+    currency_str: str = marketplace2currency(request.marketplace)
     progress_text = "Crawling in progress. Please wait."
     crawling_progress_bar = st.progress(0, text=progress_text)
     display_overview_products = st.empty()
@@ -91,7 +87,7 @@ def display_mba_overview_products(mba_products: List[MBAProduct], currency_str: 
             display_cols[i].image(mba_product.image_url)
             color = "black" if not mba_product.bullets else "green"
             display_cols[i].markdown(f":{color}[{(j * MAX_SHIRTS_PER_ROW) + i + 1}. {mba_product.title}]")
-            display_cols[i].write(f"Price: {get_price_display_str(marketplace, mba_product.price, currency_str)}")
+            display_cols[i].write(f"Price: {get_price_display_str(request.marketplace, mba_product.price, currency_str)}")
 
     crawling_progress_bar.empty()
 

@@ -105,21 +105,21 @@ def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator):
     session_state.status.detail_pages_crawled = True
 
 
-def display_mba_products(st_tab_ig: DeltaGenerator, mba_products_selected: List[MBAProduct]):
-    with st_tab_ig:
-        st.subheader("Selected MBA Products")
-        with st.expander("Collapse selected mba products", expanded=True):
-            display_cols = st.columns(MAX_SHIRTS_PER_ROW)
-            for j, mba_products_splitted_list in enumerate(split_list(mba_products_selected, MAX_SHIRTS_PER_ROW)):
-                for i, mba_product in enumerate(mba_products_splitted_list):
-                    image_bytes_io: BytesIO = image_url2image_bytes_io(mba_product.image_url)
-                    display_cols[i].image(image_bytes_io)
-                    display_cols[i].markdown(f":black[Brand: {mba_product.brand}]")
-                    display_cols[i].markdown(f":black[Title: {mba_product.title}]")
-                    if mba_product.bullets:
-                        for bullet_i, bullet in enumerate(mba_product.bullets):
-                            display_cols[i].write(f"Bullets {bullet_i+1}: {bullet}")
-                    if mba_product.image_text_caption:
-                        display_cols[i].markdown(f":black[Text Caption: {mba_product.image_text_caption}]")
-                    if mba_product.image_prompt:
-                        display_cols[i].markdown(f":black[Image Prompt: {mba_product.image_prompt}]")
+def display_mba_selected_products(crawling_data: CrawlingData):
+    mba_products_selected = crawling_data.get_selected_mba_products()
+    st.subheader("Selected MBA Products")
+    with st.expander("Collapse selected mba products", expanded=True):
+        display_cols = st.columns(MAX_SHIRTS_PER_ROW)
+        for j, mba_products_splitted_list in enumerate(split_list(mba_products_selected, MAX_SHIRTS_PER_ROW)):
+            for i, mba_product in enumerate(mba_products_splitted_list):
+                image_bytes_io: BytesIO = image_url2image_bytes_io(mba_product.image_url)
+                display_cols[i].image(image_bytes_io)
+                display_cols[i].markdown(f":black[Brand: {mba_product.brand}]")
+                display_cols[i].markdown(f":black[Title: {mba_product.title}]")
+                if mba_product.bullets:
+                    for bullet_i, bullet in enumerate(mba_product.bullets):
+                        display_cols[i].write(f"Bullets {bullet_i+1}: {bullet}")
+                if mba_product.image_text_caption:
+                    display_cols[i].markdown(f":black[Text Caption: {mba_product.image_text_caption}]")
+                if mba_product.image_prompt:
+                    display_cols[i].markdown(f":black[Image Prompt: {mba_product.image_prompt}]")

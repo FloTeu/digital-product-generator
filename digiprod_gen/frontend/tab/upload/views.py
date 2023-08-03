@@ -1,8 +1,9 @@
 import streamlit as st
 from typing import List
 
+from digiprod_gen.backend.image import conversion as img_conversion
 from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
-from digiprod_gen.backend.data_classes.session import MBAUploadData, SessionState, MBAUploadSettings
+from digiprod_gen.backend.data_classes.session import MBAUploadData, SessionState, MBAUploadSettings, ImageGenData
 from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProductCategory, MBAProductColor, MBAProductFitType
 from collections import deque
 from PIL import Image, ImageOps
@@ -40,7 +41,12 @@ def display_upload_ready_image(img_pil: Image):
     session_state: SessionState = st.session_state["session_state"]
     session_state.image_gen_data.image_pil_upload_ready = image_pil_upload_ready
 
-def display_data_for_upload(image_pil, title, brand, bullet_1, bullet_2):
+def display_data_for_upload(image_pil: Image,
+                            title: str | None,
+                            brand: str | None,
+                            bullet_1: str | None,
+                            bullet_2: str | None
+                            ):
     st.subheader("Upload Overview")
     col1, col2 = st.columns(2)
     col2_1, col2_2 = col2.columns(2)
@@ -57,13 +63,18 @@ def display_data_for_upload(image_pil, title, brand, bullet_1, bullet_2):
         description = "" if mba_upload_data.description == None else mba_upload_data.description
 
     # Column 1
-    col2_1.text_area("**Title**", value=title, on_change=update_session_upload_listing, key="mba_upload_listing_title")
-    col2_1.text_area("**Bullet 1**", value=bullet_1, on_change=update_session_upload_listing, key="mba_upload_listing_bullet_1")
-    col2_1.text_area("**Description**", value=description, on_change=update_session_upload_listing, disabled=True, key="mba_upload_listing_description")
+    if title:
+        col2_1.text_area("**Title**", value=title, on_change=update_session_upload_listing, key="mba_upload_listing_title")
+    if bullet_1:
+        col2_1.text_area("**Bullet 1**", value=bullet_1, on_change=update_session_upload_listing, key="mba_upload_listing_bullet_1")
+    if title and brand:
+        col2_1.text_area("**Description**", value=description, on_change=update_session_upload_listing, disabled=True, key="mba_upload_listing_description")
 
     # Column 2
-    col2_2.text_area("**Brand**", value=brand, on_change=update_session_upload_listing, key="mba_upload_listing_brand")
-    col2_2.text_area("**Bullet 2**", value=bullet_2, on_change=update_session_upload_listing, key="mba_upload_listing_bullet_2")
+    if brand:
+        col2_2.text_area("**Brand**", value=brand, on_change=update_session_upload_listing, key="mba_upload_listing_brand")
+    if bullet_2:
+        col2_2.text_area("**Bullet 2**", value=bullet_2, on_change=update_session_upload_listing, key="mba_upload_listing_bullet_2")
 
     # cold start
     if mba_upload_data.title == None:
@@ -122,4 +133,11 @@ def display_upload_settings_editor(session_mba_upload_settings: MBAUploadSetting
     display_product_color_delector(session_mba_upload_settings)
     display_product_fit_type_delector(session_mba_upload_settings)
 
+def display_image_upload(image_gen_data: ImageGenData):
+    # User can either choose newly created image or a existing one (by uploading it in this view)
+    if not image_gen_data.image_pil_upload_ready:
+        image = st.file_uploader("Image:", type=["png", "jpg", "jpeg"], key="image_upload_tab")
+        if image:
+            image_pil_upload_ready = img_conversion.bytes2pil(image.getvalue())
+            image_gen_data.image_pil_upload_ready = image_pil_upload_ready
 
