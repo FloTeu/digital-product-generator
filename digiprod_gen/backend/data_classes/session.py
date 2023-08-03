@@ -82,8 +82,8 @@ class DigiProdGenStatus:
 
 @dataclass
 class SessionState:
-    crawling_request: CrawlingMBARequest
-    browser: SeleniumBrowser
+    crawling_request: CrawlingMBARequest | None
+    browser: SeleniumBrowser | None
     crawling_data: CrawlingData
     image_gen_data: ImageGenData
     upload_data: MBAUploadData

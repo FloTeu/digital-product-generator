@@ -11,7 +11,7 @@ from digiprod_gen.backend.data_classes.session import SessionState, DigiProdGenS
 from digiprod_gen.backend.browser.upload.selenium_mba import click_on_create_new, insert_listing_text, \
     select_products_and_marketplaces, publish_to_mba
 from digiprod_gen.frontend.session import read_session, update_mba_request, write_session, \
-    set_session_state_if_not_exists
+    set_session_state_if_not_exists, init_session_state
 from digiprod_gen.frontend import sidebar
 from digiprod_gen.frontend.tab.image_generation.selected_products import display_mba_products
 from digiprod_gen.frontend.tab.image_generation.image_editing import set_image_pil_generated_by_user, \
@@ -19,13 +19,12 @@ from digiprod_gen.frontend.tab.image_generation.image_editing import set_image_p
 from digiprod_gen.frontend.tab.image_generation.image_generation import display_image_generator, \
     display_image_generation_prompt
 from digiprod_gen.frontend.tab.upload.views import (display_listing_selection, display_data_for_upload,
-                                                    ListingSelectChange, display_marketplace_delector,
-                                                    display_product_category_delector, display_product_color_delector,
-                                                    display_product_fit_type_delector)
+                                                    ListingSelectChange, display_upload_settings_editor)
 from digiprod_gen.frontend.tab.upload.mba_upload import display_mba_account_tier
 from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
 
 init_environment()
+init_session_state()
 
 
 def read_request():
@@ -115,28 +114,21 @@ def main():
                 st.warning('Please click on 4. Listing Generation')
             if session_state.status.detail_pages_crawled:
                 sidebar.listing_generation_input(tab_upload)
-                predicted_bullets = session_state.upload_data.predicted_bullets
-                predicted_titles = session_state.upload_data.predicted_titles
-                predicted_brands = session_state.upload_data.predicted_brands
 
             mba_upload_settings = session_state.upload_data.settings
-            display_marketplace_delector(mba_upload_settings)
-            display_product_category_delector(mba_upload_settings)
-            display_product_color_delector(mba_upload_settings)
-            display_product_fit_type_delector(mba_upload_settings)
+            display_upload_settings_editor(mba_upload_settings)
 
         # MBA Login
         sidebar.mab_login_input(tab_upload)
         try:
-            if session_state:
+            if session_state.browser:
                 sidebar.mba_otp_input(session_state)
         except WebDriverException:
             # TODO: Find out why this error is thrown
             pass
 
         if session_state and session_state.status.detail_pages_crawled:
-            if predicted_bullets and predicted_brands and predicted_titles:
-                display_listing_selection(predicted_titles, predicted_brands, predicted_bullets, tab_crawling)
+            display_listing_selection(session_state.upload_data)
 
             if image_pil_upload_ready:
                 display_data_for_upload(image_pil_upload_ready, title=read_session(ListingSelectChange.TITLE.value),

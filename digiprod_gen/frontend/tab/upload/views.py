@@ -14,15 +14,15 @@ class ListingSelectChange(str, Enum):
     BULLET_1="mba_upload_select_box_bullet_1"
     BULLET_2="mba_upload_select_box_bullet_2"
 
-def display_listing_selection(predicted_titles, predicted_brands, predicted_bullets, tab_crawling):
+def display_listing_selection(upload_data: MBAUploadData):
     st.subheader("Suggested Product Listing")
-    st.selectbox("Suggested Titles:", predicted_titles, on_change=update_session_upload_listing, args=(ListingSelectChange.TITLE, ), key=ListingSelectChange.TITLE.value)
+    st.selectbox("Suggested Titles:", upload_data.predicted_titles, on_change=update_session_upload_listing, args=(ListingSelectChange.TITLE, ), key=ListingSelectChange.TITLE.value)
     
-    st.selectbox("Suggested Brands:", predicted_brands, on_change=update_session_upload_listing, args=(ListingSelectChange.BRAND, ), key=ListingSelectChange.BRAND.value)
+    st.selectbox("Suggested Brands:", upload_data.predicted_brands, on_change=update_session_upload_listing, args=(ListingSelectChange.BRAND, ), key=ListingSelectChange.BRAND.value)
 
-    st.selectbox("Suggested Bullet 1:", predicted_bullets, on_change=update_session_upload_listing, args=(ListingSelectChange.BULLET_1, ), key=ListingSelectChange.BULLET_1.value)
+    st.selectbox("Suggested Bullet 1:", upload_data.predicted_bullets, on_change=update_session_upload_listing, args=(ListingSelectChange.BULLET_1, ), key=ListingSelectChange.BULLET_1.value)
     # put first element to end of list
-    predicted_bullets_shifted = deque(predicted_bullets)
+    predicted_bullets_shifted = deque(upload_data.predicted_bullets)
     predicted_bullets_shifted.rotate(-1)
     st.selectbox("Suggested Bullet 2:", predicted_bullets_shifted, on_change=update_session_upload_listing, args=(ListingSelectChange.BULLET_2, ), key=ListingSelectChange.BULLET_2.value)
 
@@ -115,5 +115,11 @@ def display_product_fit_type_delector(session_mba_upload_settings: MBAUploadSett
     session_mba_upload_settings.fit_types = display_multiselect("MBA Product Fit Type",
                                                                MBAProductFitType.to_list(),
                                                         [MBAProductFitType.MEN.value, MBAProductFitType.WOMAN.value])
+
+def display_upload_settings_editor(session_mba_upload_settings: MBAUploadSettings):
+    display_marketplace_delector(session_mba_upload_settings)
+    display_product_category_delector(session_mba_upload_settings)
+    display_product_color_delector(session_mba_upload_settings)
+    display_product_fit_type_delector(session_mba_upload_settings)
 
 

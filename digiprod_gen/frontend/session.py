@@ -10,7 +10,23 @@ from digiprod_gen.backend.data_classes.session import SessionState, ImageGenData
 from digiprod_gen.backend.utils import request2mba_overview_url, is_debug, get_config, delete_files_in_path
 
 def creat_session_state() -> SessionState:
-    config = get_config()
+    crawling_data=CrawlingData()
+    image_gen_data = ImageGenData()
+    upload_data = MBAUploadData()
+    status = DigiProdGenStatus()
+    session_id = get_session_id()
+    return SessionState(crawling_request=None, browser=None, crawling_data=crawling_data, image_gen_data=image_gen_data, upload_data=upload_data, status=status, session_id=session_id)
+
+def start_browser(session_state: SessionState):
+    if session_state.browser == None or not session_state.browser.is_ready:
+        config = get_config()
+        delete_files_in_path(config.selenium_data_dir_path)
+        browser = SeleniumBrowser()
+        browser.setup(headless=not is_debug(),
+                        data_dir_path=config.selenium_data_dir_path)
+        session_state.browser = browser
+
+def create_mba_request(session_state: SessionState):
     marketplace = read_session("marketplace") or MBAMarketplaceDomain.COM
     search_term = read_session("search_term") or ""
     proxy = get_random_private_proxy(st.secrets.proxy_perfect_privacy.user_name,
@@ -18,18 +34,9 @@ def creat_session_state() -> SessionState:
     request = CrawlingMBARequest(marketplace=marketplace, product_category=MBAProductCategory.SHIRT,
                                     search_term=search_term, headers=get_random_headers(marketplace), proxy=proxy, mba_overview_url=None)
     request.mba_overview_url = request2mba_overview_url(request)
-    crawling_data=CrawlingData()
-    image_gen_data = ImageGenData()
-    upload_data = MBAUploadData()
-    status = DigiProdGenStatus()
-    session_id = get_session_id()
+    session_state.crawling_request = request
 
-    # selenium browser setup
-    delete_files_in_path(config.selenium_data_dir_path)
-    browser = SeleniumBrowser()
-    browser.setup(headless=not is_debug(),
-                    data_dir_path=config.selenium_data_dir_path)
-    return SessionState(crawling_request=request, browser=browser, crawling_data=crawling_data, image_gen_data=image_gen_data, upload_data=upload_data, status=status, session_id=session_id)
+
 
 def get_session_id():
     return st.runtime.scriptrunner.add_script_run_ctx().streamlit_script_run_ctx.session_id
@@ -39,10 +46,10 @@ def set_session_state_if_not_exists():
     if read_session("session_state") == None:
         write_session("session_state", creat_session_state())
 
-# def init_session_state():
-#     """Creates a session state if its not already exists"""
-#     if "session_state" not in st.session_state:
-#         st.session_state.session_state = creat_session_state()
+def init_session_state():
+    """Creates a session state if its not already exists"""
+    if "session_state" not in st.session_state:
+        st.session_state.session_state = creat_session_state()
 
 
 def write_session(keys: str | List[str], value: Any):
@@ -72,18 +79,16 @@ def read_session(keys: str | List[str]) -> Any:
 
 
 def update_mba_request():
-    set_session_state_if_not_exists()
     session_state: SessionState = st.session_state["session_state"]
-    request = session_state.crawling_request
-    request.marketplace = st.session_state["marketplace"]
-    request.search_term = st.session_state["search_term"]
-    # proxy = get_random_private_proxy(st.secrets.proxy_perfect_privacy.user_name,
-    #                                  st.secrets.proxy_perfect_privacy.password, marketplace=marketplace)
-    # request = CrawlingMBARequest(marketplace=marketplace, product_category=MBAProductCategory.SHIRT,
-    #                              search_term=search_term, headers=get_random_headers(marketplace), proxy=proxy, mba_overview_url=None)
-    request.mba_overview_url = request2mba_overview_url(request)
-    
-    # TODO: Maybe reset also other status as well
-    session_state.status.overview_page_crawled = False
+    if session_state.crawling_request == None:
+        create_mba_request(session_state)
+    else:
+        request = session_state.crawling_request
+        request.marketplace = st.session_state["marketplace"]
+        request.search_term = st.session_state["search_term"]
+        request.mba_overview_url = request2mba_overview_url(request)
+
+        # TODO: Maybe reset also other status as well
+        session_state.status.overview_page_crawled = False
 
 
