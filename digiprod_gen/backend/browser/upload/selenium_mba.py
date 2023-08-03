@@ -19,7 +19,7 @@ from digiprod_gen.backend.transform.transform_fns import mba_product_category2ht
 from PIL import Image
 from typing import List
 
-from digiprod_gen.frontend.session import set_session_state_if_not_exists, read_session
+from digiprod_gen.frontend.session import set_session_state_if_not_exists, read_session, start_browser
 
 
 def login_mba(driver: WebDriver, email: str, password: str):
@@ -147,8 +147,8 @@ def publish_to_mba(driver, searchable=True):
 
 
 def login_to_mba(tab_upload):
-    set_session_state_if_not_exists()
-    session_state: SessionState = read_session("session_state")
+    session_state: SessionState = st.session_state["session_state"]
+    start_browser(session_state)
     with tab_upload, st.spinner('Setup MBA upload...'):
         # TODO: This might need to be changed as it was copied by browser url directly
         login_post_url = "https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fmerch.amazon.com%2Fdashboard&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=amzn_gear_us&openid.mode=checkid_setup&language=en_US&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0"

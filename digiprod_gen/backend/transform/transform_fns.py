@@ -54,20 +54,21 @@ def extend_mba_product(mba_product: MBAProduct, product_tag: Tag, marketplace: M
     return mba_product
 
 def mba_product_category2html_row_name(mba_product: MBAProductCategory):
+    #TODO: The correct html row depends on the broswer language, which can be english as well
     translate_dict = {
-        mba_product.SHIRT: "Standard t-shirt",
-        mba_product.PREMIUM_SHIRT: "Premium t-shirt",
-        mba_product.V_SHIRT: "V-neck t-shirt",
-        mba_product.TANK_TOP: "Tank top",
-        mba_product.LONG_SLEEVE: "Long sleeve t-shirt",
-        mba_product.RAGLAN: "Raglan",
-        mba_product.SWEATSHIRT: "Sweatshirt",
-        mba_product.HOODIE: "Pullover hoodie",
-        mba_product.ZIP_HOODIE: "Zip hoodie",
-        mba_product.POP_SOCKET: "PopSockets grip",
-        mba_product.IPHONE_CASE: "iPhone cases",
-        mba_product.SAMSUNG_GALAXY_CASE: "Samsung Galaxy cases",
-        mba_product.TOTE_BAG: "Tote bag",
-        mba_product.THROW_PILLOWS: "Throw pillows"
+        MBAProductCategory.SHIRT: "Standard t-shirt",
+        MBAProductCategory.PREMIUM_SHIRT: "Premium t-shirt",
+        MBAProductCategory.V_SHIRT: "V-neck t-shirt",
+        MBAProductCategory.TANK_TOP: "Tank top",
+        MBAProductCategory.LONG_SLEEVE: "Long sleeve t-shirt",
+        MBAProductCategory.RAGLAN: "Raglan",
+        MBAProductCategory.SWEATSHIRT: "Sweatshirt",
+        MBAProductCategory.HOODIE: "Pullover hoodie",
+        MBAProductCategory.ZIP_HOODIE: "Zip hoodie",
+        MBAProductCategory.POP_SOCKET: "PopSockets grip",
+        MBAProductCategory.IPHONE_CASE: "iPhone cases",
+        MBAProductCategory.SAMSUNG_GALAXY_CASE: "Samsung Galaxy cases",
+        MBAProductCategory.TOTE_BAG: "Tote bag",
+        MBAProductCategory.THROW_PILLOWS: "Throw pillows"
     }
     return translate_dict.get(mba_product, None)

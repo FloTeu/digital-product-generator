@@ -77,13 +77,13 @@ def display_tab_upload_views(session_state: SessionState):
     mba_upload_settings = session_state.upload_data.settings
     display_upload_settings_editor(mba_upload_settings)
 
-    if session_state.status.detail_pages_crawled:
-        if not session_state.status.mba_login_successfull:
-            st.warning("Please login with your MBA credentials (5. MBA Upload)")
-        else:
-            display_mba_account_tier(session_state.browser.driver)
-            if st.button("Upload product to MBA"):
-                upload_mba_product(session_state)
+    #if session_state.status.detail_pages_crawled:
+    if not session_state.status.mba_login_successfull:
+        st.warning("Please login with your MBA credentials (5. MBA Upload)")
+    else:
+        display_mba_account_tier(session_state.browser.driver)
+        if st.button("Upload product to MBA"):
+            upload_mba_product(session_state)
 
 
 def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload):
@@ -141,8 +141,8 @@ def upload_mba_product(session_state):
     click_on_create_new(session_state.browser.driver)
     time.sleep(1)
     select_products_and_marketplaces(session_state.browser.driver,
-                                     products=[session_state.crawling_request.product_category],
-                                     marketplaces=[session_state.crawling_request.marketplace])
+                                     products=session_state.upload_data.settings.product_categories,
+                                     marketplaces=session_state.upload_data.settings.marketplaces)
     upload_image(session_state.browser.driver, image_pil_upload_ready)
     if read_session("mba_upload_bullet_1") == None and read_session("mba_upload_bullet_2") == None:
         st.error('You not defined your listings yet', icon="🚨")
