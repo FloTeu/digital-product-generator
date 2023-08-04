@@ -54,7 +54,6 @@ def extend_mba_product(mba_product: MBAProduct, product_tag: Tag, marketplace: M
     return mba_product
 
 def mba_product_category2html_row_name(mba_product: MBAProductCategory):
-    #TODO: The correct html row depends on the broswer language, which can be english as well
     translate_dict = {
         MBAProductCategory.SHIRT: "Standard t-shirt",
         MBAProductCategory.PREMIUM_SHIRT: "Premium t-shirt",

@@ -7,11 +7,11 @@ from digiprod_gen.backend.data_classes.common import EnumBase
 
 class MBAMarketplaceDomain(str, EnumBase):
     COM="com"
-    DE="de"
     UK="co.uk"
-    ES="es"
-    IT="it"
+    DE="de"
     FR="fr"
+    IT="it"
+    ES="es"
     JP="co.jp"
 
 

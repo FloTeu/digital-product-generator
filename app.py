@@ -9,7 +9,7 @@ from digiprod_gen.backend.image import conversion as img_conversion
 from digiprod_gen.backend.image.caption import extend_mba_products_with_caption
 from digiprod_gen.backend.data_classes.session import SessionState, DigiProdGenStatus
 from digiprod_gen.backend.browser.upload.selenium_mba import click_on_create_new, insert_listing_text, \
-    select_products_and_marketplaces, publish_to_mba
+    select_products_and_marketplaces, publish_to_mba, select_fit_types
 from digiprod_gen.frontend.session import read_session, update_mba_request, write_session, \
     set_session_state_if_not_exists, init_session_state
 from digiprod_gen.frontend import sidebar
@@ -140,11 +140,15 @@ def upload_mba_product(session_state):
     image_pil_upload_ready = session_state.image_gen_data.image_pil_upload_ready
     click_on_create_new(session_state.browser.driver)
     time.sleep(1)
+    select_fit_types(session_state.browser.driver,
+                     fit_types=session_state.upload_data.settings.fit_types,
+                     product_categories=session_state.upload_data.settings.product_categories,
+                     )
     select_products_and_marketplaces(session_state.browser.driver,
                                      products=session_state.upload_data.settings.product_categories,
                                      marketplaces=session_state.upload_data.settings.marketplaces)
     upload_image(session_state.browser.driver, image_pil_upload_ready)
-    if read_session("mba_upload_bullet_1") == None and read_session("mba_upload_bullet_2") == None:
+    if session_state.upload_data.bullet_1 == None and session_state.upload_data.bullet_2 == None:
         st.error('You not defined your listings yet', icon="🚨")
     else:
         # TODO: how to handle case with Marketplace different to com (language of bullets is german for example but form takes englisch text input)

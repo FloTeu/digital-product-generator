@@ -8,19 +8,18 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 from selenium.webdriver import FirefoxOptions
 import tempfile
-from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
+from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProductFitType, MBAProductCategory
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.io.io_fns import save_img_to_memory
-from digiprod_gen.backend.data_classes.mba import MBAProductCategory
 from digiprod_gen.backend.transform.transform_fns import mba_product_category2html_row_name
 from PIL import Image
 from typing import List
 
 from digiprod_gen.frontend.session import set_session_state_if_not_exists, read_session, start_browser
-
+from digiprod_gen.backend.helper import Timer
 
 def login_mba(driver: WebDriver, email: str, password: str):
     """Fill mba login form and simulate submit button click"""
@@ -67,6 +66,7 @@ def click_on_create_new(driver):
 
 def select_products_and_marketplaces(driver, products: List[MBAProductCategory], marketplaces: List[MBAMarketplaceDomain]):
     """Selects desired products and target marketplaces in MBA upload/create menu"""
+    # TODO: Pillow product is not selected at the moment
     # open selecton menu
     try:
         select_products_button = driver.find_element(By.ID, "select-marketplace-button")
@@ -87,12 +87,13 @@ def select_products_and_marketplaces(driver, products: List[MBAProductCategory],
         # get html row of product
         mba_html_product = mba_product_category2html_row_name(product)
         row = table.find_element("xpath", f".//tr[contains(td, '{mba_html_product}')]")
-
         for marketplace in marketplaces:
             # get index of markeplace header which identicates column
             marketplace_index = next((i for i, s in enumerate(marketplace_header) if marketplace in s), None)
             # click on product marketplace cell
             # Note 0 is the product colum therefore we start with 1
+            if product == MBAProductCategory.THROW_PILLOWS:
+                print(product, marketplace, marketplace_index)
             row.find_elements("xpath", ".//td")[1 + marketplace_index].click()
 
     # Find the submit button by its ID (replace "submit-button-id" with the actual ID of the button)
@@ -100,6 +101,55 @@ def select_products_and_marketplaces(driver, products: List[MBAProductCategory],
 
     # Click the submit button
     submit_button.click()
+
+
+def select_fit_types(driver: WebDriver, fit_types: List[MBAProductFitType], product_categories: List[MBAProductCategory]):
+    """Selects desired fit types in MBA upload/create menu"""
+    products_cards = driver.find_elements(By.CLASS_NAME, "product-card")
+    selected_product_cat_names = [mba_product_category2html_row_name(product) for product in product_categories]
+    for products_card in products_cards:
+        product_name = products_card.find_element(By.CLASS_NAME, "heading").text
+        if product_name not in selected_product_cat_names:
+            continue
+        print(product_name)
+        # open edit menu
+        try:
+            products_card.find_element(By.CLASS_NAME, "card-button").click()
+        except (NoSuchElementException, ElementClickInterceptedException) as e:
+            # if edit button not clickable the desired product category might not be selected correctly
+            continue
+
+        time.sleep(1)
+        product_editor = driver.find_element(By.CLASS_NAME, "product-editor")
+        try:
+            product_editor_fit_types = product_editor.find_element(By.CLASS_NAME, "fit-type-container")
+        except NoSuchElementException as e:
+            # if fit type container is not available we skip this product
+            continue
+
+        # Click Men fit type
+        men_checkbox = product_editor_fit_types.find_element(By.CSS_SELECTOR, '.men-checkbox input[type="checkbox"]')
+        is_checked = men_checkbox.get_attribute('checked') == 'true'
+        if (is_checked and MBAProductFitType.MEN not in fit_types) or (not is_checked and MBAProductFitType.MEN in fit_types):
+            men_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
+
+        # Click Women fit type
+        women_checkbox = product_editor_fit_types.find_element(By.CSS_SELECTOR, '.women-checkbox input[type="checkbox"]')
+        is_checked = women_checkbox.get_attribute('checked') == 'true'
+        if (is_checked and MBAProductFitType.WOMAN not in fit_types) or (not is_checked and MBAProductFitType.WOMAN in fit_types):
+            women_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
+
+        # Click Youth fit type
+        try:
+            youth_checkbox = product_editor_fit_types.find_element(By.CSS_SELECTOR, '.youth-checkbox input[type="checkbox"]')
+            is_checked = youth_checkbox.get_attribute('checked') == 'true'
+            if (is_checked and MBAProductFitType.YOUTH not in fit_types) or (not is_checked and MBAProductFitType.YOUTH in fit_types):
+                youth_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
+        except NoSuchElementException as e:
+            # if youth size is not available we skip this product as men and women
+            pass
+
+
 
 def upload_image(driver, image_pil: Image):
     # store image to temp memory
