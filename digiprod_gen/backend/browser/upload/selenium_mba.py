@@ -147,7 +147,7 @@ def select_fit_types_in_product_editor(product_editor, fit_types: List[MBAProduc
         is_checked = youth_checkbox.get_attribute('checked') == 'true'
         if (is_checked and MBAProductFitType.YOUTH not in fit_types) or (not is_checked and MBAProductFitType.YOUTH in fit_types):
             youth_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
-    except NoSuchElementException as e:
+    except (StaleElementReferenceException, NoSuchElementException) as e:
         # if youth size is not available we skip this product as men and women
         pass
 

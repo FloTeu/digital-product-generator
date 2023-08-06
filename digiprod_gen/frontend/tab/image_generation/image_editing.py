@@ -76,7 +76,7 @@ def display_image_editor_upscaling(col1, col2, image_element, session_image_gen_
         'Up Scaling Method',
         (UpscalerModel.PIL.value, UpscalerModel.SOME_UPSCALER.value))
     if col1.button("Upscale", key="upscaling_button",
-                   use_container_width=True) and session_image_gen_data.image_pil_generated:
+                   use_container_width=True) and session_image_gen_data.image_pil_generated and not session_image_gen_data.image_pil_upscaled:
         with image_element, st.spinner("Upscaling..."):
             image_to_upscale = session_image_gen_data.image_pil_outpainted or session_image_gen_data.image_pil_generated
             image_upscaled = image_upscaling(image_to_upscale, session_image_gen_data, upscaler=upscaler_method)
@@ -108,7 +108,7 @@ def display_image_editor_background_removal(col1, col2, image_element, backgroun
     br_method = col1.selectbox(
         'Background Removal Method',
         (BackgroundRemovalModel.OPEN_CV.value, BackgroundRemovalModel.REM_BG.value))
-    if col1.button("Remove Background", key="remove_background_button", use_container_width=True) and image_upscaled:
+    if col1.button("Remove Background", key="remove_background_button", use_container_width=True) and image_upscaled and not session_image_gen_data.image_pil_background_removed:
         with image_element, st.spinner("Background Removal..."):
             image_pil_br: Image = image_background_removal(image_upscaled, buffer=background_removal_buffer,
                                                            session_image_gen_data=session_image_gen_data,

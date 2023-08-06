@@ -73,7 +73,8 @@ class ProductTextGenerator(BaseFewShotGenerator):
         """Human message which contains the input for the text generation"""
         human_template = f"Do not include any of the following words: {MBA_BANNED_WORDS}.\n"
         if mba_text_type == MBAProductTextType.BULLET:
-            human_template = human_template + get_generate_bullets_text(marketplace, 256)
+            #hard limit is 256, but we include a buffer as llm is not always exact
+            human_template = human_template + get_generate_bullets_text(marketplace, 246)
         if mba_text_type == MBAProductTextType.BRAND:
             human_template = human_template + get_generate_brand_text(marketplace, 50)
         if mba_text_type == MBAProductTextType.TITLE:

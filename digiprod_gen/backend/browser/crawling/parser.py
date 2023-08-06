@@ -26,7 +26,7 @@ def overview_product_get_title_section_tag(product_tag: Tag) -> Tag:
             return h2_tag
 
 def overview_product_get_title(product_tag: Tag) -> str:
-    return overview_product_get_title_section_tag(product_tag).find_next("span").text.strip()
+    return overview_product_get_title_section_tag(product_tag).text.strip()
 
 def overview_product_get_product_url(product_tag: Tag) -> str:
     return overview_product_get_title_section_tag(product_tag).find_next("a").attrs["href"]
