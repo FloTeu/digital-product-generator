@@ -92,9 +92,9 @@ def select_products_and_marketplaces(driver, products: List[MBAProductCategory],
             marketplace_index = next((i for i, s in enumerate(marketplace_header) if marketplace in s), None)
             # click on product marketplace cell
             # Note 0 is the product colum therefore we start with 1
-            if product == MBAProductCategory.THROW_PILLOWS:
-                print(product, marketplace, marketplace_index)
-            row.find_elements("xpath", ".//td")[1 + marketplace_index].click()
+            product_marketplace_checkbox: List[WebElement] = row.find_elements("xpath", ".//td")[1 + marketplace_index].find_elements(By.TAG_NAME, 'i')
+            if product_marketplace_checkbox:
+                product_marketplace_checkbox[0].click()
 
     # Find the submit button by its ID (replace "submit-button-id" with the actual ID of the button)
     submit_button = driver.find_element(By.CLASS_NAME, "btn-submit")
@@ -165,19 +165,22 @@ def select_colors_in_product_editor(product_editor, colors: List[MBAProductColor
             color_checkbox = product_editor_color_checkbox.find_element(By.CSS_SELECTOR, 'input[type="checkbox"]')
         except StaleElementReferenceException as e:
             print("Could not get color checkbox element")
-            product_editor_color_checkbox = product_editor.find_elements(By.CLASS_NAME, "color-checkbox-container")[i]
-            color_checkbox = product_editor_color_checkbox.find_element(By.CSS_SELECTOR, 'input[type="checkbox"]')
+            try:
+                product_editor_color_checkbox = product_editor.find_elements(By.CLASS_NAME, "color-checkbox-container")[i]
+                color_checkbox = product_editor_color_checkbox.find_element(By.CSS_SELECTOR, 'input[type="checkbox"]')
+            except StaleElementReferenceException as e:
+                continue
             #break
 
         is_checked = color_checkbox.get_attribute('checked') == 'true'
         # extract color name
         hover_over_element(web_driver, product_editor_color_checkbox)
-        color_tooltip = wait_until_element_exists(web_driver, "//*[contains(@class, 'tooltip')]", timeout=2)
+        color_tooltip = wait_until_element_exists(web_driver, "//*[contains(@class, 'tooltip')]", timeout=1)
         if color_tooltip == None:
             # TODO: How to handle this case?
             continue
-        color_name = color_tooltip.text
-        print(color_name)
+        # catch products like raglan with color name "Black/Heather Grey"
+        color_name = color_tooltip.text.split("/")[0]
         if (is_checked and color_name not in colors) or (not is_checked and color_name in colors):
             # Click color checkbox
             product_editor_color_checkbox.click()

@@ -5,7 +5,7 @@ from selenium.common.exceptions import WebDriverException
 from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketplaceDomain, MBAProductCategory
 
 from digiprod_gen.backend.utils import is_debug, get_config, init_environment
-from digiprod_gen.backend.image import conversion as img_conversion
+from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists
 from digiprod_gen.backend.image.caption import extend_mba_products_with_caption
 from digiprod_gen.backend.data_classes.session import SessionState, DigiProdGenStatus
 from digiprod_gen.backend.browser.upload.selenium_mba import click_on_create_new, insert_listing_text, \
@@ -77,9 +77,10 @@ def display_tab_upload_views(session_state: SessionState):
                                     bullet_2=read_session(ListingSelectChange.BULLET_2.value))
 
     mba_upload_settings = session_state.upload_data.settings
+    display_marketplace_selector(mba_upload_settings)
+
     use_defaults = st.checkbox("Use MBA defaults")
     mba_upload_settings.use_defaults = use_defaults
-    display_marketplace_selector(mba_upload_settings)
     if not use_defaults:
         display_product_category_selector(mba_upload_settings)
         display_product_color_selector(mba_upload_settings)
@@ -147,8 +148,11 @@ def upload_mba_product(session_state):
     import time
     image_pil_upload_ready = session_state.image_gen_data.image_pil_upload_ready
     click_on_create_new(session_state.browser.driver)
-    time.sleep(1)
-    if not session_state.upload_data.use_defaults:
+    wait_until_element_exists(session_state.browser.driver, "//*[contains(@class, 'product-card')]")
+    select_products_and_marketplaces(session_state.browser.driver,
+                                     products=session_state.upload_data.settings.product_categories,
+                                     marketplaces=session_state.upload_data.settings.marketplaces)
+    if not session_state.upload_data.settings.use_defaults:
         select_colors(session_state.browser.driver,
                          colors=session_state.upload_data.settings.colors,
                          product_categories=session_state.upload_data.settings.product_categories,
@@ -157,9 +161,6 @@ def upload_mba_product(session_state):
                          fit_types=session_state.upload_data.settings.fit_types,
                          product_categories=session_state.upload_data.settings.product_categories,
                          )
-    select_products_and_marketplaces(session_state.browser.driver,
-                                     products=session_state.upload_data.settings.product_categories,
-                                     marketplaces=session_state.upload_data.settings.marketplaces)
     if session_state.image_gen_data.image_pil_upload_ready == None:
         st.error('You not uploaded/generated an image yet', icon="🚨")
     else:
