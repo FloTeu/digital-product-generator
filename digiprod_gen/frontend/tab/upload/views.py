@@ -102,17 +102,17 @@ def display_multiselect(label: str, options: List[str], values: List[str]):
         return container.multiselect(label, options, values)
 
 
-def display_marketplace_delector(session_mba_upload_settings: MBAUploadSettings):
+def display_marketplace_selector(session_mba_upload_settings: MBAUploadSettings):
     session_mba_upload_settings.marketplaces = display_multiselect("MBA Marketplace",
                                                                        MBAMarketplaceDomain.to_list(),
                                                                        [MBAMarketplaceDomain.COM.value])
 
-def display_product_category_delector(session_mba_upload_settings: MBAUploadSettings):
+def display_product_category_selector(session_mba_upload_settings: MBAUploadSettings):
     session_mba_upload_settings.product_categories = display_multiselect("MBA Product Category",
                                                                        MBAProductCategory.to_list(),
                                                                        [MBAProductCategory.SHIRT.value])
 
-def display_product_color_delector(session_mba_upload_settings: MBAUploadSettings):
+def display_product_color_selector(session_mba_upload_settings: MBAUploadSettings):
     default_values = [MBAProductColor.BLACK.value, MBAProductColor.ASPHALT_GREY.value, MBAProductColor.NAVY_BLUE.value,
                       MBAProductColor.WHITE.value, MBAProductColor.BROWN.value, MBAProductColor.DARK_HEATHER_GREY.value,
                       MBAProductColor.HEATHER_BLUE.value, MBAProductColor.SILVER_GREY.value, MBAProductColor.SLATE_GREY]
@@ -122,16 +122,16 @@ def display_product_color_delector(session_mba_upload_settings: MBAUploadSetting
                                                                 default_values)
 
 
-def display_product_fit_type_delector(session_mba_upload_settings: MBAUploadSettings):
+def display_product_fit_type_selector(session_mba_upload_settings: MBAUploadSettings):
     session_mba_upload_settings.fit_types = display_multiselect("MBA Product Fit Type",
                                                                MBAProductFitType.to_list(),
                                                         [MBAProductFitType.MEN.value, MBAProductFitType.WOMAN.value])
 
 def display_upload_settings_editor(session_mba_upload_settings: MBAUploadSettings):
-    display_marketplace_delector(session_mba_upload_settings)
-    display_product_category_delector(session_mba_upload_settings)
-    display_product_color_delector(session_mba_upload_settings)
-    display_product_fit_type_delector(session_mba_upload_settings)
+    display_marketplace_selector(session_mba_upload_settings)
+    display_product_category_selector(session_mba_upload_settings)
+    display_product_color_selector(session_mba_upload_settings)
+    display_product_fit_type_selector(session_mba_upload_settings)
 
 def display_image_upload(image_gen_data: ImageGenData):
     # User can either choose newly created image or a existing one (by uploading it in this view)

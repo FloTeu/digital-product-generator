@@ -3,23 +3,23 @@ import time
 
 import streamlit as st
 from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
 #from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
-from selenium.webdriver import FirefoxOptions
-import tempfile
-from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProductFitType, MBAProductCategory
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException, StaleElementReferenceException
+
+from digiprod_gen.backend.browser.selenium_fns import hover_over_element, wait_until_element_exists
+from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProductFitType, MBAProductCategory, MBAProductColor
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.io.io_fns import save_img_to_memory
 from digiprod_gen.backend.transform.transform_fns import mba_product_category2html_row_name
 from PIL import Image
 from typing import List
 
-from digiprod_gen.frontend.session import set_session_state_if_not_exists, read_session, start_browser
-from digiprod_gen.backend.helper import Timer
+from digiprod_gen.frontend.session import read_session, start_browser
+
 
 def login_mba(driver: WebDriver, email: str, password: str):
     """Fill mba login form and simulate submit button click"""
@@ -102,9 +102,7 @@ def select_products_and_marketplaces(driver, products: List[MBAProductCategory],
     # Click the submit button
     submit_button.click()
 
-
-def select_fit_types(driver: WebDriver, fit_types: List[MBAProductFitType], product_categories: List[MBAProductCategory]):
-    """Selects desired fit types in MBA upload/create menu"""
+def iterate_over_product_cards(driver: WebDriver, product_categories: List[MBAProductCategory], editor_change_fn, **kwargs):
     products_cards = driver.find_elements(By.CLASS_NAME, "product-card")
     selected_product_cat_names = [mba_product_category2html_row_name(product) for product in product_categories]
     for products_card in products_cards:
@@ -119,36 +117,80 @@ def select_fit_types(driver: WebDriver, fit_types: List[MBAProductFitType], prod
             # if edit button not clickable the desired product category might not be selected correctly
             continue
 
-        time.sleep(1)
-        product_editor = driver.find_element(By.CLASS_NAME, "product-editor")
+        product_editor = wait_until_element_exists(driver, "//*[contains(@class, 'product-editor')]")
+        editor_change_fn(product_editor, **kwargs)
+
+
+def select_fit_types_in_product_editor(product_editor, fit_types: List[MBAProductFitType]):
+    """Selects desired fit types in MBA upload/create menu"""
+    try:
+        product_editor_fit_types = product_editor.find_element(By.CLASS_NAME, "fit-type-container")
+    except NoSuchElementException as e:
+        # if fit type container is not available we skip this product
+        return None
+
+    # Click Men fit type
+    men_checkbox = product_editor_fit_types.find_element(By.CSS_SELECTOR, '.men-checkbox input[type="checkbox"]')
+    is_checked = men_checkbox.get_attribute('checked') == 'true'
+    if (is_checked and MBAProductFitType.MEN not in fit_types) or (not is_checked and MBAProductFitType.MEN in fit_types):
+        men_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
+
+    # Click Women fit type
+    women_checkbox = product_editor_fit_types.find_element(By.CSS_SELECTOR, '.women-checkbox input[type="checkbox"]')
+    is_checked = women_checkbox.get_attribute('checked') == 'true'
+    if (is_checked and MBAProductFitType.WOMAN not in fit_types) or (not is_checked and MBAProductFitType.WOMAN in fit_types):
+        women_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
+
+    # Click Youth fit type
+    try:
+        youth_checkbox = product_editor_fit_types.find_element(By.CSS_SELECTOR, '.youth-checkbox input[type="checkbox"]')
+        is_checked = youth_checkbox.get_attribute('checked') == 'true'
+        if (is_checked and MBAProductFitType.YOUTH not in fit_types) or (not is_checked and MBAProductFitType.YOUTH in fit_types):
+            youth_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
+    except NoSuchElementException as e:
+        # if youth size is not available we skip this product as men and women
+        pass
+
+def select_colors_in_product_editor(product_editor, colors: List[MBAProductColor], web_driver):
+    """Selects desired colors in MBA upload/create menu for one product editor"""
+    try:
+        product_editor_color_checkboxes = product_editor.find_elements(By.CLASS_NAME, "color-checkbox-container")
+    except NoSuchElementException as e:
+        # if fit type container is not available we skip this product
+        return None
+
+    for i, product_editor_color_checkbox in enumerate(product_editor_color_checkboxes):
+        # get checkbox element
         try:
-            product_editor_fit_types = product_editor.find_element(By.CLASS_NAME, "fit-type-container")
-        except NoSuchElementException as e:
-            # if fit type container is not available we skip this product
+            color_checkbox = product_editor_color_checkbox.find_element(By.CSS_SELECTOR, 'input[type="checkbox"]')
+        except StaleElementReferenceException as e:
+            print("Could not get color checkbox element")
+            product_editor_color_checkbox = product_editor.find_elements(By.CLASS_NAME, "color-checkbox-container")[i]
+            color_checkbox = product_editor_color_checkbox.find_element(By.CSS_SELECTOR, 'input[type="checkbox"]')
+            #break
+
+        is_checked = color_checkbox.get_attribute('checked') == 'true'
+        # extract color name
+        hover_over_element(web_driver, product_editor_color_checkbox)
+        color_tooltip = wait_until_element_exists(web_driver, "//*[contains(@class, 'tooltip')]", timeout=2)
+        if color_tooltip == None:
+            # TODO: How to handle this case?
             continue
+        color_name = color_tooltip.text
+        print(color_name)
+        if (is_checked and color_name not in colors) or (not is_checked and color_name in colors):
+            # Click color checkbox
+            product_editor_color_checkbox.click()
 
-        # Click Men fit type
-        men_checkbox = product_editor_fit_types.find_element(By.CSS_SELECTOR, '.men-checkbox input[type="checkbox"]')
-        is_checked = men_checkbox.get_attribute('checked') == 'true'
-        if (is_checked and MBAProductFitType.MEN not in fit_types) or (not is_checked and MBAProductFitType.MEN in fit_types):
-            men_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
 
-        # Click Women fit type
-        women_checkbox = product_editor_fit_types.find_element(By.CSS_SELECTOR, '.women-checkbox input[type="checkbox"]')
-        is_checked = women_checkbox.get_attribute('checked') == 'true'
-        if (is_checked and MBAProductFitType.WOMAN not in fit_types) or (not is_checked and MBAProductFitType.WOMAN in fit_types):
-            women_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
+def select_fit_types(driver: WebDriver, product_categories: List[MBAProductCategory], fit_types: List[MBAProductFitType]):
+    """Selects desired fit types in MBA upload/create menu"""
+    iterate_over_product_cards(driver, product_categories=product_categories, editor_change_fn=select_fit_types_in_product_editor, fit_types=fit_types)
 
-        # Click Youth fit type
-        try:
-            youth_checkbox = product_editor_fit_types.find_element(By.CSS_SELECTOR, '.youth-checkbox input[type="checkbox"]')
-            is_checked = youth_checkbox.get_attribute('checked') == 'true'
-            if (is_checked and MBAProductFitType.YOUTH not in fit_types) or (not is_checked and MBAProductFitType.YOUTH in fit_types):
-                youth_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
-        except NoSuchElementException as e:
-            # if youth size is not available we skip this product as men and women
-            pass
 
+def select_colors(driver: WebDriver, product_categories: List[MBAProductCategory], colors: List[MBAProductColor]):
+    """Selects desired fit types in MBA upload/create menu"""
+    iterate_over_product_cards(driver, product_categories=product_categories, editor_change_fn=select_colors_in_product_editor, colors=colors, web_driver=driver)
 
 
 def upload_image(driver, image_pil: Image):

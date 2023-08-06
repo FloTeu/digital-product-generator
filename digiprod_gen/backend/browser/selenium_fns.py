@@ -1,9 +1,13 @@
 import streamlit as st
 from selenium import webdriver
+from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from digiprod_gen.backend.data_classes.common import DigiProdGenConfig
 from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
 from digiprod_gen.backend.image.conversion import bytes2pil
@@ -67,6 +71,25 @@ def show_web_element_png(element: WebElement):
     image_pil.show()
 
 
+def hover_over_element(driver: WebDriver, element_to_hover):
+    # Create an instance of ActionChains and pass the driver as a parameter.
+    action_chains = ActionChains(driver)
 
+    # Perform the hover action on the element.
+    action_chains.move_to_element(element_to_hover).perform()
 
+def wait_until_element_exists(driver: WebDriver, xpath: str, timeout: int=10) -> WebElement | None:
+    """
+    driver: chromium driver
+    timeout: Maximum time to wait for the element to appear (in seconds).
+    """
 
+    try:
+        # Wait until the element with the specified ID appears on the page.
+        element = WebDriverWait(driver, timeout).until(
+            EC.presence_of_element_located((By.XPATH, xpath))
+        )
+        return element
+    except Exception as e:
+        # If the element does not appear within the specified timeout, an exception will be raised.
+        print(f"Error with xpath {xpath}:", type(e))

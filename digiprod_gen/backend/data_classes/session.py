@@ -49,6 +49,7 @@ class ImageGenData:
 
 @dataclass
 class MBAUploadSettings:
+    use_defaults: bool = field(default=False)
     product_categories: List[MBAProductCategory] = field(default_factory=list)
     marketplaces: List[MBAMarketplaceDomain] = field(default_factory=list)
     colors: List[MBAProductColor] = field(default_factory=list)

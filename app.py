@@ -9,7 +9,7 @@ from digiprod_gen.backend.image import conversion as img_conversion
 from digiprod_gen.backend.image.caption import extend_mba_products_with_caption
 from digiprod_gen.backend.data_classes.session import SessionState, DigiProdGenStatus
 from digiprod_gen.backend.browser.upload.selenium_mba import click_on_create_new, insert_listing_text, \
-    select_products_and_marketplaces, publish_to_mba, select_fit_types
+    select_products_and_marketplaces, publish_to_mba, select_fit_types, select_colors
 from digiprod_gen.frontend.session import read_session, update_mba_request, write_session, \
     set_session_state_if_not_exists, init_session_state
 from digiprod_gen.frontend import sidebar
@@ -19,8 +19,10 @@ from digiprod_gen.frontend.tab.image_generation.image_editing import set_image_p
 from digiprod_gen.frontend.tab.image_generation.image_generation import display_image_generator, \
     display_image_generation_prompt
 from digiprod_gen.frontend.tab.upload.views import (display_listing_selection, display_data_for_upload,
-                                                    ListingSelectChange, display_upload_settings_editor,
-                                                    display_image_upload)
+                                                    ListingSelectChange,
+                                                    display_image_upload, display_marketplace_selector,
+                                                    display_product_category_selector, display_product_color_selector,
+                                                    display_product_fit_type_selector)
 from digiprod_gen.frontend.tab.upload.mba_upload import display_mba_account_tier
 from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display, display_mba_overview_products
 
@@ -75,7 +77,13 @@ def display_tab_upload_views(session_state: SessionState):
                                     bullet_2=read_session(ListingSelectChange.BULLET_2.value))
 
     mba_upload_settings = session_state.upload_data.settings
-    display_upload_settings_editor(mba_upload_settings)
+    use_defaults = st.checkbox("Use MBA defaults")
+    mba_upload_settings.use_defaults = use_defaults
+    display_marketplace_selector(mba_upload_settings)
+    if not use_defaults:
+        display_product_category_selector(mba_upload_settings)
+        display_product_color_selector(mba_upload_settings)
+        display_product_fit_type_selector(mba_upload_settings)
 
     #if session_state.status.detail_pages_crawled:
     if not session_state.status.mba_login_successfull:
@@ -140,14 +148,22 @@ def upload_mba_product(session_state):
     image_pil_upload_ready = session_state.image_gen_data.image_pil_upload_ready
     click_on_create_new(session_state.browser.driver)
     time.sleep(1)
-    select_fit_types(session_state.browser.driver,
-                     fit_types=session_state.upload_data.settings.fit_types,
-                     product_categories=session_state.upload_data.settings.product_categories,
-                     )
+    if not session_state.upload_data.use_defaults:
+        select_colors(session_state.browser.driver,
+                         colors=session_state.upload_data.settings.colors,
+                         product_categories=session_state.upload_data.settings.product_categories,
+                         )
+        select_fit_types(session_state.browser.driver,
+                         fit_types=session_state.upload_data.settings.fit_types,
+                         product_categories=session_state.upload_data.settings.product_categories,
+                         )
     select_products_and_marketplaces(session_state.browser.driver,
                                      products=session_state.upload_data.settings.product_categories,
                                      marketplaces=session_state.upload_data.settings.marketplaces)
-    upload_image(session_state.browser.driver, image_pil_upload_ready)
+    if session_state.image_gen_data.image_pil_upload_ready == None:
+        st.error('You not uploaded/generated an image yet', icon="🚨")
+    else:
+        upload_image(session_state.browser.driver, image_pil_upload_ready)
     if session_state.upload_data.bullet_1 == None and session_state.upload_data.bullet_2 == None:
         st.error('You not defined your listings yet', icon="🚨")
     else:
