@@ -3,7 +3,8 @@ import os, sys
 
 from selenium.common.exceptions import WebDriverException
 from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketplaceDomain, MBAProductCategory
-
+from digiprod_gen.backend.utils.decorators import timeit
+from digiprod_gen.backend.utils.helper import Timer
 from digiprod_gen.backend.utils import is_debug, get_config, init_environment
 from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists
 from digiprod_gen.backend.image.caption import extend_mba_products_with_caption
@@ -30,9 +31,11 @@ init_environment()
 init_session_state()
 
 
+@timeit
 def display_tab_image_gen_views(session_state: SessionState):
     if session_state.status.detail_pages_crawled:
-        display_mba_selected_products(session_state.crawling_data)
+        with Timer("display_mba_selected_products"):
+            display_mba_selected_products(session_state.crawling_data)
 
         if session_state.status.prompts_generated:
             predicted_prompts = session_state.image_gen_data.image_gen_prompts
@@ -42,28 +45,37 @@ def display_tab_image_gen_views(session_state: SessionState):
             st.subheader("Prepare Image for MBA Upload")
             st.markdown(
                 "Please either generate the image directly or use one of the example Prompts to generate an image with Midjourney. \nYou can upload the image afterwards and proceed.")
-            display_image_generation_prompt(session_state.image_gen_data)
-            display_image_generator(session_state.image_gen_data)
+
+            with Timer("display_image_generation_prompt"):
+                display_image_generation_prompt(session_state.image_gen_data)
+            with Timer("display_image_generator"):
+                display_image_generator(session_state.image_gen_data)
         else:
             st.warning('Please click on 3. Prompt Generation')
 
     if not session_state.status.prompts_generated:
         # display image generation prompt with empty text field for image editor functionality
-        display_image_generation_prompt(session_state.image_gen_data)
+        with Timer("display_image_generation_prompt"):
+            display_image_generation_prompt(session_state.image_gen_data)
 
-    set_image_pil_generated_by_user(session_state.image_gen_data)
+
+    with Timer("set_image_pil_generated_by_user"):
+        set_image_pil_generated_by_user(session_state.image_gen_data)
     if session_state.image_gen_data.image_pil_generated:
-        image_pil_upload_ready = display_image_editor(session_state.image_gen_data, background_removal_buffer=0)
+        with Timer("display_image_editor"):
+           image_pil_upload_ready = display_image_editor(session_state.image_gen_data, background_removal_buffer=0)
         # Update session upload ready image
         if image_pil_upload_ready:
             session_state.image_gen_data.image_pil_upload_ready = image_pil_upload_ready
 
+@timeit
 def display_tab_upload_views(session_state: SessionState):
     display_image_upload(session_state.image_gen_data)
 
     # listing generation
     if not session_state.status.listing_generated:
         st.warning('Please click on 4. Listing Generation')
+
 
     if session_state.status.detail_pages_crawled:
         if session_state.status.listing_generated:
@@ -93,8 +105,11 @@ def display_tab_upload_views(session_state: SessionState):
         display_mba_account_tier(session_state.browser.driver)
         if st.button("Upload product to MBA"):
             upload_mba_product(session_state)
+        if st.button("Publish to MBA"):
+            publish_to_mba(session_state.browser.driver, searchable=True)
+            st.balloons()
 
-
+@timeit
 def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload):
     """Renders views based on session data"""
     with tab_crawling:
@@ -107,6 +122,8 @@ def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload)
     with tab_upload:
         display_tab_upload_views(session_state)
 
+
+@timeit
 def display_sidebar(session_state: SessionState, tab_crawling, tab_ig, tab_upload):
     """Renders sidebar elements based on session data"""
     sidebar.crawling_mba_overview_input(tab_crawling)
@@ -173,7 +190,7 @@ def upload_mba_product(session_state):
                             brand=session_state.upload_data.brand, bullet_1=session_state.upload_data.bullet_1,
                             bullet_2=session_state.upload_data.bullet_2,
                             description=session_state.upload_data.description)
-        # publish_to_mba(searchable=not is_debug())
+
 
 
 if __name__ == "__main__":

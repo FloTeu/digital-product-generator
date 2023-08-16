@@ -2,6 +2,7 @@ import streamlit as st
 from typing import List
 
 from digiprod_gen.backend.image import conversion as img_conversion
+from digiprod_gen.backend.utils.helper import Timer
 from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
 from digiprod_gen.backend.data_classes.session import MBAUploadData, SessionState, MBAUploadSettings, ImageGenData
 from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProductCategory, MBAProductColor, MBAProductFitType
@@ -35,7 +36,8 @@ def display_upload_ready_image(img_pil: Image):
     image_pil_upload_ready.paste(img_pil, (box[0], 0))
 
     image_to_show = ImageOps.expand(image_pil_upload_ready, border=50, fill='grey')
-    st.image(image_to_show)
+    resize_tuple = (int(new_size[0]/10), int(new_size[1]/10))
+    st.image(image_to_show.resize(resize_tuple))
 
     # update session image
     session_state: SessionState = st.session_state["session_state"]
@@ -51,7 +53,7 @@ def display_data_for_upload(image_pil: Image,
     col1, col2 = st.columns(2)
     col2_1, col2_2 = col2.columns(2)
 
-    with col1:
+    with Timer("display_upload_ready_image"), col1:
         display_upload_ready_image(image_pil)
 
     session_state: SessionState = st.session_state["session_state"]
@@ -86,12 +88,15 @@ def update_session_upload_listing(listing_select_change: ListingSelectChange | N
 
     # Update data
     # Either take the select box text or the input text depending on what was updated by user
-    mba_upload_data.brand = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BRAND else st.session_state["mba_upload_listing_brand"]
-    mba_upload_data.title = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.TITLE else st.session_state["mba_upload_listing_title"]
-    mba_upload_data.bullet_1 = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BULLET_1 else st.session_state["mba_upload_listing_bullet_1"]
-    mba_upload_data.bullet_2 = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BULLET_2 else st.session_state["mba_upload_listing_bullet_2"]
-    mba_upload_data.description = f'{mba_upload_data.title} by "{mba_upload_data.brand}". {mba_upload_data.bullet_1} {mba_upload_data.bullet_2}'
-
+    try:
+        mba_upload_data.brand = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BRAND else st.session_state["mba_upload_listing_brand"]
+        mba_upload_data.title = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.TITLE else st.session_state["mba_upload_listing_title"]
+        mba_upload_data.bullet_1 = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BULLET_1 else st.session_state["mba_upload_listing_bullet_1"]
+        mba_upload_data.bullet_2 = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BULLET_2 else st.session_state["mba_upload_listing_bullet_2"]
+        mba_upload_data.description = f'{mba_upload_data.title} by "{mba_upload_data.brand}". {mba_upload_data.bullet_1} {mba_upload_data.bullet_2}'
+    except KeyError as e:
+        # KeyError: 'st.session_state has no key "mba_upload_listing_brand", if session is not filled yet
+        pass
 
 def display_multiselect(label: str, options: List[str], values: List[str]):
     container = st.container()

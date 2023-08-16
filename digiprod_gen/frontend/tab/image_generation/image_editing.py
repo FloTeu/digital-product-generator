@@ -3,12 +3,15 @@ import streamlit as st
 from PIL import Image
 from typing import Tuple
 
-from digiprod_gen.backend.image.conversion import pil2bytes_io, bytes2pil
+from digiprod_gen.backend.image.conversion import pil2bytes_io, bytes2pil, pil2np
 from digiprod_gen.backend.image.background_removal import remove_outer_pixels, rembg
 from digiprod_gen.backend.image.upscale import pil_upscale, some_upscalers_upscale
+from digiprod_gen.backend.image.resolution import real_esrgan_resolution
 from digiprod_gen.backend.image.outpainting import outpainting_with_paella
+from digiprod_gen.backend.image.compress import jpeg_compress
 from digiprod_gen.backend.data_classes.session import ImageGenData
 from digiprod_gen.backend.data_classes.common import UpscalerModel, BackgroundRemovalModel
+from digiprod_gen.backend.utils.helper import Timer
 
 
 def set_image_pil_generated_by_user(session_image_gen_data: ImageGenData):
@@ -28,19 +31,31 @@ def display_image_editor(session_image_gen_data: ImageGenData, background_remova
     col1, col2, col3 = st.columns([3,1,4])
     image_element = col3.empty()
 
-    image_outpainted = display_image_editor_outpainting(col1, col2, image_element, session_image_gen_data)
+    with Timer("display_image_editor_outpainting"):
+        image_outpainted = display_image_editor_outpainting(col1, col2, image_element, session_image_gen_data)
 
-    t_start = time.time()
-    image_upscaled = display_image_editor_upscaling(col1, col2, image_element, session_image_gen_data)
-    print(f"Time elapsed for upscaling %.2f seconds" % (time.time() - t_start))
+    with Timer("display_image_editor_upscaling"):
+        image_upscaled = display_image_editor_upscaling(col1, col2, image_element, session_image_gen_data, compress_quality=90)
+    #image_upscaled = jpeg_compress(image_upscaled, quality=70)
+    #session_image_gen_data.image_pil_upscaled = image_upscaled
 
-    image_pil_br = display_image_editor_background_removal(col1, col2, image_element, background_removal_buffer, session_image_gen_data)
+    with Timer("display_image_editor_background_removal"):
+        image_pil_br = display_image_editor_background_removal(col1, col2, image_element, background_removal_buffer, session_image_gen_data)
 
     # display image with order br > up scaled > unchanged
     display_image_pil = image_pil_br or image_upscaled or image_outpainted or session_image_gen_data.image_pil_generated
-    image_element.image(display_image_pil)
+    with Timer("display_image"):
+        image_element.image(display_image_pil.resize((500,500)))
 
-    col1.download_button("Download Image", data=pil2bytes_io(display_image_pil), file_name="export.png", mime='image/png', use_container_width=True)
+    #display_image_pil.save("image-file-uncompressed.png", "PNG")
+    print("Image", pil2np(display_image_pil).shape, pil2np(display_image_pil)[0][0])
+
+    with Timer("image download_button"):
+        is_download_visible = col1.checkbox("Activate Download Image Button")
+        print("is_download_visible", is_download_visible)
+        if is_download_visible:
+            with st.spinner("Load Download Button"):
+                col1.download_button("Download Image", data=pil2bytes_io(display_image_pil), file_name="export.png", mime='image/png', use_container_width=True)
 
     return image_pil_br or image_upscaled
 
@@ -71,7 +86,7 @@ def display_image_editor_outpainting(col1, col2, image_element, session_image_ge
     return image_outpainted
 
 
-def display_image_editor_upscaling(col1, col2, image_element, session_image_gen_data: ImageGenData):
+def display_image_editor_upscaling(col1, col2, image_element, session_image_gen_data: ImageGenData, compress_quality: int=100):
     upscaler_method = col1.selectbox(
         'Up Scaling Method',
         (UpscalerModel.PIL.value, UpscalerModel.SOME_UPSCALER.value))
@@ -80,6 +95,8 @@ def display_image_editor_upscaling(col1, col2, image_element, session_image_gen_
         with image_element, st.spinner("Upscaling..."):
             image_to_upscale = session_image_gen_data.image_pil_outpainted or session_image_gen_data.image_pil_generated
             image_upscaled = image_upscaling(image_to_upscale, session_image_gen_data, upscaler=upscaler_method)
+            if compress_quality < 100:
+                image_upscaled = jpeg_compress(image_upscaled, quality=compress_quality)
     else:
         image_upscaled = session_image_gen_data.image_pil_upscaled
 
@@ -137,6 +154,8 @@ def display_image_editor_background_removal(col1, col2, image_element, backgroun
 def image_upscaling(image_pil: Image, session_image_gen_data: ImageGenData, upscaler: UpscalerModel = UpscalerModel.SOME_UPSCALER) -> Image:
     if upscaler == UpscalerModel.PIL:
         image_pil_upscaled = pil_upscale(image_pil, (4500, 4500))
+        # increase resolution after simple upscale
+        # image_pil_upscaled = real_esrgan_resolution(image_pil_upscaled)
     elif upscaler == UpscalerModel.SOME_UPSCALER:
         image_pil_upscaled = some_upscalers_upscale(image_pil)
     else:
