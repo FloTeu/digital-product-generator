@@ -19,7 +19,7 @@ def get_config() -> DigiProdGenConfig:
 
 
 def booleanize(s):
-    return s.lower() in ['true', '1']
+    return s.lower() in ['true', '1', "y", "yes"]
     
 def is_debug():
     return booleanize(os.environ.get("DEBUG", "False"))

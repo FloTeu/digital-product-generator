@@ -1,6 +1,9 @@
+import time
+
 import streamlit as st
 import os, sys
 
+from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException
 from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketplaceDomain, MBAProductCategory
 from digiprod_gen.backend.utils.decorators import timeit
@@ -105,8 +108,11 @@ def display_tab_upload_views(session_state: SessionState):
         display_mba_account_tier(session_state.browser.driver)
         if st.button("Upload product to MBA"):
             upload_mba_product(session_state)
+        # TODO: Wait until publish button not disabled anymore
         if st.button("Publish to MBA"):
             publish_to_mba(session_state.browser.driver, searchable=True)
+            time.sleep(1)
+            session_state.browser.driver.find_element(By.CLASS_NAME, "btn-close").click()
             st.balloons()
 
 @timeit

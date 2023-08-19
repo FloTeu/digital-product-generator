@@ -8,6 +8,7 @@ from digiprod_gen.backend.image.conversion import pil2cv, cv2pil, pil2bytes_io, 
 
 def rembg(img_pil: Image) -> Image:
     model = "ilkerc/rembg:e809cddc666ccfd38a044f795cf65baab62eedc4273d096bf05935b9a3059b59"
+    model = "cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003"
     img_url = replicate.run(
         model,
         input={"image": pil2bytes_io(img_pil)}
