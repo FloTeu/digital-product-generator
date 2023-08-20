@@ -37,8 +37,7 @@ init_session_state()
 @timeit
 def display_tab_image_gen_views(session_state: SessionState):
     if session_state.status.detail_pages_crawled:
-        with Timer("display_mba_selected_products"):
-            display_mba_selected_products(session_state.crawling_data)
+        display_mba_selected_products(session_state.crawling_data)
 
         if session_state.status.prompts_generated:
             predicted_prompts = session_state.image_gen_data.image_gen_prompts
@@ -49,21 +48,17 @@ def display_tab_image_gen_views(session_state: SessionState):
             st.markdown(
                 "Please either generate the image directly or use one of the example Prompts to generate an image with Midjourney. \nYou can upload the image afterwards and proceed.")
 
-            with Timer("display_image_generation_prompt"):
-                display_image_generation_prompt(session_state.image_gen_data)
-            with Timer("display_image_generator"):
-                display_image_generator(session_state.image_gen_data)
+            display_image_generation_prompt(session_state.image_gen_data)
+            display_image_generator(session_state.image_gen_data)
         else:
             st.warning('Please click on 3. Prompt Generation')
 
     if not session_state.status.prompts_generated:
         # display image generation prompt with empty text field for image editor functionality
-        with Timer("display_image_generation_prompt"):
-            display_image_generation_prompt(session_state.image_gen_data)
+        display_image_generation_prompt(session_state.image_gen_data)
 
 
-    with Timer("set_image_pil_generated_by_user"):
-        set_image_pil_generated_by_user(session_state.image_gen_data)
+    set_image_pil_generated_by_user(session_state.image_gen_data)
     if session_state.image_gen_data.image_pil_generated:
         with Timer("display_image_editor"):
            image_pil_upload_ready = display_image_editor(session_state.image_gen_data, background_removal_buffer=0)
@@ -132,29 +127,31 @@ def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload)
 @timeit
 def display_sidebar(session_state: SessionState, tab_crawling, tab_ig, tab_upload):
     """Renders sidebar elements based on session data"""
-    sidebar.crawling_mba_overview_input(tab_crawling)
-    if session_state.status.overview_page_crawled:
-        mba_products = session_state.crawling_data.mba_products
-        sidebar.crawling_mba_details_input(mba_products, tab_crawling, tab_ig)
-        if session_state.status.detail_pages_crawled:
+    sidebar_element = st.empty()
+    with sidebar_element.container():
+        sidebar.crawling_mba_overview_input(tab_crawling)
+        if session_state.status.overview_page_crawled:
+            mba_products = session_state.crawling_data.mba_products
+            sidebar.crawling_mba_details_input(mba_products, tab_crawling, tab_ig)
+            if session_state.status.detail_pages_crawled:
+                mba_products_selected = session_state.crawling_data.get_selected_mba_products()
+                st.sidebar.button("Run AI Image Captioning", on_click=extend_mba_products_with_caption,
+                                  args=(mba_products_selected,), key="button_image_captioning")
             mba_products_selected = session_state.crawling_data.get_selected_mba_products()
-            st.sidebar.button("Run AI Image Captioning", on_click=extend_mba_products_with_caption,
-                              args=(mba_products_selected,), key="button_image_captioning")
-        mba_products_selected = session_state.crawling_data.get_selected_mba_products()
-        if mba_products_selected and session_state.status.detail_pages_crawled:
-            sidebar.prompt_generation_input(tab_ig)
+            if mba_products_selected and session_state.status.detail_pages_crawled:
+                sidebar.prompt_generation_input(tab_ig)
 
-    if session_state.status.detail_pages_crawled:
-        sidebar.listing_generation_input(tab_upload)
+        if session_state.status.detail_pages_crawled:
+            sidebar.listing_generation_input(tab_upload)
 
-    # MBA Login
-    sidebar.mab_login_input(tab_upload)
-    try:
-        if session_state.browser:
-            sidebar.mba_otp_input(session_state)
-    except WebDriverException:
-        # TODO: Find out why this error is thrown
-        pass
+        # MBA Login
+        sidebar.mab_login_input(tab_upload)
+        try:
+            if session_state.browser:
+                sidebar.mba_otp_input(session_state)
+        except WebDriverException:
+            # TODO: Find out why this error is thrown
+            pass
 
 
 def main():

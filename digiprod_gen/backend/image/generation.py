@@ -21,5 +21,5 @@ def generate_with_waifu(prompt: str) -> Image:
 
 def generate_with_stable_diffusion(prompt: str) -> Image:
     model = "stability-ai/sdxl:2b017d9b67edd2ee1401238df49d75da53c523f36e363881e057f5dc3ed3c5b2"
-    return replicate_generate(model, {"prompt": prompt}, output_format=OutputFormat.GENERATOR)
+    return replicate_generate(model, {"prompt": prompt, "apply_watermark": False}, output_format=OutputFormat.GENERATOR)
 
