@@ -64,7 +64,10 @@ docker run -ti -p 8501:8501 -v %cd%:/app --rm digiprod-gen:latest  # cmd.exe
 - [ ] Add more mba marketplaces
 - [ ] Make publish button visible if product is ready for publishing
 - [ ] Allow user to change tolerance and out pixels
-- [ ] Catch case, image already uploaded and user clicks a second time on upload
+- [x] Catch case, image already uploaded and user clicks a second time on upload
+- [ ] Include xpaths, web scraping parser related codes to config
+- [ ] Display mba warnings  after upload to user
+
 
 ## License
 

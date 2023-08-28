@@ -1,7 +1,9 @@
 import streamlit as st
 from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 
-from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists
+from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists, scroll_page, focus_element
 from digiprod_gen.backend.browser.upload import selenium_mba
 from digiprod_gen.backend.browser.upload.selenium_mba import click_on_create_new, select_products_and_marketplaces, \
     select_colors, select_fit_types, insert_listing_text
@@ -25,29 +27,50 @@ def upload_mba_product(session_state):
     from digiprod_gen.backend.browser.upload.selenium_mba import upload_image
     import time
     image_pil_upload_ready = session_state.image_gen_data.image_pil_upload_ready
-    click_on_create_new(session_state.browser.driver)
-    wait_until_element_exists(session_state.browser.driver, "//*[contains(@class, 'product-card')]")
-    select_products_and_marketplaces(session_state.browser.driver,
+    driver = session_state.browser.driver
+    click_on_create_new(driver)
+    wait_until_element_exists(driver, "//*[contains(@class, 'product-card')]")
+    select_products_and_marketplaces(driver,
                                      products=session_state.upload_data.settings.product_categories,
                                      marketplaces=session_state.upload_data.settings.marketplaces)
     if not session_state.upload_data.settings.use_defaults:
-        select_colors(session_state.browser.driver,
+        select_colors(driver,
                          colors=session_state.upload_data.settings.colors,
                          product_categories=session_state.upload_data.settings.product_categories,
                          )
-        select_fit_types(session_state.browser.driver,
+        select_fit_types(driver,
                          fit_types=session_state.upload_data.settings.fit_types,
                          product_categories=session_state.upload_data.settings.product_categories,
                          )
-    if session_state.image_gen_data.image_pil_upload_ready == None:
-        st.error('You not uploaded/generated an image yet', icon="🚨")
-    else:
-        upload_image(session_state.browser.driver, image_pil_upload_ready)
+    # Listing Upload
     if session_state.upload_data.bullet_1 == None and session_state.upload_data.bullet_2 == None:
         st.error('You not defined your listings yet', icon="🚨")
     else:
         # TODO: how to handle case with Marketplace different to com (language of bullets is german for example but form takes englisch text input)
-        insert_listing_text(session_state.browser.driver, title=session_state.upload_data.title,
+        insert_listing_text(driver, title=session_state.upload_data.title,
                             brand=session_state.upload_data.brand, bullet_1=session_state.upload_data.bullet_1,
                             bullet_2=session_state.upload_data.bullet_2,
                             description=session_state.upload_data.description)
+
+    # Image Upload
+    if session_state.image_gen_data.image_pil_upload_ready == None:
+        st.error('You not uploaded/generated an image yet', icon="🚨")
+    else:
+        image_delete_xpath = "//*[contains(@class, 'sci-delete-forever')]"
+        remove_uploaded_image(driver, image_delete_xpath)
+        upload_image(driver, image_pil_upload_ready)
+        wait_until_element_exists(driver, image_delete_xpath)
+
+def remove_uploaded_image(driver: WebDriver, xpath: str):
+    from selenium.webdriver import ActionChains
+
+    try:
+        delete_image_i_tag = driver.find_element(By.XPATH, xpath)
+        # elment must be in focus in order to be clickable
+        focus_element(driver, delete_image_i_tag)
+        scroll_page(driver, -300)
+        delete_image_i_tag.click()
+
+    except NoSuchElementException as e:
+        print("NoSuchElementException", str(e))
+        pass

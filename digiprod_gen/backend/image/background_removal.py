@@ -16,10 +16,16 @@ def rembg(img_pil: Image) -> Image:
     return bytes2pil(requests.get(img_url, stream=True).content)
 
 
-def get_outer_greyscaled_pixel_range(img_np: np.ndarray, until_n_col=10) -> Tuple[int, int]:
-    """Returns grey scaled min and max value of outer (first until_n_col) pixels"""
-    return img_np[0:until_n_col].min(), img_np[0:until_n_col].max()
+def extend_with_alpha(image):
+    # If image already has an alpha channel, return it unchanged
+    if image.mode.endswith("A"):
+        return image
 
+    # Create a new image with an alpha channel
+    image_with_alpha = image.copy()
+    image_with_alpha.putalpha(255)  # Set initial alpha value to fully opaque
+
+    return image_with_alpha
 
 def simple_remove_background(image_pil: Image, outer_pixel_range=30, tolerance=100):
 
@@ -59,6 +65,14 @@ def simple_remove_background(image_pil: Image, outer_pixel_range=30, tolerance=1
 
     return edited_image
 
+
+
+
+# def get_outer_greyscaled_pixel_range(img_np: np.ndarray, until_n_col=10) -> Tuple[int, int]:
+#     """Returns grey scaled min and max value of outer (first until_n_col) pixels"""
+#     return img_np[0:until_n_col].min(), img_np[0:until_n_col].max()
+
+
 # def remove_outer_pixels(img_pil: Image, buffer: int=0) -> Image:
 #     """Background removal of outer pixels
 #
@@ -96,15 +110,3 @@ def simple_remove_background(image_pil: Image, outer_pixel_range=30, tolerance=1
 #
 #     # transform back to pil
 #     return cv2pil(dst)
-
-
-def extend_with_alpha(image):
-    # If image already has an alpha channel, return it unchanged
-    if image.mode.endswith("A"):
-        return image
-
-    # Create a new image with an alpha channel
-    image_with_alpha = image.copy()
-    image_with_alpha.putalpha(255)  # Set initial alpha value to fully opaque
-
-    return image_with_alpha

@@ -93,3 +93,15 @@ def wait_until_element_exists(driver: WebDriver, xpath: str, timeout: int=10) ->
     except Exception as e:
         # If the element does not appear within the specified timeout, an exception will be raised.
         print(f"Error with xpath {xpath}:", type(e))
+
+def focus_element(driver: WebDriver, target_element: WebElement):
+    # Scroll the element into view using JavaScript
+    driver.execute_script("arguments[0].scrollIntoView();", target_element)
+
+def scroll_page(driver: WebDriver, pixel: int):
+    """
+    Scroll the number of pixels up or down.
+    negative pixels mean scrolling up/ postive scrolling down
+    """
+    scroll_script = f"window.scrollBy(0, {pixel});"
+    driver.execute_script(scroll_script)

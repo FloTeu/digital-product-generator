@@ -99,7 +99,8 @@ def display_tab_upload_views(session_state: SessionState):
     else:
         display_mba_account_tier(session_state.browser.driver)
         if st.button("Upload product to MBA"):
-            upload_mba_product(session_state)
+            with st.spinner("Upload mba product"):
+                upload_mba_product(session_state)
         # TODO: Wait until publish button not disabled anymore
         if st.button("Publish to MBA"):
             publish_to_mba(session_state.browser.driver, searchable=True)
