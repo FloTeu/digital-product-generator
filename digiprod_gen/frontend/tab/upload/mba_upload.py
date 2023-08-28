@@ -1,12 +1,14 @@
 import streamlit as st
+
+from typing import List
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 
-from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists, scroll_page, focus_element
+from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists, scroll_page, focus_element, scroll_to_top_left
 from digiprod_gen.backend.browser.upload import selenium_mba
 from digiprod_gen.backend.browser.upload.selenium_mba import click_on_create_new, select_products_and_marketplaces, \
-    select_colors, select_fit_types, insert_listing_text
+    select_colors, select_fit_types, insert_listing_text, click_on_dashboard
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.image import conversion
 
@@ -23,11 +25,14 @@ def mba_otp_verification(session_state: SessionState, otp_code):
     session_state.status.mba_login_successfull = True
 
 
-def upload_mba_product(session_state):
+def upload_mba_product(session_state) -> List[str]:
+    """Uploads product data to mba. If exists a lists of warnings ist returned"""
     from digiprod_gen.backend.browser.upload.selenium_mba import upload_image
     import time
     image_pil_upload_ready = session_state.image_gen_data.image_pil_upload_ready
     driver = session_state.browser.driver
+    # Click on dashboard first to be sure create page is reloaded
+    click_on_dashboard(driver)
     click_on_create_new(driver)
     wait_until_element_exists(driver, "//*[contains(@class, 'product-card')]")
     select_products_and_marketplaces(driver,
@@ -61,16 +66,21 @@ def upload_mba_product(session_state):
         upload_image(driver, image_pil_upload_ready)
         wait_until_element_exists(driver, image_delete_xpath)
 
-def remove_uploaded_image(driver: WebDriver, xpath: str):
-    from selenium.webdriver import ActionChains
+    # extract warnings
+    # get sibling of warning span tag
+    warnings = [w.find_element(By.XPATH, 'following-sibling::*').text
+                for w in driver.find_elements(By.XPATH, "//*[contains(@class, 'sci-warning')]")]
+    return warnings
 
+def remove_uploaded_image(driver: WebDriver, xpath: str):
     try:
         delete_image_i_tag = driver.find_element(By.XPATH, xpath)
-        # elment must be in focus in order to be clickable
+        # Element must be in focus in order to be clickable
         focus_element(driver, delete_image_i_tag)
         scroll_page(driver, -300)
+        scroll_to_top_left(driver)
         delete_image_i_tag.click()
 
-    except NoSuchElementException as e:
-        print("NoSuchElementException", str(e))
+    except (NoSuchElementException, ElementClickInterceptedException) as e:
+        print("Exception", str(e))
         pass

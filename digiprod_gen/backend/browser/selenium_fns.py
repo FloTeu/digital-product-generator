@@ -105,3 +105,8 @@ def scroll_page(driver: WebDriver, pixel: int):
     """
     scroll_script = f"window.scrollBy(0, {pixel});"
     driver.execute_script(scroll_script)
+
+def scroll_to_top_left(driver: WebDriver):
+    # Scroll the entire page to the left using JavaScript
+    scroll_script = "window.scrollTo(0, 0);"
+    driver.execute_script(scroll_script)
