@@ -7,3 +7,5 @@ mba:
       postcode: 10115
 browser:
   selenium_data_dir_path: /tmp/selenium_data
+view:
+  cards_per_row: 4

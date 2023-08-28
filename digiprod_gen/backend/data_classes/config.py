@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, Field
 from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
 
 class DigiProdGenBrowserConfig(BaseModel):
@@ -26,6 +26,10 @@ class DigiProdGenMBAConfig(BaseModel):
             raise ValueError(f"Configuration for marketplace {marketplace} was not defined")
         return matches[0]
 
+class DigiProdGenViewConfig(BaseModel):
+    cards_per_row: int = Field(description="Number of cards (with product info) in one row")
+
 class DigiProdGenConfig(BaseModel):
     mba: DigiProdGenMBAConfig
     browser: DigiProdGenBrowserConfig
+    view: DigiProdGenViewConfig

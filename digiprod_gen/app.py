@@ -38,7 +38,7 @@ from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_a
 @timeit
 def display_tab_image_gen_views(session_state: SessionState):
     if session_state.status.detail_pages_crawled:
-        display_mba_selected_products(session_state.crawling_data)
+        display_mba_selected_products(session_state.crawling_data, shirts_per_row=session_state.config.view.cards_per_row)
 
         if session_state.status.prompts_generated:
             predicted_prompts = session_state.image_gen_data.image_gen_prompts
@@ -116,7 +116,7 @@ def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload)
     """Renders views based on session data"""
     with tab_crawling:
         if session_state.status.overview_page_crawled:
-            display_mba_overview_products(session_state.crawling_data, session_state.crawling_request)
+            display_mba_overview_products(session_state.crawling_data, session_state.crawling_request, shirts_per_row=session_state.config.view.cards_per_row)
 
     with tab_ig:
         display_tab_image_gen_views(session_state)

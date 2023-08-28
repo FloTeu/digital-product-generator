@@ -22,7 +22,6 @@ from digiprod_gen.backend.transform.transform_fns import extend_mba_product
 from digiprod_gen.backend.utils import split_list
 from digiprod_gen.backend.browser.crawling.selenium_mba import search_overview_and_change_postcode
 from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser
-from digiprod_gen.constants import MAX_SHIRTS_PER_ROW
 from digiprod_gen.frontend.session import read_session, write_session
 from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
 
@@ -105,12 +104,12 @@ def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator):
     session_state.status.detail_pages_crawled = True
 
 
-def display_mba_selected_products(crawling_data: CrawlingData):
+def display_mba_selected_products(crawling_data: CrawlingData, shirts_per_row=4):
     mba_products_selected = crawling_data.get_selected_mba_products()
     st.subheader("Selected MBA Products")
     with st.expander("Collapse selected mba products", expanded=True):
-        display_cols = st.columns(MAX_SHIRTS_PER_ROW)
-        for j, mba_products_splitted_list in enumerate(split_list(mba_products_selected, MAX_SHIRTS_PER_ROW)):
+        display_cols = st.columns(shirts_per_row)
+        for j, mba_products_splitted_list in enumerate(split_list(mba_products_selected, shirts_per_row)):
             for i, mba_product in enumerate(mba_products_splitted_list):
                 image_bytes_io: BytesIO = image_url2image_bytes_io(mba_product.image_url)
                 display_cols[i].image(image_bytes_io)
