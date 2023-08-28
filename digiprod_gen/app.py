@@ -204,21 +204,21 @@ def main(config: DigiProdGenConfig):
 
 
 @click.command()
-@click.argument("config-file", type=click.Path(exists=True))
-def start_digiprod_gen(config_file: TextIOWrapper):
+@click.option("-c", "--config", default="config/app-config.yaml", type=click.Path(exists=True))
+def start_digiprod_gen(config: TextIOWrapper):
     if st.runtime.exists():
         # The app has been executed with `streamlit run app.py`
-        config = initialise_config(
-            config_file_path=config_file
+        config_obj = initialise_config(
+            config_file_path=config
         )
-        main(config=config)
+        main(config=config_obj)
     else:
         # If the file has been executed with python (`python app.py`), the streamlit functionality
         # won't work. This line reruns the app within the streamlit context, as if it has been
         # executed with `streamlit run app.py`.
         # This is necessary when installing this project from a .whl package, since the executable
         # only gets execute by python and not by streamlit.
-        args: list[str] = [config_file]
+        args: list[str] = [config]
 
         st_bootstrap.run(
             __file__,
