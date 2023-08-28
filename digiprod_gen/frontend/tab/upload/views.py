@@ -3,7 +3,6 @@ from typing import List
 
 from digiprod_gen.backend.image import conversion as img_conversion
 from digiprod_gen.backend.utils.helper import Timer
-from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
 from digiprod_gen.backend.data_classes.session import MBAUploadData, SessionState, MBAUploadSettings, ImageGenData
 from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProductCategory, MBAProductColor, MBAProductFitType
 from collections import deque
@@ -145,4 +144,5 @@ def display_image_upload(image_gen_data: ImageGenData):
         if image:
             image_pil_upload_ready = img_conversion.bytes2pil(image.getvalue())
             image_gen_data.image_pil_upload_ready = image_pil_upload_ready
+
 

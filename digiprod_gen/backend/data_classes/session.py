@@ -1,3 +1,5 @@
+import streamlit as st
+
 from PIL.Image import Image
 from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser
 from digiprod_gen.backend.data_classes.mba import MBAProduct, MBAProductCategory, MBAMarketplaceDomain, MBAProductColor, MBAProductFitType
@@ -81,6 +83,27 @@ class DigiProdGenStatus:
     mba_login_successfull: bool = False
     product_uploaded: bool = False
 
+    def refresh(self):
+        """
+        Refreshes all status, after the data source has changed
+        mba auth status can stay, since its independent of the input data
+        """
+        self.overview_page_crawled = False
+        self.detail_pages_crawled = False
+        self.prompts_generated = False
+        self.image_upload_ready = False
+        self.listing_generated = False
+        self.product_uploaded = False
+
+
+@dataclass
+class DigitProdGenViews:
+    sidebar: st.delta_generator.DeltaGenerator | None = None
+
+    def get_or_create_sidebar(self):
+        if not self.sidebar:
+            self.sidebar = st.empty()
+        return self.sidebar
 
 @dataclass
 class SessionState:
@@ -91,4 +114,5 @@ class SessionState:
     upload_data: MBAUploadData
     status: DigiProdGenStatus
     config: DigiProdGenConfig
+    views: DigitProdGenViews
     session_id: str

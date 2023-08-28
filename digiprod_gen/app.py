@@ -3,22 +3,18 @@ import click
 
 import streamlit as st
 import streamlit.web.bootstrap as st_bootstrap
-import os, sys
 
 from io import TextIOWrapper
 
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException
-from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketplaceDomain, MBAProductCategory
 from digiprod_gen.backend.utils.decorators import timeit
 from digiprod_gen.backend.utils.helper import Timer
-from digiprod_gen.backend.utils import is_debug, init_environment, initialise_config
-from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists
+from digiprod_gen.backend.utils import init_environment, initialise_config
 from digiprod_gen.backend.image.caption import extend_mba_products_with_caption
-from digiprod_gen.backend.data_classes.session import SessionState, DigiProdGenStatus
+from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
-from digiprod_gen.backend.browser.upload.selenium_mba import click_on_create_new, insert_listing_text, \
-    select_products_and_marketplaces, publish_to_mba, select_fit_types, select_colors
+from digiprod_gen.backend.browser.upload.selenium_mba import publish_to_mba
 from digiprod_gen.frontend.session import read_session, update_mba_request, init_session_state
 from digiprod_gen.frontend import sidebar
 from digiprod_gen.frontend.tab.image_generation.selected_products import display_mba_selected_products
@@ -31,8 +27,8 @@ from digiprod_gen.frontend.tab.upload.views import (display_listing_selection, d
                                                     display_image_upload, display_marketplace_selector,
                                                     display_product_category_selector, display_product_color_selector,
                                                     display_product_fit_type_selector)
-from digiprod_gen.frontend.tab.upload.mba_upload import display_mba_account_tier
-from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display, display_mba_overview_products
+from digiprod_gen.frontend.tab.upload.mba_upload import display_mba_account_tier, upload_mba_product
+from digiprod_gen.frontend.tab.crawling.tab_crawling import display_mba_overview_products
 
 
 @timeit
@@ -128,7 +124,9 @@ def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload)
 @timeit
 def display_sidebar(session_state: SessionState, tab_crawling, tab_ig, tab_upload):
     """Renders sidebar elements based on session data"""
-    sidebar_element = st.empty()
+    sidebar_element = session_state.views.get_or_create_sidebar()
+    # before rerender, empty all existing views
+    sidebar_element.empty()
     with sidebar_element.container():
         sidebar.crawling_mba_overview_input(tab_crawling)
         if session_state.status.overview_page_crawled:
@@ -155,38 +153,6 @@ def display_sidebar(session_state: SessionState, tab_crawling, tab_ig, tab_uploa
             pass
 
 
-def upload_mba_product(session_state):
-    from digiprod_gen.backend.browser.upload.selenium_mba import upload_image
-    import time
-    image_pil_upload_ready = session_state.image_gen_data.image_pil_upload_ready
-    click_on_create_new(session_state.browser.driver)
-    wait_until_element_exists(session_state.browser.driver, "//*[contains(@class, 'product-card')]")
-    select_products_and_marketplaces(session_state.browser.driver,
-                                     products=session_state.upload_data.settings.product_categories,
-                                     marketplaces=session_state.upload_data.settings.marketplaces)
-    if not session_state.upload_data.settings.use_defaults:
-        select_colors(session_state.browser.driver,
-                         colors=session_state.upload_data.settings.colors,
-                         product_categories=session_state.upload_data.settings.product_categories,
-                         )
-        select_fit_types(session_state.browser.driver,
-                         fit_types=session_state.upload_data.settings.fit_types,
-                         product_categories=session_state.upload_data.settings.product_categories,
-                         )
-    if session_state.image_gen_data.image_pil_upload_ready == None:
-        st.error('You not uploaded/generated an image yet', icon="🚨")
-    else:
-        upload_image(session_state.browser.driver, image_pil_upload_ready)
-    if session_state.upload_data.bullet_1 == None and session_state.upload_data.bullet_2 == None:
-        st.error('You not defined your listings yet', icon="🚨")
-    else:
-        # TODO: how to handle case with Marketplace different to com (language of bullets is german for example but form takes englisch text input)
-        insert_listing_text(session_state.browser.driver, title=session_state.upload_data.title,
-                            brand=session_state.upload_data.brand, bullet_1=session_state.upload_data.bullet_1,
-                            bullet_2=session_state.upload_data.bullet_2,
-                            description=session_state.upload_data.description)
-
-
 def main(config: DigiProdGenConfig):
     init_environment()
     init_session_state(config)
@@ -195,6 +161,7 @@ def main(config: DigiProdGenConfig):
     tab_crawling, tab_ig, tab_upload = st.tabs(["Crawling", "Image Generation", "MBA Upload"])
     session_state: SessionState = st.session_state["session_state"]
 
+    # display views (+ add defaults to session)
     display_sidebar(session_state, tab_crawling, tab_ig, tab_upload)
     display_views(session_state, tab_crawling, tab_ig, tab_upload)
 

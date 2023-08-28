@@ -23,7 +23,6 @@ from digiprod_gen.backend.utils import split_list
 from digiprod_gen.backend.browser.crawling.selenium_mba import search_overview_and_change_postcode
 from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser
 from digiprod_gen.frontend.session import read_session, write_session
-from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
 
 
 
