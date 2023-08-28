@@ -1,21 +1,25 @@
 import time
+import click
 
 import streamlit as st
+import streamlit.web.bootstrap as st_bootstrap
 import os, sys
+
+from io import TextIOWrapper
 
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException
 from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketplaceDomain, MBAProductCategory
 from digiprod_gen.backend.utils.decorators import timeit
 from digiprod_gen.backend.utils.helper import Timer
-from digiprod_gen.backend.utils import is_debug, get_config, init_environment
+from digiprod_gen.backend.utils import is_debug, init_environment, initialise_config
 from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists
 from digiprod_gen.backend.image.caption import extend_mba_products_with_caption
 from digiprod_gen.backend.data_classes.session import SessionState, DigiProdGenStatus
+from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
 from digiprod_gen.backend.browser.upload.selenium_mba import click_on_create_new, insert_listing_text, \
     select_products_and_marketplaces, publish_to_mba, select_fit_types, select_colors
-from digiprod_gen.frontend.session import read_session, update_mba_request, write_session, \
-    set_session_state_if_not_exists, init_session_state
+from digiprod_gen.frontend.session import read_session, update_mba_request, init_session_state
 from digiprod_gen.frontend import sidebar
 from digiprod_gen.frontend.tab.image_generation.selected_products import display_mba_selected_products
 from digiprod_gen.frontend.tab.image_generation.image_editing import set_image_pil_generated_by_user, \
@@ -29,9 +33,6 @@ from digiprod_gen.frontend.tab.upload.views import (display_listing_selection, d
                                                     display_product_fit_type_selector)
 from digiprod_gen.frontend.tab.upload.mba_upload import display_mba_account_tier
 from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display, display_mba_overview_products
-
-init_environment()
-init_session_state()
 
 
 @timeit
@@ -154,19 +155,6 @@ def display_sidebar(session_state: SessionState, tab_crawling, tab_ig, tab_uploa
             pass
 
 
-def main():
-    st.header("MBA Product Generator")
-    tab_crawling, tab_ig, tab_upload = st.tabs(["Crawling", "Image Generation", "MBA Upload"])
-    session_state: SessionState = st.session_state["session_state"]
-
-    display_sidebar(session_state, tab_crawling, tab_ig, tab_upload)
-    display_views(session_state, tab_crawling, tab_ig, tab_upload)
-
-    # init session request
-    if session_state.crawling_request == None:
-        update_mba_request()
-
-
 def upload_mba_product(session_state):
     from digiprod_gen.backend.browser.upload.selenium_mba import upload_image
     import time
@@ -199,6 +187,45 @@ def upload_mba_product(session_state):
                             description=session_state.upload_data.description)
 
 
+def main(config: DigiProdGenConfig):
+    init_environment()
+    init_session_state(config)
+
+    st.header("MBA Product Generator")
+    tab_crawling, tab_ig, tab_upload = st.tabs(["Crawling", "Image Generation", "MBA Upload"])
+    session_state: SessionState = st.session_state["session_state"]
+
+    display_sidebar(session_state, tab_crawling, tab_ig, tab_upload)
+    display_views(session_state, tab_crawling, tab_ig, tab_upload)
+
+    # init session request
+    if session_state.crawling_request == None:
+        update_mba_request()
+
+
+@click.command()
+@click.argument("config-file", type=click.Path(exists=True))
+def start_digiprod_gen(config_file: TextIOWrapper):
+    if st.runtime.exists():
+        # The app has been executed with `streamlit run app.py`
+        config = initialise_config(
+            config_file_path=config_file
+        )
+        main(config=config)
+    else:
+        # If the file has been executed with python (`python app.py`), the streamlit functionality
+        # won't work. This line reruns the app within the streamlit context, as if it has been
+        # executed with `streamlit run app.py`.
+        # This is necessary when installing this project from a .whl package, since the executable
+        # only gets execute by python and not by streamlit.
+        args: list[str] = [config_file]
+
+        st_bootstrap.run(
+            __file__,
+            command_line="",
+            args=args,
+            flag_options={},
+        )
 
 if __name__ == "__main__":
-    main()
+    start_digiprod_gen()

@@ -8,6 +8,7 @@ from typing import List, Optional
 from operator import itemgetter
 
 from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest
+from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
 
 
 @dataclass
@@ -89,4 +90,5 @@ class SessionState:
     image_gen_data: ImageGenData
     upload_data: MBAUploadData
     status: DigiProdGenStatus
+    config: DigiProdGenConfig
     session_id: str

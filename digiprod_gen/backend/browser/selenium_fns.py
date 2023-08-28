@@ -8,7 +8,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from digiprod_gen.backend.data_classes.common import DigiProdGenConfig
+from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
 from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
 from digiprod_gen.backend.image.conversion import bytes2pil
 from digiprod_gen.backend.utils import delete_files_in_path

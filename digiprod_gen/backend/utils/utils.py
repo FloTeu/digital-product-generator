@@ -1,10 +1,13 @@
 import os
 import streamlit as st
+
+from pathlib import Path
 from pydantic import parse_file_as
+from pydantic_yaml import parse_yaml_file_as
 
 import digiprod_gen
 from digiprod_gen.backend.browser.crawling.mba.utils import get_mba_overview_urls
-from digiprod_gen.backend.data_classes.common import DigiProdGenConfig
+from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
 from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketplaceDomain
 
 def init_environment():
@@ -12,11 +15,14 @@ def init_environment():
     os.environ["REPLICATE_API_TOKEN"] = st.secrets["api_token"]["replicate"]
 
 
-@st.cache_resource
-def get_config() -> DigiProdGenConfig:
-    module_file_path = os.path.dirname(digiprod_gen.__file__)
-    return parse_file_as(DigiProdGenConfig, f"{module_file_path}/backend/config.json")
+# @st.cache_resource
+# def get_config() -> DigiProdGenConfig:
+#     module_file_path = os.path.dirname(digiprod_gen.__file__)
+#     return parse_file_as(DigiProdGenConfig, f"{module_file_path}/backend/config.json")
 
+@st.cache_resource
+def initialise_config(config_file_path: str) -> DigiProdGenConfig:
+    return parse_yaml_file_as(DigiProdGenConfig, config_file_path)
 
 def booleanize(s):
     return s.lower() in ['true', '1', "y", "yes"]

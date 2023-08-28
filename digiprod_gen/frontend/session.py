@@ -7,7 +7,8 @@ from digiprod_gen.backend.browser.crawling.mba.utils import get_random_headers
 from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser, init_selenium_driver
 from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketplaceDomain, MBAProductCategory
 from digiprod_gen.backend.data_classes.session import SessionState, ImageGenData, CrawlingData, MBAUploadData, DigiProdGenStatus
-from digiprod_gen.backend.utils import request2mba_overview_url, is_debug, get_config, delete_files_in_path
+from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
+from digiprod_gen.backend.utils import request2mba_overview_url, is_debug, delete_files_in_path
 
 def creat_session_state() -> SessionState:
     crawling_data=CrawlingData()
@@ -15,15 +16,15 @@ def creat_session_state() -> SessionState:
     upload_data = MBAUploadData()
     status = DigiProdGenStatus()
     session_id = get_session_id()
-    return SessionState(crawling_request=None, browser=None, crawling_data=crawling_data, image_gen_data=image_gen_data, upload_data=upload_data, status=status, session_id=session_id)
+    return SessionState(crawling_request=None, browser=None, crawling_data=crawling_data, image_gen_data=image_gen_data, upload_data=upload_data, status=status, session_id=session_id, config=None)
 
 def start_browser(session_state: SessionState):
     if session_state.browser == None or not session_state.browser.is_ready:
-        config = get_config()
-        delete_files_in_path(config.selenium_data_dir_path)
+        data_dir_path = session_state.config.browser.selenium_data_dir_path
+        delete_files_in_path(data_dir_path)
         browser = SeleniumBrowser()
         browser.setup(headless=not is_debug(),
-                        data_dir_path=config.selenium_data_dir_path)
+                        data_dir_path=data_dir_path)
         session_state.browser = browser
 
 def create_mba_request(session_state: SessionState):
@@ -41,15 +42,11 @@ def create_mba_request(session_state: SessionState):
 def get_session_id():
     return st.runtime.scriptrunner.add_script_run_ctx().streamlit_script_run_ctx.session_id
 
-def set_session_state_if_not_exists():
-    """Creates a session state if its not already exists"""
-    if read_session("session_state") == None:
-        write_session("session_state", creat_session_state())
-
-def init_session_state():
+def init_session_state(config: DigiProdGenConfig):
     """Creates a session state if its not already exists"""
     if "session_state" not in st.session_state:
         st.session_state.session_state = creat_session_state()
+        st.session_state.session_state.config = config
 
 
 def write_session(keys: str | List[str], value: Any):

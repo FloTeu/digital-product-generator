@@ -19,7 +19,7 @@ from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest
 from digiprod_gen.backend.data_classes.session import CrawlingData, SessionState
 from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io
 from digiprod_gen.backend.transform.transform_fns import extend_mba_product
-from digiprod_gen.backend.utils import split_list, get_config
+from digiprod_gen.backend.utils import split_list
 from digiprod_gen.backend.browser.crawling.selenium_mba import search_overview_and_change_postcode
 from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser
 from digiprod_gen.constants import MAX_SHIRTS_PER_ROW
@@ -37,8 +37,8 @@ def crawl_mba_details(session_state: SessionState):
     # if driver is not active anymore, restart an click to overview page
     if not browser.driver.service.is_connectable():
         browser.reset_driver()
-        config = get_config()
-        search_overview_and_change_postcode(request, browser.driver, config.mba_marketplace[request.marketplace].postcode)
+        config = session_state.config
+        search_overview_and_change_postcode(request, browser.driver, config.mba.get_marketplace_config(request.marketplace).postcode)
 
     mba_products_selected = crawling_data.get_selected_mba_products()
     for i, mba_product in enumerate(mba_products_selected):

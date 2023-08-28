@@ -18,8 +18,7 @@ from digiprod_gen.constants import MAX_SHIRTS_PER_ROW
 from digiprod_gen.backend.data_classes.mba import MBAProduct
 from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io, send_mba_overview_request
 from digiprod_gen.backend.utils import get_price_display_str, marketplace2currency, split_list
-from digiprod_gen.frontend.session import read_session, update_mba_request, write_session, set_session_state_if_not_exists, start_browser
-from digiprod_gen.backend.utils import is_debug, get_config
+from digiprod_gen.frontend.session import read_session, start_browser
 
 def crawl_mba_overview_and_display(st_element: DeltaGenerator):
     """ Display overview products to frontend.
@@ -48,11 +47,11 @@ def crawl_mba_overview2mba_products(session_state: SessionState):
     """
     request = session_state.crawling_request
     driver = session_state.browser.driver
-    config = get_config()
+    config = session_state.config
     
     mba_products: List[MBAProduct] = []
 
-    search_overview_and_change_postcode(request, driver, config.mba_marketplace[request.marketplace].postcode)
+    search_overview_and_change_postcode(request, driver, config.mba.get_marketplace_config(request.marketplace).postcode)
 
     html_str = driver.page_source
 
