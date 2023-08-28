@@ -31,7 +31,7 @@ def display_image_editor(session_image_gen_data: ImageGenData, background_remova
 
     image_outpainted = display_image_editor_outpainting(col1, col2, image_element, session_image_gen_data)
 
-    image_upscaled = display_image_editor_upscaling(col1, col2, image_element, session_image_gen_data, compress_quality=70)
+    image_upscaled = display_image_editor_upscaling(col1, col2, image_element, session_image_gen_data, compress_quality=80)
     #image_upscaled = jpeg_compress(image_upscaled, quality=70)
     #session_image_gen_data.image_pil_upscaled = image_upscaled
 
@@ -122,7 +122,6 @@ def display_image_editor_background_removal(col1, col2, image_element, backgroun
     if col1.button("Remove Background", key="remove_background_button", use_container_width=True) and image_upscaled and not session_image_gen_data.image_pil_background_removed:
         with image_element, st.spinner("Background Removal..."):
             image_pil_br: Image = image_background_removal(image_upscaled, buffer=background_removal_buffer,
-                                                           session_image_gen_data=session_image_gen_data,
                                                            br_method=br_method)
             if compress_quality < 100:
                 image_pil_br = png_compress(image_pil_br, quality=compress_quality)

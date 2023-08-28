@@ -162,6 +162,10 @@ def main():
     display_sidebar(session_state, tab_crawling, tab_ig, tab_upload)
     display_views(session_state, tab_crawling, tab_ig, tab_upload)
 
+    # init session request
+    if session_state.crawling_request == None:
+        update_mba_request()
+
 
 def upload_mba_product(session_state):
     from digiprod_gen.backend.browser.upload.selenium_mba import upload_image
