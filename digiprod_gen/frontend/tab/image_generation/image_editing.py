@@ -3,12 +3,13 @@ from PIL import Image
 from typing import Tuple
 
 from digiprod_gen.backend.image.conversion import pil2bytes_io, bytes2pil, pil2np
-from digiprod_gen.backend.image.background_removal import remove_outer_pixels, rembg
+from digiprod_gen.backend.image.background_removal import simple_remove_background, rembg
 from digiprod_gen.backend.image.upscale import pil_upscale, some_upscalers_upscale
 from digiprod_gen.backend.image.resolution import real_esrgan_resolution
 from digiprod_gen.backend.image.outpainting import outpainting_with_paella
 from digiprod_gen.backend.image.compress import jpeg_compress, png_compress
 from digiprod_gen.backend.data_classes.session import ImageGenData
+from digiprod_gen.backend.data_classes.config import DigiProdGenImageGenBrConfig
 from digiprod_gen.backend.data_classes.common import UpscalerModel, BackgroundRemovalModel
 
 
@@ -18,7 +19,7 @@ def set_image_pil_generated_by_user(session_image_gen_data: ImageGenData):
         session_image_gen_data.image_pil_generated = bytes2pil(image.getvalue())
 
 
-def display_image_editor(session_image_gen_data: ImageGenData, background_removal_buffer=0) -> Image:
+def display_image_editor(session_image_gen_data: ImageGenData, session_br_config=DigiProdGenImageGenBrConfig) -> Image:
     """ Image Editor view contains:
         * Upscaling
         * Baclground removal
@@ -35,7 +36,7 @@ def display_image_editor(session_image_gen_data: ImageGenData, background_remova
     #image_upscaled = jpeg_compress(image_upscaled, quality=70)
     #session_image_gen_data.image_pil_upscaled = image_upscaled
 
-    image_pil_br = display_image_editor_background_removal(col1, col2, image_element, background_removal_buffer, session_image_gen_data, compress_quality=100)
+    image_pil_br = display_image_editor_background_removal(col1, col2, image_element, session_br_config, session_image_gen_data, compress_quality=100)
 
     # display image with order br > up scaled > unchanged
     display_image_pil = image_pil_br or image_upscaled or image_outpainted or session_image_gen_data.image_pil_generated
@@ -113,7 +114,7 @@ def display_image_editor_upscaling(col1, col2, image_element, session_image_gen_
     return image_upscaled
 
 
-def display_image_editor_background_removal(col1, col2, image_element, background_removal_buffer,
+def display_image_editor_background_removal(col1, col2, image_element, session_br_config: DigiProdGenImageGenBrConfig,
                                             session_image_gen_data: ImageGenData, compress_quality: int = 100):
     image_upscaled = session_image_gen_data.image_pil_upscaled
     br_method = col1.selectbox(
@@ -121,8 +122,11 @@ def display_image_editor_background_removal(col1, col2, image_element, backgroun
         (BackgroundRemovalModel.OPEN_CV.value, BackgroundRemovalModel.REM_BG.value))
     if col1.button("Remove Background", key="remove_background_button", use_container_width=True) and image_upscaled and not session_image_gen_data.image_pil_background_removed:
         with image_element, st.spinner("Background Removal..."):
-            image_pil_br: Image = image_background_removal(image_upscaled, buffer=background_removal_buffer,
-                                                           br_method=br_method)
+            image_pil_br: Image = image_background_removal(image_upscaled,
+                                                           br_method=br_method,
+                                                           outer_pixel_range=session_br_config.outer_pixel_range,
+                                                           tolerance=session_br_config.tolerance
+                                                           )
             if compress_quality < 100:
                 image_pil_br = png_compress(image_pil_br, quality=compress_quality)
             session_image_gen_data.image_pil_background_removed = image_pil_br
@@ -158,9 +162,9 @@ def image_upscaling(image_pil: Image, upscaler: UpscalerModel = UpscalerModel.SO
         raise NotImplementedError
     return image_pil_upscaled
 
-def image_background_removal(image_pil: Image, buffer, br_method: BackgroundRemovalModel=BackgroundRemovalModel.OPEN_CV) -> Image:
+def image_background_removal(image_pil: Image, br_method: BackgroundRemovalModel=BackgroundRemovalModel.OPEN_CV, **br_kwargs) -> Image:
     if br_method == BackgroundRemovalModel.OPEN_CV:
-        image_pil_br = remove_outer_pixels(image_pil, buffer=buffer)
+        image_pil_br = simple_remove_background(image_pil, **br_kwargs)
     elif br_method == BackgroundRemovalModel.REM_BG:
         image_pil_br = rembg(image_pil)
     else:

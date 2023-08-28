@@ -55,6 +55,16 @@ docker run -ti -p 8501:8501 -v %cd%:/app --rm digiprod-gen:latest  # cmd.exe
 ```
 
 
+## Open TODOs:
+
+- [ ] Add loading bar for image generation
+- [ ] Remove python time wait with wait_until_element_exists()
+- [ ] Place loading bar on right place
+- [ ] Add session views (with st.empty) for all major frontend views
+- [ ] Add more mba marketplaces
+- [ ] Make publish button visible if product is ready for publishing
+- [ ] Allow user to change tolerance and out pixels
+- [ ] Catch case, image already uploaded and user clicks a second time on upload
 
 ## License
 

@@ -9,3 +9,7 @@ browser:
   selenium_data_dir_path: /tmp/selenium_data
 view:
   cards_per_row: 4
+image_gen:
+  background_removal:
+    outer_pixel_range: 10
+    tolerance: 30

@@ -14,36 +14,38 @@ from digiprod_gen.backend.browser.upload.selenium_mba import login_to_mba
 from digiprod_gen.backend.utils import is_debug
 
 def crawling_mba_overview_input(tab_crawling: DeltaGenerator):
-    st.sidebar.subheader("1. Crawling MBA Overview")
-    #st.sidebar.checkbox(label="Speed up Crawling", value=is_debug(), key="speed_up")
-    st.sidebar.text_input(value="Unicorn", label="Search Term", on_change=update_mba_request, key="search_term")
-    st.sidebar.selectbox("MBA Marketplace",
-                                       options=[MBAMarketplaceDomain.COM, MBAMarketplaceDomain.DE], on_change=update_mba_request, key="marketplace")
-    st.sidebar.button("Start Crawling", on_click=crawl_mba_overview_and_display, args=(tab_crawling, ))
+    st.subheader("1. Crawling MBA Overview")
+    #st.checkbox(label="Speed up Crawling", value=is_debug(), key="speed_up")
+    st.text_input(value="Unicorn", label="Search Term", on_change=update_mba_request, key="search_term")
+    st.selectbox("MBA Marketplace",
+                 options=[MBAMarketplaceDomain.COM, MBAMarketplaceDomain.DE],
+                 on_change=update_mba_request,
+                 key="marketplace")
+    st.button("Start Crawling", on_click=crawl_mba_overview_and_display, args=(tab_crawling, ))
 
 def crawling_mba_details_input(mba_products, tab_crawling: DeltaGenerator, tab_ig: DeltaGenerator):
-    st.sidebar.subheader("2. Crawling MBA Product Pages")
-    st.sidebar.multiselect("Select Designs for prompt generation:", [i+1 for i in range(len(mba_products))], key='selected_designs', on_change=crawl_mba_overview_and_display, args=(tab_crawling, ))
-    st.sidebar.button("Start Crawling Details", on_click=crawl_details_update_overview_page, args=(tab_ig, ), key="button_crawl_detail")
+    st.subheader("2. Crawling MBA Product Pages")
+    st.multiselect("Select Designs for prompt generation:", [i+1 for i in range(len(mba_products))], key='selected_designs', on_change=crawl_mba_overview_and_display, args=(tab_crawling, ))
+    st.button("Start Crawling Details", on_click=crawl_details_update_overview_page, args=(tab_ig, ), key="button_crawl_detail")
 
 def prompt_generation_input(tab_ig: DeltaGenerator):
-    st.sidebar.subheader("3. Prompt Generation")
-    st.sidebar.button("Start Prompt Generation", on_click=prompt_generation, args=(tab_ig, ), key="button_prompt_generation")
+    st.subheader("3. Prompt Generation")
+    st.button("Start Prompt Generation", on_click=prompt_generation, args=(tab_ig, ), key="button_prompt_generation")
 
 def listing_generation_input(tab_ig: DeltaGenerator):
-    st.sidebar.subheader("4. Listing Generation")
-    st.sidebar.button("Start Listing Generation", on_click=listing_generation, args=(tab_ig, ), key="button_listing_generation")
+    st.subheader("4. Listing Generation")
+    st.button("Start Listing Generation", on_click=listing_generation, args=(tab_ig, ), key="button_listing_generation")
 
 
 def mab_login_input(tab_upload: DeltaGenerator):
-    st.sidebar.subheader("5. MBA Upload")
-    st.sidebar.text_input("MBA Email", value=os.environ.get("mba_user_name", ""), key="mba_email")
-    st.sidebar.text_input("MBA Password", type="password", value=os.environ.get("mba_password", ""), key="mba_password")
-    st.sidebar.button("Login", on_click=login_to_mba, args=(tab_upload, ), key="button_mba_login")
+    st.subheader("5. MBA Upload")
+    st.text_input("MBA Email", value=os.environ.get("mba_user_name", ""), key="mba_email")
+    st.text_input("MBA Password", type="password", value=os.environ.get("mba_password", ""), key="mba_password")
+    st.button("Login", on_click=login_to_mba, args=(tab_upload, ), key="button_mba_login")
 
 def mba_otp_input(session_state: SessionState):
     # Only show input if amazon asks for otp
     driver = session_state.browser.driver
     if driver and "verification" in driver.page_source.lower() and "otp" in driver.page_source.lower():
-        otp_code = st.sidebar.text_input("OTP")
-        st.sidebar.button("Send OTP Token", on_click=mba_otp_verification, args=(session_state, otp_code, ), key="button_send_otp_token")
+        otp_code = st.text_input("OTP")
+        st.button("Send OTP Token", on_click=mba_otp_verification, args=(session_state, otp_code, ), key="button_send_otp_token")

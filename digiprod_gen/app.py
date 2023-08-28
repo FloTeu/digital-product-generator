@@ -58,7 +58,7 @@ def display_tab_image_gen_views(session_state: SessionState):
     set_image_pil_generated_by_user(session_state.image_gen_data)
     if session_state.image_gen_data.image_pil_generated:
         with Timer("display_image_editor"):
-           image_pil_upload_ready = display_image_editor(session_state.image_gen_data, background_removal_buffer=0)
+           image_pil_upload_ready = display_image_editor(session_state.image_gen_data, session_state.config.image_gen.background_removal)
         # Update session upload ready image
         if image_pil_upload_ready:
             session_state.image_gen_data.image_pil_upload_ready = image_pil_upload_ready
@@ -125,8 +125,9 @@ def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload)
 def display_sidebar(session_state: SessionState, tab_crawling, tab_ig, tab_upload):
     """Renders sidebar elements based on session data"""
     sidebar_element = session_state.views.get_or_create_sidebar()
-    # before rerender, empty all existing views
+    # before re rendering, empty all existing views
     sidebar_element.empty()
+
     with sidebar_element.container():
         sidebar.crawling_mba_overview_input(tab_crawling)
         if session_state.status.overview_page_crawled:
@@ -134,7 +135,7 @@ def display_sidebar(session_state: SessionState, tab_crawling, tab_ig, tab_uploa
             sidebar.crawling_mba_details_input(mba_products, tab_crawling, tab_ig)
             if session_state.status.detail_pages_crawled:
                 mba_products_selected = session_state.crawling_data.get_selected_mba_products()
-                st.sidebar.button("Run AI Image Captioning", on_click=extend_mba_products_with_caption,
+                st.button("Run AI Image Captioning", on_click=extend_mba_products_with_caption,
                                   args=(mba_products_selected,), key="button_image_captioning")
             mba_products_selected = session_state.crawling_data.get_selected_mba_products()
             if mba_products_selected and session_state.status.detail_pages_crawled:

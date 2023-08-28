@@ -29,7 +29,15 @@ class DigiProdGenMBAConfig(BaseModel):
 class DigiProdGenViewConfig(BaseModel):
     cards_per_row: int = Field(description="Number of cards (with product info) in one row")
 
+class DigiProdGenImageGenBrConfig(BaseModel):
+    outer_pixel_range: int = Field(description="Number of pixel to consider for background removal pixel detection")
+    tolerance: int = Field(description="Allowed color difference between a pixel and the average color of the outer pixels. Lower == more strict/less pixels get removed")
+
+class DigiProdGenImageGenConfig(BaseModel):
+    background_removal: DigiProdGenImageGenBrConfig
+
 class DigiProdGenConfig(BaseModel):
     mba: DigiProdGenMBAConfig
     browser: DigiProdGenBrowserConfig
     view: DigiProdGenViewConfig
+    image_gen: DigiProdGenImageGenConfig

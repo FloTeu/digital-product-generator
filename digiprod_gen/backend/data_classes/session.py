@@ -102,7 +102,7 @@ class DigitProdGenViews:
 
     def get_or_create_sidebar(self):
         if not self.sidebar:
-            self.sidebar = st.empty()
+            self.sidebar = st.sidebar.empty()
         return self.sidebar
 
 @dataclass
