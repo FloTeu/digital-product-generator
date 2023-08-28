@@ -18,7 +18,7 @@ def crawling_mba_overview_input(tab_crawling: DeltaGenerator):
     #st.checkbox(label="Speed up Crawling", value=is_debug(), key="speed_up")
     st.text_input(value="Unicorn", label="Search Term", on_change=update_mba_request, key="search_term")
     st.selectbox("MBA Marketplace",
-                 options=[MBAMarketplaceDomain.COM, MBAMarketplaceDomain.DE],
+                 options=[MBAMarketplaceDomain.COM, MBAMarketplaceDomain.DE],#, MBAMarketplaceDomain.FR, MBAMarketplaceDomain.ES, MBAMarketplaceDomain.IT, MBAMarketplaceDomain.JP],
                  on_change=update_mba_request,
                  key="marketplace")
     st.button("Start Crawling", on_click=crawl_mba_overview_and_display, args=(tab_crawling, ))

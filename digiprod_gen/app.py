@@ -97,12 +97,12 @@ def display_tab_upload_views(session_state: SessionState):
     if not session_state.status.mba_login_successfull:
         st.warning("Please login with your MBA credentials (5. MBA Upload)")
     else:
-        display_mba_account_tier(session_state.browser.driver)
+        #display_mba_account_tier(session_state.browser.driver)
         if st.button("Upload product to MBA"):
             with st.spinner("Upload mba product"):
                 warnings = upload_mba_product(session_state)
             for warning in warnings:
-                st.warning(f"MBA Warning: f{warning}")
+                st.warning(f"MBA Warning: {warning}")
         if st.button("Publish to MBA"):
             publish_to_mba(session_state.browser.driver, searchable=True)
             time.sleep(1)

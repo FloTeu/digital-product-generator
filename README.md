@@ -62,11 +62,11 @@ docker run -ti -p 8501:8501 -v %cd%:/app --rm digiprod-gen:latest  # cmd.exe
 - [ ] Place loading bar on right place
 - [ ] Add session views (with st.empty) for all major frontend views
 - [ ] Add more mba marketplaces
-- [ ] Make publish button visible if product is ready for publishing
+- [x] Make publish button visible if product is ready for publishing
 - [ ] Allow user to change tolerance and out pixels
 - [x] Catch case, image already uploaded and user clicks a second time on upload
 - [ ] Include xpaths, web scraping parser related codes to config
-- [ ] Display mba warnings  after upload to user
+- [x] Display mba warnings  after upload to user
 
 
 ## License

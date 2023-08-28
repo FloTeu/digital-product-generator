@@ -58,11 +58,8 @@ def wait_until_dashboard_is_ready(driver: WebDriver, max_time_wait: int = 3):
     except TimeoutException:
         print("Loading took too much time!")
 
-def click_on_dashboard(driver):
-    # find the link element by its text content
-    link_element = driver.find_element("link text", "Dashboard")
-    # click on the link
-    link_element.click()
+def open_dashboard(driver):
+    driver.get("https://merch.amazon.com/dashboard")
 
 def click_on_create_new(driver):
     # find the link element by its text content

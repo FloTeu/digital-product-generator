@@ -43,6 +43,17 @@ def get_accept_language(marketplace: MBAMarketplaceDomain):
         return 'en-US;q=0.8,en;q=0.7'
     elif marketplace == MBAMarketplaceDomain.DE:
         return 'de-DE,DE;q=0.9;q=0.7'
+    if marketplace == MBAMarketplaceDomain.UK:
+        return 'en-US;q=0.8,en;q=0.7'
+    # TODO: Adapt to marketplace
+    if marketplace == MBAMarketplaceDomain.IT:
+        return 'en-US;q=0.8,en;q=0.7'
+    if marketplace == MBAMarketplaceDomain.FR:
+        return 'en-US;q=0.8,en;q=0.7'
+    if marketplace == MBAMarketplaceDomain.ES:
+        return 'en-US;q=0.8,en;q=0.7'
+    if marketplace == MBAMarketplaceDomain.JP:
+        return 'en-US;q=0.8,en;q=0.7'
     else:
         raise NotImplementedError
 
@@ -64,5 +75,17 @@ def is_product_feature_listing(marketplace: MBAMarketplaceDomain, product_featur
     elif marketplace == MBAMarketplaceDomain.DE:
         return (not any(indicator in product_feature.lower() for indicator in
                ["unifarben", "baumwolle", "klassisch geschnitten", "doppelt genäht", "pflegehinweis", "polyester", "grau meliert", "halbarm", "verschluss:", "maschinenwäsche", "leicht, klassische", "kurzarm"])) and len(product_feature) >= 10
+    elif marketplace == MBAMarketplaceDomain.FR:
+        return (not any(indicator in product_feature.lower() for indicator in
+               ["Coton", "polyester", "coupe classique", "manche courte", "manche mi-longue", "lavage en machine à froid"])) and len(product_feature) >= 10
+    elif marketplace == MBAMarketplaceDomain.ES:
+        return (not any(indicator in product_feature.lower() for indicator in
+               ["Coton", "polyester", "coupe classique", "manche courte", "manche mi-longue", "lavage en machine à froid"])) and len(product_feature) >= 10
+    elif marketplace == MBAMarketplaceDomain.IT:
+        return (not any(indicator in product_feature.lower() for indicator in
+               ["Coton", "polyester", "coupe classique", "manche courte", "manche mi-longue", "lavage en machine à froid"])) and len(product_feature) >= 10
+    elif marketplace == MBAMarketplaceDomain.JP:
+        return (not any(indicator in product_feature.lower() for indicator in
+               ["Coton", "polyester", "coupe classique", "manche courte", "manche mi-longue", "lavage en machine à froid"])) and len(product_feature) >= 10
     else:
         raise ValueError("Not defined for marketplace %s" % marketplace)

@@ -2,9 +2,19 @@
 mba:
   marketplaces:
     - marketplace: com
-      postcode: 90001
+      postcode: "90001"
     - marketplace: de
-      postcode: 10115
+      postcode: "10115"
+    - marketplace: co.uk
+      postcode: "W2 2SZ"
+    - marketplace: fr
+      postcode: "75001"
+    - marketplace: es
+      postcode: "28001"
+    - marketplace: it
+      postcode: "00127"
+    - marketplace: co.jp
+      postcode: "100-0000"
 browser:
   selenium_data_dir_path: /tmp/selenium_data
 view:

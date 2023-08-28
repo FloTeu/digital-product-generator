@@ -8,7 +8,7 @@ from selenium.common.exceptions import NoSuchElementException, ElementClickInter
 from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists, scroll_page, focus_element, scroll_to_top_left
 from digiprod_gen.backend.browser.upload import selenium_mba
 from digiprod_gen.backend.browser.upload.selenium_mba import click_on_create_new, select_products_and_marketplaces, \
-    select_colors, select_fit_types, insert_listing_text, click_on_dashboard
+    select_colors, select_fit_types, insert_listing_text, open_dashboard
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.image import conversion
 
@@ -32,7 +32,8 @@ def upload_mba_product(session_state) -> List[str]:
     image_pil_upload_ready = session_state.image_gen_data.image_pil_upload_ready
     driver = session_state.browser.driver
     # Click on dashboard first to be sure create page is reloaded
-    click_on_dashboard(driver)
+    open_dashboard(driver)
+    time.sleep(1)
     click_on_create_new(driver)
     wait_until_element_exists(driver, "//*[contains(@class, 'product-card')]")
     select_products_and_marketplaces(driver,
@@ -65,6 +66,8 @@ def upload_mba_product(session_state) -> List[str]:
         remove_uploaded_image(driver, image_delete_xpath)
         upload_image(driver, image_pil_upload_ready)
         wait_until_element_exists(driver, image_delete_xpath)
+        # wait some more time just to be sure, that mba is ready for publishing
+        time.sleep(3)
 
     # extract warnings
     # get sibling of warning span tag

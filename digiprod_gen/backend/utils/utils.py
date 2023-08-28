@@ -42,15 +42,19 @@ def split_list(list_obj, split_size):
 def marketplace2currency(marketplace: MBAMarketplaceDomain) -> str:
     if marketplace == MBAMarketplaceDomain.COM:
         return "$"
-    if marketplace in [MBAMarketplaceDomain.DE]:
+    if marketplace == MBAMarketplaceDomain.UK:
+        return "£"
+    if marketplace == MBAMarketplaceDomain.JP:
+        return "¥"
+    if marketplace in [MBAMarketplaceDomain.DE, MBAMarketplaceDomain.FR, MBAMarketplaceDomain.IT, MBAMarketplaceDomain.ES]:
         return "€"
     else:
         raise NotImplementedError
 
 def get_price_display_str(marketplace: MBAMarketplaceDomain, price: float, currency: str):
-    if marketplace == MBAMarketplaceDomain.COM:
+    if marketplace in [MBAMarketplaceDomain.COM, MBAMarketplaceDomain.UK, MBAMarketplaceDomain.JP]:
         return f"{currency}{price}"
-    if marketplace in [MBAMarketplaceDomain.DE]:
+    if marketplace in [MBAMarketplaceDomain.DE, MBAMarketplaceDomain.FR, MBAMarketplaceDomain.IT, MBAMarketplaceDomain.ES]:
         return f"{price}{currency}"
     else:
         raise NotImplementedError
