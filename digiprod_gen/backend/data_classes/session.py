@@ -10,7 +10,7 @@ from typing import List, Optional
 from operator import itemgetter
 
 from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest
-from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
+from digiprod_gen.backend.data_classes.config import DigiProdGenConfig, DigiProdGenMBAMarketplaceConfig
 
 
 @dataclass
@@ -116,3 +116,6 @@ class SessionState:
     config: DigiProdGenConfig
     views: DigitProdGenViews
     session_id: str
+
+    def get_marketplace_config(self) -> DigiProdGenMBAMarketplaceConfig:
+        return self.config.mba.get_marketplace_config(self.crawling_request.marketplace)

@@ -43,7 +43,7 @@ def change_postcode(driver, postcode):
     submit_buttons[0].click()
 
 
-def search_overview_and_change_postcode(request: CrawlingMBARequest, driver, postcode):
+def search_overview_and_change_postcode(request: CrawlingMBARequest, driver, postcode=None):
     """ Searches mba overview page and change postcode in order to see correct products"""
     search_overview_page(request, driver)
     # If selenium is running with headless mode the first request sometimes fails
@@ -56,9 +56,10 @@ def search_overview_and_change_postcode(request: CrawlingMBARequest, driver, pos
         click_ignore_cookies(driver)
     except:
         pass
-    try:
-        change_postcode(driver, postcode)
-    except (NoSuchElementException, ElementNotInteractableException):
-        print("Could not change postcode")
-        pass
-    time.sleep(3)  # wait until page is refreshed with new products
+    if postcode:
+        try:
+            change_postcode(driver, postcode)
+        except (NoSuchElementException, ElementNotInteractableException):
+            print("Could not change postcode")
+            pass
+        time.sleep(3)  # wait until page is refreshed with new products

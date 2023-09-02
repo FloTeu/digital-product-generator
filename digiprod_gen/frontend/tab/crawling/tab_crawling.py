@@ -50,7 +50,8 @@ def crawl_mba_overview2mba_products(session_state: SessionState):
     
     mba_products: List[MBAProduct] = []
 
-    search_overview_and_change_postcode(request, driver, config.mba.get_marketplace_config(request.marketplace).postcode)
+    postcode = config.mba.get_marketplace_config(request.marketplace).postcode
+    search_overview_and_change_postcode(request, driver)
 
     html_str = driver.page_source
 

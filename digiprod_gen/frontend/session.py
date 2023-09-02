@@ -6,18 +6,22 @@ from digiprod_gen.backend.browser.crawling.proxies import get_random_private_pro
 from digiprod_gen.backend.browser.crawling.mba.utils import get_random_headers
 from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser, init_selenium_driver
 from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketplaceDomain, MBAProductCategory
-from digiprod_gen.backend.data_classes.session import SessionState, ImageGenData, CrawlingData, MBAUploadData, DigiProdGenStatus, DigitProdGenViews
+from digiprod_gen.backend.data_classes.session import SessionState, ImageGenData, CrawlingData, MBAUploadData, \
+    DigiProdGenStatus, DigitProdGenViews
 from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
 from digiprod_gen.backend.utils import request2mba_overview_url, is_debug, delete_files_in_path
 
+
 def creat_session_state() -> SessionState:
-    crawling_data=CrawlingData()
+    crawling_data = CrawlingData()
     image_gen_data = ImageGenData()
     upload_data = MBAUploadData()
     status = DigiProdGenStatus()
     session_id = get_session_id()
     views = DigitProdGenViews()
-    return SessionState(crawling_request=None, browser=None, crawling_data=crawling_data, image_gen_data=image_gen_data, upload_data=upload_data, status=status, session_id=session_id, config=None, views=views)
+    return SessionState(crawling_request=None, browser=None, crawling_data=crawling_data, image_gen_data=image_gen_data,
+                        upload_data=upload_data, status=status, session_id=session_id, config=None, views=views)
+
 
 def start_browser(session_state: SessionState):
     if session_state.browser == None or not session_state.browser.is_ready:
@@ -25,23 +29,28 @@ def start_browser(session_state: SessionState):
         delete_files_in_path(data_dir_path)
         browser = SeleniumBrowser()
         browser.setup(headless=not is_debug(),
-                        data_dir_path=data_dir_path)
+                      data_dir_path=data_dir_path,
+                      proxy=session_state.get_marketplace_config().get_proxy_with_secrets(
+                          st.secrets.proxy_perfect_privacy.user_name,
+                          st.secrets.proxy_perfect_privacy.password))
         session_state.browser = browser
+
 
 def create_mba_request(session_state: SessionState):
     marketplace = read_session("marketplace") or MBAMarketplaceDomain.COM
     search_term = read_session("search_term") or ""
     proxy = get_random_private_proxy(st.secrets.proxy_perfect_privacy.user_name,
-                                        st.secrets.proxy_perfect_privacy.password, marketplace=marketplace)
+                                     st.secrets.proxy_perfect_privacy.password, marketplace=marketplace)
     request = CrawlingMBARequest(marketplace=marketplace, product_category=MBAProductCategory.SHIRT,
-                                    search_term=search_term, headers=get_random_headers(marketplace), proxy=proxy, mba_overview_url=None)
+                                 search_term=search_term, headers=get_random_headers(marketplace), proxy=proxy,
+                                 mba_overview_url=None)
     request.mba_overview_url = request2mba_overview_url(request)
     session_state.crawling_request = request
 
 
-
 def get_session_id():
     return st.runtime.scriptrunner.add_script_run_ctx().streamlit_script_run_ctx.session_id
+
 
 def init_session_state(config: DigiProdGenConfig):
     """Creates a session state if its not already exists"""
@@ -82,12 +91,19 @@ def update_mba_request():
         create_mba_request(session_state)
     else:
         request = session_state.crawling_request
+        previous_marketplace = request.marketplace
         request.marketplace = st.session_state["marketplace"]
+        if st.session_state.marketplace != previous_marketplace:
+            # As the marketplace changed, we need to update our proxy -> restart browser
+            if session_state.browser:
+                session_state.browser.reset_driver(
+                    proxy=session_state.get_marketplace_config().get_proxy_with_secrets(
+                              st.secrets.proxy_perfect_privacy.user_name,
+                              st.secrets.proxy_perfect_privacy.password)
+                )
         request.search_term = st.session_state["search_term"]
         request.mba_overview_url = request2mba_overview_url(request)
 
         # refresh status after request has changed
         session_state.status.refresh()
         session_state.crawling_data.selected_designs = []
-
-

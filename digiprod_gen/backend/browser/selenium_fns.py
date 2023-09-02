@@ -1,5 +1,6 @@
 import streamlit as st
-from selenium import webdriver
+from seleniumwire import webdriver
+#from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -20,12 +21,14 @@ class SeleniumBrowser():
         self.is_ready = False
         self.data_dir_path = None
         self.headless = None
+        self.proxy = None
 
-    def setup(self, headless=False, data_dir_path=None):
-        self.driver = init_selenium_driver(headless=headless, data_dir_path=data_dir_path)
+    def setup(self, headless=False, data_dir_path=None, proxy=None):
+        self.driver = init_selenium_driver(headless=headless, data_dir_path=data_dir_path, proxy=proxy)
         self.headless = headless
         self.data_dir_path = data_dir_path
         self.is_ready = True
+        self.proxy = proxy
 
     def close_driver(self):
         self.driver.close()
@@ -35,17 +38,21 @@ class SeleniumBrowser():
         self.driver.quit()
         self.is_ready = False
 
-    def reset_driver(self):
-        """ If possible quits the existing selenium driver and starts a new one"""
+    def reset_driver(self, proxy: str | None=None):
+        """ If possible quits the existing selenium driver and starts a new one
+            Optionally a new proxy can be provided
+        """
         try:
             delete_files_in_path(self.data_dir_path)
             self.quit_driver()
         except:
             pass
-        self.driver = init_selenium_driver(headless=self.headless, data_dir_path=self.data_dir_path)
+        self.driver = init_selenium_driver(headless=self.headless, data_dir_path=self.data_dir_path, proxy=proxy or self.proxy)
+        if proxy:
+            self.proxy = proxy
         self.is_ready = True
 
-def init_selenium_driver(headless=True, data_dir_path=None) -> WebDriver:
+def init_selenium_driver(headless=True, data_dir_path=None, proxy: str=None) -> WebDriver:
     """Instantiate a WebDriver object (in this case, using Chrome)"""
     options = Options() #either firefox or chrome options
     options.add_argument('--disable-gpu')
@@ -59,11 +66,20 @@ def init_selenium_driver(headless=True, data_dir_path=None) -> WebDriver:
     options.add_argument("--window-size=1920x1080")
     options.add_argument("--disable-features=VizDisplayCompositor")
     options.add_argument("−−lang=en") # language english
+    seleniumwire_options = {}
+    if proxy:
+        #options.add_argument(f'--proxy-server={proxy}')
+        seleniumwire_options = {
+            'proxy': {
+                'http': proxy,
+                'verify_ssl': False,
+            },
+        }
     if data_dir_path:
         options.add_argument(f'--user-data-dir={data_dir_path}')
     if headless:
         options.add_argument('--headless')
-    return webdriver.Chrome(options=options)
+    return webdriver.Chrome(options=options, seleniumwire_options=seleniumwire_options)
     #return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 def show_web_element_png(element: WebElement):

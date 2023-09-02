@@ -36,7 +36,7 @@ def crawl_mba_details(session_state: SessionState):
     if not browser.driver.service.is_connectable():
         browser.reset_driver()
         config = session_state.config
-        search_overview_and_change_postcode(request, browser.driver, config.mba.get_marketplace_config(request.marketplace).postcode)
+        search_overview_and_change_postcode(request, browser.driver)#, config.mba.get_marketplace_config(request.marketplace).postcode)
 
     mba_products_selected = crawling_data.get_selected_mba_products()
     for i, mba_product in enumerate(mba_products_selected):

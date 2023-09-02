@@ -14,8 +14,13 @@ class DigiProdGenBrowserConfig(BaseModel):
         return data_dir_path
 
 class DigiProdGenMBAMarketplaceConfig(BaseModel):
-    marketplace: str
-    postcode: str
+    marketplace: MBAMarketplaceDomain = Field(description="mba marketplace domain")
+    postcode: str = Field(description="Valid example postcode of the main country in which the marketplace operates")
+    proxy: str | None = Field(description="Crawling proxy which should be used to get better response by mba server")
+    proxy_port: int | None = Field(description="Port on which the proxy can be accessed")
+
+    def get_proxy_with_secrets(self, user_name, password) -> str:
+        return f"http://{user_name}:{password}@{self.proxy}:{self.proxy_port}"
 
 class DigiProdGenMBAConfig(BaseModel):
     marketplaces: List[DigiProdGenMBAMarketplaceConfig]

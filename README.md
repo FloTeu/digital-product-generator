@@ -67,6 +67,7 @@ docker run -ti -p 8501:8501 -v %cd%:/app --rm digiprod-gen:latest  # cmd.exe
 - [x] Catch case, image already uploaded and user clicks a second time on upload
 - [ ] Include xpaths, web scraping parser related codes to config
 - [x] Display mba warnings  after upload to user
+- [x] Add proxy depending on marketplace
 
 
 ## License
