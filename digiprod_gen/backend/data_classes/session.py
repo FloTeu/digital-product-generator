@@ -99,11 +99,16 @@ class DigiProdGenStatus:
 @dataclass
 class DigitProdGenViews:
     sidebar: st.delta_generator.DeltaGenerator | None = None
-
+    overview_designs: st.delta_generator.DeltaGenerator | None = None
     def get_or_create_sidebar(self):
         if not self.sidebar:
             self.sidebar = st.sidebar.empty()
         return self.sidebar
+
+    def get_or_create_overview_designs(self):
+        if not self.overview_designs:
+            self.overview_designs = st.empty()
+        return self.overview_designs
 
 @dataclass
 class SessionState:

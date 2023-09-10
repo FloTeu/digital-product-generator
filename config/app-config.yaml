@@ -7,7 +7,7 @@ mba:
       proxy_port: 3128
     - marketplace: de
       postcode: "10115"
-      proxy: "frankfurt2.perfect-privacy.com"
+      proxy: "hamburg.perfect-privacy.com"
       proxy_port: 3128
     - marketplace: co.uk
       postcode: "W2 2SZ"

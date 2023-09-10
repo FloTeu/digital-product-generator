@@ -19,8 +19,11 @@ class DigiProdGenMBAMarketplaceConfig(BaseModel):
     proxy: str | None = Field(description="Crawling proxy which should be used to get better response by mba server")
     proxy_port: int | None = Field(description="Port on which the proxy can be accessed")
 
-    def get_proxy_with_secrets(self, user_name, password) -> str:
-        return f"http://{user_name}:{password}@{self.proxy}:{self.proxy_port}"
+    def get_proxy_with_secrets(self, user_name, password) -> str | None:
+        """If proxy exists, return proxy url with secrets. Otherwise None"""
+        if self.proxy:
+            return f"http://{user_name}:{password}@{self.proxy}:{self.proxy_port}"
+        return None
 
 class DigiProdGenMBAConfig(BaseModel):
     marketplaces: List[DigiProdGenMBAMarketplaceConfig]

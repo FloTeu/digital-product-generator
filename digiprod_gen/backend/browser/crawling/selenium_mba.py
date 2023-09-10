@@ -48,6 +48,7 @@ def search_overview_and_change_postcode(request: CrawlingMBARequest, driver, pos
     search_overview_page(request, driver)
     # If selenium is running with headless mode the first request sometimes fails
     if "something went wrong" in driver.title.lower():
+        print("something went wrong during overview crawling. Try again..")
         search_overview_page(request, driver)
 
     # wait to act more like a human

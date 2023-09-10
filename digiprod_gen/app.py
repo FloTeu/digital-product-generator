@@ -113,8 +113,13 @@ def display_tab_upload_views(session_state: SessionState):
 def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload):
     """Renders views based on session data"""
     with tab_crawling:
-        if session_state.status.overview_page_crawled:
-            display_mba_overview_products(session_state.crawling_data, session_state.crawling_request, shirts_per_row=session_state.config.view.cards_per_row)
+        overview_designs_view = session_state.views.get_or_create_overview_designs()
+        # before re rendering, empty all existing elements in view
+        overview_designs_view.empty()
+
+        with overview_designs_view.container():
+            if session_state.status.overview_page_crawled:
+                display_mba_overview_products(session_state.crawling_data, session_state.crawling_request, shirts_per_row=session_state.config.view.cards_per_row)
 
     with tab_ig:
         display_tab_image_gen_views(session_state)
