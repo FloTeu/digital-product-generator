@@ -136,10 +136,10 @@ def display_sidebar(session_state: SessionState, tab_crawling, tab_ig, tab_uploa
     sidebar_element.empty()
 
     with sidebar_element.container():
-        sidebar.crawling_mba_overview_input(tab_crawling)
+        sidebar.crawling_mba_overview_input()
         if session_state.status.overview_page_crawled:
             mba_products = session_state.crawling_data.mba_products
-            sidebar.crawling_mba_details_input(mba_products, tab_crawling, tab_ig)
+            sidebar.crawling_mba_details_input(mba_products, tab_ig)
             if session_state.status.detail_pages_crawled:
                 mba_products_selected = session_state.crawling_data.get_selected_mba_products()
                 st.button("Run AI Image Captioning", on_click=extend_mba_products_with_caption,

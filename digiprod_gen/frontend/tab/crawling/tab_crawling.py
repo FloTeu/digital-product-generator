@@ -17,15 +17,19 @@ from digiprod_gen.backend.transform.transform_fns import overview_product_tag2mb
 from digiprod_gen.backend.data_classes.mba import MBAProduct
 from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io, send_mba_overview_request
 from digiprod_gen.backend.utils import get_price_display_str, marketplace2currency, split_list
-from digiprod_gen.frontend.session import read_session, start_browser
+from digiprod_gen.frontend.session import read_session, start_browser, update_mba_request
 
-def crawl_mba_overview_and_display(st_element: DeltaGenerator):
+def crawl_mba_overview_and_display():
     """ Display overview products to frontend.
         If data is not available in session already, the data is crawled.
     """
     session_state: SessionState = read_session("session_state")
+
+    # If not set yet, init session request
+    if session_state.crawling_request == None:
+        update_mba_request()
     start_browser(session_state)
-    request: CrawlingMBARequest = session_state.crawling_request
+    # request: CrawlingMBARequest = session_state.crawling_request
     overview_designs_view = session_state.views.overview_designs
     with overview_designs_view:
 
@@ -33,7 +37,7 @@ def crawl_mba_overview_and_display(st_element: DeltaGenerator):
         if not mba_products or not session_state.status.overview_page_crawled:
             crawl_mba_overview2mba_products(session_state)
 
-        display_mba_overview_products(session_state.crawling_data, request, shirts_per_row=session_state.config.view.cards_per_row)
+        #display_mba_overview_products(session_state.crawling_data, request, shirts_per_row=session_state.config.view.cards_per_row)
         # # Temp button to download html
         # st.download_button('Download HTML', driver.page_source, file_name='mba_overview.html', on_click=crawl_mba_overview_and_display, args=(st_element, ), key="download_overview_html")
         # display_start_crawling.empty()
@@ -51,6 +55,7 @@ def crawl_mba_overview2mba_products(session_state: SessionState):
 
     st.write("Start crawling products")
     postcode = config.mba.get_marketplace_config(request.marketplace).postcode
+    # TODO: Why does this call takes several seconds, even after page loaded already
     search_overview_and_change_postcode(request, driver)
     st.write("Crawling is done. Start to extract product information")
 

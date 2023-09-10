@@ -2,7 +2,7 @@ from selenium.common.exceptions import NoSuchElementException, ElementNotInterac
 from selenium.webdriver.common.by import By
 import time
 from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest
-
+from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists
 
 from selenium.webdriver.chrome.webdriver import WebDriver
 
@@ -51,16 +51,16 @@ def search_overview_and_change_postcode(request: CrawlingMBARequest, driver, pos
         print("something went wrong during overview crawling. Try again..")
         search_overview_page(request, driver)
 
-    # wait to act more like a human
-    time.sleep(1)
     try:
         click_ignore_cookies(driver)
     except:
         pass
     if postcode:
+        print("Try to change postcode")
         try:
             change_postcode(driver, postcode)
         except (NoSuchElementException, ElementNotInteractableException):
             print("Could not change postcode")
             pass
-        time.sleep(3)  # wait until page is refreshed with new products
+        wait_until_element_exists(driver, "//*[contains(@class, 'sg-col-inne')]")
+        #time.sleep(3)  # wait until page is refreshed with new products

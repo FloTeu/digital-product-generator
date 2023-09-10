@@ -24,6 +24,10 @@ def creat_session_state() -> SessionState:
 
 
 def start_browser(session_state: SessionState):
+    """
+    Starts a selenium browser
+    Make sure, that session.crawling_request is already initialised
+    """
     if session_state.browser == None or not session_state.browser.is_ready:
         data_dir_path = session_state.config.browser.selenium_data_dir_path
         delete_files_in_path(data_dir_path)

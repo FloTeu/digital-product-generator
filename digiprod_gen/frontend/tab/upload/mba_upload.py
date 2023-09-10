@@ -33,7 +33,9 @@ def upload_mba_product(session_state) -> List[str]:
     driver = session_state.browser.driver
     # Click on dashboard first to be sure create page is reloaded
     open_dashboard(driver)
-    time.sleep(1)
+    # TODO: Wait exactly until Create button is visible (maybe done already .. test!)
+    wait_until_element_exists(driver, "//*[contains(@class, 'nav-link')]")
+    #time.sleep(1)
     click_on_create_new(driver)
     wait_until_element_exists(driver, "//*[contains(@class, 'product-card')]")
     select_products_and_marketplaces(driver,

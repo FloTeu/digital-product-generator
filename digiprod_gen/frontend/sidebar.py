@@ -13,7 +13,7 @@ from digiprod_gen.frontend.tab.upload.mba_upload import mba_otp_verification
 from digiprod_gen.backend.browser.upload.selenium_mba import login_to_mba
 from digiprod_gen.backend.utils import is_debug
 
-def crawling_mba_overview_input(tab_crawling: DeltaGenerator):
+def crawling_mba_overview_input():
     st.subheader("1. Crawling MBA Overview")
     #st.checkbox(label="Speed up Crawling", value=is_debug(), key="speed_up")
     st.text_input(value="Unicorn", label="Search Term", on_change=update_mba_request, key="search_term")
@@ -21,11 +21,11 @@ def crawling_mba_overview_input(tab_crawling: DeltaGenerator):
                  options=[MBAMarketplaceDomain.COM, MBAMarketplaceDomain.DE],#, MBAMarketplaceDomain.FR, MBAMarketplaceDomain.ES, MBAMarketplaceDomain.IT, MBAMarketplaceDomain.JP],
                  on_change=update_mba_request,
                  key="marketplace")
-    st.button("Start Crawling", on_click=crawl_mba_overview_and_display, args=(tab_crawling, ))
+    st.button("Start Crawling", on_click=crawl_mba_overview_and_display)
 
-def crawling_mba_details_input(mba_products, tab_crawling: DeltaGenerator, tab_ig: DeltaGenerator):
+def crawling_mba_details_input(mba_products, tab_ig: DeltaGenerator):
     st.subheader("2. Crawling MBA Product Pages")
-    st.multiselect("Select Designs for prompt generation:", [i+1 for i in range(len(mba_products))], key='selected_designs', on_change=crawl_mba_overview_and_display, args=(tab_crawling, ))
+    st.multiselect("Select Designs for prompt generation:", [i+1 for i in range(len(mba_products))], key='selected_designs', on_change=crawl_mba_overview_and_display)
     st.button("Start Crawling Details", on_click=crawl_details_update_overview_page, args=(tab_ig, ), key="button_crawl_detail")
 
 def prompt_generation_input(tab_ig: DeltaGenerator):
