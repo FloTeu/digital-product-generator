@@ -252,8 +252,14 @@ def publish_to_mba(driver, searchable=True):
     else:
         driver.find_element(By.XPATH, "//*[contains(text(), 'Non-searchable')]").find_element(By.NAME, "isDiscoverable").click()
     driver.find_element(By.ID, "submit-button").click()
-    publish_submit_button = wait_until_element_exists(driver, "//*[contains(@id, 'btn-submit')]", timeout=3)
-    publish_submit_button.click()
+    publish_submit_button = wait_until_element_exists(driver, "//*[contains(@class, 'btn-submit')]", timeout=3)
+    try:
+        publish_submit_button.click()
+    except Exception:
+        # retry with another click after one second
+        time.sleep(1)
+        driver.find_element(By.CLASS_NAME, "btn-submit").click()
+
 
 
 def login_to_mba(tab_upload):
