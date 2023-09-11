@@ -66,7 +66,7 @@ def upload_mba_product(session_state) -> List[str]:
     else:
         image_delete_xpath = "//*[contains(@class, 'sci-delete-forever')]"
         remove_uploaded_image(driver, image_delete_xpath)
-        upload_image(driver, image_pil_upload_ready)
+        upload_image(session_state.browser, image_pil_upload_ready, session_state.crawling_request.search_term)
         wait_until_element_exists(driver, image_delete_xpath)
         # wait some more time just to be sure, that mba is ready for publishing
         time.sleep(3)

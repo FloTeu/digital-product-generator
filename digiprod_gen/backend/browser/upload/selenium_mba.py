@@ -10,7 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException, StaleElementReferenceException
 
-from digiprod_gen.backend.browser.selenium_fns import hover_over_element, wait_until_element_exists, scroll_to_top_left
+from digiprod_gen.backend.browser.selenium_fns import hover_over_element, wait_until_element_exists, scroll_to_top_left, SeleniumBrowser
 from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProductFitType, MBAProductCategory, MBAProductColor
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.io.io_fns import save_img_to_memory
@@ -210,9 +210,13 @@ def select_colors(driver: WebDriver, product_categories: List[MBAProductCategory
     iterate_over_product_cards(driver, product_categories=product_categories, editor_change_fn=select_colors_in_product_editor, colors=colors, web_driver=driver)
 
 
-def upload_image(driver, image_pil: Image):
-    # store image to temp memory
-    temp_file_path = save_img_to_memory(image_pil)
+def upload_image(browser: SeleniumBrowser, image_pil: Image, file_name: str):
+    driver = browser.driver
+    file_name_cleaned = ''.join(e for e in file_name if e.isalnum())
+    temp_file_path = f"{browser.data_dir_path}/{file_name_cleaned}.png"
+    image_pil.save(temp_file_path, format='png')
+    # # store image to temp memory
+    # temp_file_path = save_img_to_memory(image_pil)
     # find the image upload input element by its text content
     choose_file = driver.find_element(By.CLASS_NAME, "file-upload-input")
     # sen image data
@@ -258,6 +262,7 @@ def publish_to_mba(driver, searchable=True):
         publish_submit_button.click()
     except Exception:
         # print page to see error
+        st.warning("Some Screenshots of the upload page, for debugging reasons")
         publish_element = driver.find_elements(By.CLASS_NAME, "app-body")[0]
         image_pil = conversion.bytes2pil(publish_element.screenshot_as_png)
         st.image(image_pil)

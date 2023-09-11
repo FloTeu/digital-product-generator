@@ -31,7 +31,6 @@ class CrawlingData:
         else:
             return list(itemgetter(*selected_designs_i)(self.mba_products))
 
-
 @dataclass
 class ImageGenData:
     image_gen_prompts: List[str] = field(default_factory=list)
@@ -48,6 +47,12 @@ class ImageGenData:
         self.image_pil_upscaled = None
         self.image_pil_background_removed = None
         self.image_pil_upload_ready = None
+
+    def get_valid_upload_png(self):
+        return self.image_pil_upload_ready
+
+
+
 
 
 @dataclass
