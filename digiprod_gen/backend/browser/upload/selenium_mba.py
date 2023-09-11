@@ -15,6 +15,7 @@ from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProdu
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.io.io_fns import save_img_to_memory
 from digiprod_gen.backend.transform.transform_fns import mba_product_category2html_row_name
+from digiprod_gen.backend.image import conversion
 from PIL import Image
 from typing import List
 
@@ -256,9 +257,9 @@ def publish_to_mba(driver, searchable=True):
     try:
         publish_submit_button.click()
     except Exception:
-        # retry with another click after one second
-        time.sleep(1)
-        driver.find_element(By.CLASS_NAME, "btn-submit").click()
+        publish_element = driver.find_elements(By.CLASS_NAME, "mt-large")[1]
+        image_pil = conversion.bytes2pil(publish_element.screenshot_as_png)
+        st.image(image_pil)
 
 
 
