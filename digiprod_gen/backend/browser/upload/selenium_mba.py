@@ -10,7 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException, StaleElementReferenceException
 
-from digiprod_gen.backend.browser.selenium_fns import hover_over_element, wait_until_element_exists
+from digiprod_gen.backend.browser.selenium_fns import hover_over_element, wait_until_element_exists, scroll_to_top_left
 from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProductFitType, MBAProductCategory, MBAProductColor
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.io.io_fns import save_img_to_memory
@@ -257,7 +257,12 @@ def publish_to_mba(driver, searchable=True):
     try:
         publish_submit_button.click()
     except Exception:
-        publish_element = driver.find_elements(By.CLASS_NAME, "mt-large")[1]
+        # print page to see error
+        publish_element = driver.find_elements(By.CLASS_NAME, "app-body")[0]
+        image_pil = conversion.bytes2pil(publish_element.screenshot_as_png)
+        st.image(image_pil)
+        scroll_to_top_left(driver)
+        publish_element = driver.find_elements(By.CLASS_NAME, "app-body")[0]
         image_pil = conversion.bytes2pil(publish_element.screenshot_as_png)
         st.image(image_pil)
 
