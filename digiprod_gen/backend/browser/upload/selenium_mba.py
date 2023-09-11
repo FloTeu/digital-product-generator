@@ -136,20 +136,30 @@ def select_fit_types_in_product_editor(product_editor, fit_types: List[MBAProduc
     men_checkbox = product_editor_fit_types.find_element(By.CSS_SELECTOR, '.men-checkbox input[type="checkbox"]')
     is_checked = men_checkbox.get_attribute('checked') == 'true'
     if (is_checked and MBAProductFitType.MEN not in fit_types) or (not is_checked and MBAProductFitType.MEN in fit_types):
-        men_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
+        try:
+            men_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
+        except (ElementClickInterceptedException) as e:
+            men_checkbox.find_element(By.XPATH, 'following-sibling::i').click()
 
     # Click Women fit type
     women_checkbox = product_editor_fit_types.find_element(By.CSS_SELECTOR, '.women-checkbox input[type="checkbox"]')
     is_checked = women_checkbox.get_attribute('checked') == 'true'
     if (is_checked and MBAProductFitType.WOMAN not in fit_types) or (not is_checked and MBAProductFitType.WOMAN in fit_types):
-        women_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
+        try:
+            women_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
+        except (ElementClickInterceptedException) as e:
+            women_checkbox.find_element(By.XPATH, 'following-sibling::i').click()
 
+    # TODO: Selecting youth sice does not work sometimes.
     # Click Youth fit type
     try:
         youth_checkbox = product_editor_fit_types.find_element(By.CSS_SELECTOR, '.youth-checkbox input[type="checkbox"]')
         is_checked = youth_checkbox.get_attribute('checked') == 'true'
         if (is_checked and MBAProductFitType.YOUTH not in fit_types) or (not is_checked and MBAProductFitType.YOUTH in fit_types):
             youth_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
+    except (ElementClickInterceptedException) as e:
+        # second try
+        youth_checkbox.find_element(By.XPATH, 'following-sibling::i').click()
     except (StaleElementReferenceException, NoSuchElementException) as e:
         # if youth size is not available we skip this product as men and women
         pass
@@ -242,7 +252,9 @@ def publish_to_mba(driver, searchable=True):
     else:
         driver.find_element(By.XPATH, "//*[contains(text(), 'Non-searchable')]").find_element(By.NAME, "isDiscoverable").click()
     driver.find_element(By.ID, "submit-button").click()
-    driver.find_element(By.CLASS_NAME, "btn-submit").click()
+    wait_until_element_exists(driver, "")
+    publish_submit_button = wait_until_element_exists(driver, "//*[contains(@class, 'btn-submit')]", timeout=3)
+    publish_submit_button.click()
 
 
 def login_to_mba(tab_upload):
