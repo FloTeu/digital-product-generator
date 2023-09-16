@@ -33,6 +33,7 @@ def upload_mba_product(session_state) -> List[str]:
     import time
     image_pil_upload_ready = session_state.image_gen_data.image_pil_upload_ready
     driver = session_state.browser.driver
+    open_dashboard(driver)
     open_create_new(driver)
     wait_until_element_exists(driver, "//*[contains(@class, 'product-card')]")
     select_products_and_marketplaces(driver,
