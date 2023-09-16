@@ -293,6 +293,7 @@ def login_to_mba(tab_upload):
             session_state.status.mba_login_successfull = True
         else:
             st.exception(ValueError("Dashboard is not accessible"))
+            login_mba(driver, read_session("mba_email"), read_session("mba_password"))
             screenshot_bytes = get_full_page_screenshot(session_state.browser.driver)
             screenshot_pil = conversion.bytes2pil(screenshot_bytes)
             st.image(screenshot_pil)
