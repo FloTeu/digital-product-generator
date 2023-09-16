@@ -104,11 +104,12 @@ def display_tab_upload_views(session_state: SessionState):
             with st.spinner("Upload mba product"):
                 try:
                     warnings = upload_mba_product(session_state)
-                except NoSuchElementException:
+                except NoSuchElementException as e:
                     st.error("Something went wrong during upload")
                     screenshot_bytes = get_full_page_screenshot(session_state.browser.driver)
                     screenshot_pil = conversion.bytes2pil(screenshot_bytes)
                     st.image(screenshot_pil)
+                    raise e
 
             for warning in warnings:
                 st.warning(f"MBA Warning: {warning}")
