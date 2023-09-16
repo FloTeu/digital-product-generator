@@ -110,8 +110,6 @@ def display_tab_upload_views(session_state: SessionState):
                     screenshot_pil = conversion.bytes2pil(screenshot_bytes)
                     st.image(screenshot_pil)
 
-
-
             for warning in warnings:
                 st.warning(f"MBA Warning: {warning}")
         if st.button("Publish to MBA"):

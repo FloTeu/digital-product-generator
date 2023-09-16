@@ -274,15 +274,25 @@ def publish_to_mba(driver, searchable=True):
 def login_to_mba(tab_upload):
     session_state: SessionState = st.session_state["session_state"]
     start_browser(session_state)
+    driver = session_state.browser.driver
+
     with tab_upload, st.spinner('Setup MBA upload...'):
         # TODO: This might need to be changed as it was copied by browser url directly
-        session_state.browser.driver.get("https://merch.amazon.com/dashboard")
+        driver.get("https://merch.amazon.com/dashboard")
         if not session_state.status.mba_login_successfull:
-            login_mba(session_state.browser.driver, read_session("mba_email"), read_session("mba_password"))
-    if "captcha" in session_state.browser.driver.page_source.lower():
+            login_mba(driver, read_session("mba_email"), read_session("mba_password"))
+    if "captcha" in driver.page_source.lower():
         st.exception(ValueError("Captcha required"))
-    if "your password is incorrect" in session_state.browser.driver.page_source.lower():
+    if "your password is incorrect" in driver.page_source.lower():
         st.exception(ValueError("Password is incorrect"))
-    elif "verification" not in session_state.browser.driver.page_source.lower():
-        wait_until_dashboard_is_ready(session_state.browser.driver)
-        session_state.status.mba_login_successfull = True
+    elif "verification" not in driver.page_source.lower():
+        driver.get("https://merch.amazon.com/dashboard")
+        # check if the current url contains "https://merch.amazon.com/dashboard"
+        wait_until_dashboard_is_ready(driver)
+        if "merch.amazon.com/dashboard" in driver.current_url:
+            session_state.status.mba_login_successfull = True
+        else:
+            st.exception(ValueError("Dashboard is not accessible"))
+            screenshot_bytes = get_full_page_screenshot(session_state.browser.driver)
+            screenshot_pil = conversion.bytes2pil(screenshot_bytes)
+            st.image(screenshot_pil)
