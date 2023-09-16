@@ -11,7 +11,6 @@ from selenium.common.exceptions import WebDriverException, NoSuchElementExceptio
 from digiprod_gen.backend.utils.decorators import timeit
 from digiprod_gen.backend.utils.helper import Timer
 from digiprod_gen.backend.utils import init_environment, initialise_config
-from digiprod_gen.backend.image.caption import extend_mba_products_with_caption
 from digiprod_gen.backend.image import conversion
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
@@ -150,13 +149,11 @@ def display_sidebar(session_state: SessionState, tab_crawling, tab_ig, tab_uploa
         if session_state.status.overview_page_crawled:
             mba_products = session_state.crawling_data.mba_products
             sidebar.crawling_mba_details_input(mba_products, tab_ig)
+            mba_products_selected = session_state.crawling_data.get_selected_mba_products()
             if session_state.status.detail_pages_crawled:
                 mba_products_selected = session_state.crawling_data.get_selected_mba_products()
-                st.button("Run AI Image Captioning", on_click=extend_mba_products_with_caption,
-                                  args=(mba_products_selected,), key="button_image_captioning")
-            mba_products_selected = session_state.crawling_data.get_selected_mba_products()
             if mba_products_selected and session_state.status.detail_pages_crawled:
-                sidebar.prompt_generation_input(tab_ig)
+                sidebar.prompt_generation_input(tab_ig, mba_products_selected)
 
         if session_state.status.detail_pages_crawled:
             sidebar.listing_generation_input(tab_upload)

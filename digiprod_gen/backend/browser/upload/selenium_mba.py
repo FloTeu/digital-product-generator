@@ -271,7 +271,8 @@ def publish_to_mba(driver, searchable=True):
         st.image(image_pil)
 
 def change_language_to_en(driver: WebDriver, language_url="/switch-locale?language=en_US"):
-    driver.find_element(By.CLASS_NAME, "globe-icon").click()
+    globe_icon = wait_until_element_exists(driver, "//*[contains(@class, 'globe-icon')]")
+    globe_icon.click()
     driver.find_element(By.XPATH, f"//a[@href='{language_url}']").click()
 
 def login_to_mba(tab_upload):
