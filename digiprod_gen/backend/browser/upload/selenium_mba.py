@@ -257,18 +257,7 @@ def publish_to_mba(driver, searchable=True):
         driver.find_element(By.XPATH, "//*[contains(text(), 'Non-searchable')]").find_element(By.NAME, "isDiscoverable").click()
     driver.find_element(By.ID, "submit-button").click()
     publish_submit_button = wait_until_element_exists(driver, "//*[contains(@class, 'btn-submit')]", timeout=3)
-    try:
-        publish_submit_button.click()
-    except Exception:
-        # print page to see error
-        st.warning("Some Screenshots of the upload page, for debugging reasons")
-        publish_element = driver.find_elements(By.CLASS_NAME, "app-body")[0]
-        image_pil = conversion.bytes2pil(publish_element.screenshot_as_png)
-        st.image(image_pil)
-        scroll_to_top_left(driver)
-        publish_element = driver.find_elements(By.CLASS_NAME, "app-body")[0]
-        image_pil = conversion.bytes2pil(publish_element.screenshot_as_png)
-        st.image(image_pil)
+    publish_submit_button.click()
 
 def change_language_to_en(driver: WebDriver, language_url="/switch-locale?language=en_US"):
     try:

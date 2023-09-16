@@ -105,18 +105,27 @@ def display_tab_upload_views(session_state: SessionState):
                     warnings = upload_mba_product(session_state)
                 except NoSuchElementException as e:
                     st.error("Something went wrong during upload")
-                    screenshot_bytes = get_full_page_screenshot(session_state.browser.driver)
-                    screenshot_pil = conversion.bytes2pil(screenshot_bytes)
-                    st.image(screenshot_pil)
+                    display_full_page_screenshot(session_state)
                     raise e
 
             for warning in warnings:
                 st.warning(f"MBA Warning: {warning}")
         if st.button("Publish to MBA"):
-            publish_to_mba(session_state.browser.driver, searchable=True)
+            try:
+                publish_to_mba(session_state.browser.driver, searchable=True)
+            except Exception as e:
+                st.error("Something went wrong during publishing")
+                display_full_page_screenshot(session_state)
             time.sleep(1)
             session_state.browser.driver.find_element(By.CLASS_NAME, "btn-close").click()
             st.balloons()
+
+
+def display_full_page_screenshot(session_state):
+    screenshot_bytes = get_full_page_screenshot(session_state.browser.driver)
+    screenshot_pil = conversion.bytes2pil(screenshot_bytes)
+    st.image(screenshot_pil)
+
 
 @timeit
 def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload):
