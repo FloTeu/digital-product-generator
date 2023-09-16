@@ -25,8 +25,8 @@ from digiprod_gen.frontend.session import read_session, start_browser
 def login_mba(driver: WebDriver, email: str, password: str):
     """Fill mba login form and simulate submit button click"""
     # Fill in the form fields
-    username_input = driver.find_element(By.NAME, "email")
-    password_input = driver.find_element(By.NAME, "password")
+    username_input = driver.find_element(By.ID, "ap_email")
+    password_input = driver.find_element(By.ID, "ap_password")
     username_input.send_keys(email)
     password_input.send_keys(password)
 
