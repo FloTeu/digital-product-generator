@@ -285,11 +285,12 @@ def login_to_mba(tab_upload):
         st.exception(ValueError("Captcha required"))
     if "your password is incorrect" in driver.page_source.lower():
         st.exception(ValueError("Password is incorrect"))
-    elif "verification" not in driver.page_source.lower():
+    elif "verification" not in driver.page_source.lower() and "otp" not in driver.page_source.lower():
         driver.get("https://merch.amazon.com/dashboard")
         # check if the current url contains "https://merch.amazon.com/dashboard"
         wait_until_dashboard_is_ready(driver)
         if "merch.amazon.com/dashboard" in driver.current_url:
+            driver.get("https://merch.amazon.com/switch-locale?language=en_US")
             session_state.status.mba_login_successfull = True
         # else:
         #     st.exception(ValueError("Dashboard is not accessible"))

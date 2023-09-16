@@ -22,6 +22,7 @@ def display_mba_account_tier(driver: WebDriver):
 def mba_otp_verification(session_state: SessionState, otp_code):
     selenium_mba.authenticate_mba_with_opt_code(session_state.browser.driver, otp_code)
     selenium_mba.wait_until_dashboard_is_ready(session_state.browser.driver)
+    session_state.browser.driver.get("https://merch.amazon.com/switch-locale?language=en_US")
     session_state.status.mba_login_successfull = True
 
 
