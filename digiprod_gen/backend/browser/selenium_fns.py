@@ -14,7 +14,6 @@ from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
 from digiprod_gen.backend.image.conversion import bytes2pil
 from digiprod_gen.backend.utils import delete_files_in_path
 
-
 class SeleniumBrowser():
     def __init__(self) -> None:
         self.driver = None
@@ -126,3 +125,14 @@ def scroll_to_top_left(driver: WebDriver):
     # Scroll the entire page to the left using JavaScript
     scroll_script = "window.scrollTo(0, 0);"
     driver.execute_script(scroll_script)
+
+def get_full_page_screenshot(driver: WebDriver) -> bytes:
+    """Enhance window size to get full page screenshot"""
+    original_size = driver.get_window_size()
+    required_width = driver.execute_script('return document.body.parentNode.scrollWidth')
+    required_height = driver.execute_script('return document.body.parentNode.scrollHeight')
+    driver.set_window_size(required_width, required_height)
+    # driver.save_screenshot(path)  # has scrollbar
+    screenshot_as_png = driver.find_element(By.TAG_NAME, 'body').screenshot_as_png
+    driver.set_window_size(original_size['width'], original_size['height'])
+    return screenshot_as_png

@@ -10,7 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException, StaleElementReferenceException
 
-from digiprod_gen.backend.browser.selenium_fns import hover_over_element, wait_until_element_exists, scroll_to_top_left, SeleniumBrowser
+from digiprod_gen.backend.browser.selenium_fns import hover_over_element, wait_until_element_exists, scroll_to_top_left, SeleniumBrowser, get_full_page_screenshot
 from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProductFitType, MBAProductCategory, MBAProductColor
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.io.io_fns import save_img_to_memory
@@ -62,11 +62,9 @@ def wait_until_dashboard_is_ready(driver: WebDriver, max_time_wait: int = 3):
 def open_dashboard(driver):
     driver.get("https://merch.amazon.com/dashboard")
 
-def click_on_create_new(driver):
+def open_create_new(driver):
     # find the link element by its text content
-    link_element = driver.find_element("link text", "Create")
-    # click on the link
-    link_element.click()
+    driver.get("https://merch.amazon.com/designs/new")
 
 def select_products_and_marketplaces(driver, products: List[MBAProductCategory], marketplaces: List[MBAMarketplaceDomain]):
     """Selects desired products and target marketplaces in MBA upload/create menu"""
