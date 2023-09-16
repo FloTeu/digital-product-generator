@@ -8,7 +8,7 @@ from selenium.common.exceptions import NoSuchElementException, ElementClickInter
 from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists, scroll_page, focus_element, scroll_to_top_left
 from digiprod_gen.backend.browser.upload import selenium_mba
 from digiprod_gen.backend.browser.upload.selenium_mba import open_create_new, select_products_and_marketplaces, \
-    select_colors, select_fit_types, insert_listing_text, open_dashboard
+    select_colors, select_fit_types, insert_listing_text, open_dashboard, change_language_to_en
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.image import conversion
 
@@ -22,7 +22,7 @@ def display_mba_account_tier(driver: WebDriver):
 def mba_otp_verification(session_state: SessionState, otp_code):
     selenium_mba.authenticate_mba_with_opt_code(session_state.browser.driver, otp_code)
     selenium_mba.wait_until_dashboard_is_ready(session_state.browser.driver)
-    session_state.browser.driver.get("https://merch.amazon.com/switch-locale?language=en_US")
+    change_language_to_en(session_state.browser.driver)
     session_state.status.mba_login_successfull = True
 
 

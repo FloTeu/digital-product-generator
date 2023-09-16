@@ -269,7 +269,8 @@ def publish_to_mba(driver, searchable=True):
         image_pil = conversion.bytes2pil(publish_element.screenshot_as_png)
         st.image(image_pil)
 
-
+def change_language_to_en(driver: WebDriver, language_url="/switch-locale?language=en_US"):
+    driver.find_element(By.XPATH, f"//a[@href='{language_url}']").click()
 
 def login_to_mba(tab_upload):
     session_state: SessionState = st.session_state["session_state"]
@@ -290,7 +291,7 @@ def login_to_mba(tab_upload):
         # check if the current url contains "https://merch.amazon.com/dashboard"
         wait_until_dashboard_is_ready(driver)
         if "merch.amazon.com/dashboard" in driver.current_url:
-            driver.get("https://merch.amazon.com/switch-locale?language=en_US")
+            change_language_to_en(driver)
             session_state.status.mba_login_successfull = True
         # else:
         #     st.exception(ValueError("Dashboard is not accessible"))
