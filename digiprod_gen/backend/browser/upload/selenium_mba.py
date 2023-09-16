@@ -276,10 +276,11 @@ def login_to_mba(tab_upload):
     start_browser(session_state)
     with tab_upload, st.spinner('Setup MBA upload...'):
         # TODO: This might need to be changed as it was copied by browser url directly
-        login_post_url = "https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fmerch.amazon.com%2Fdashboard&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=amzn_gear_us&openid.mode=checkid_setup&language=en_US&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0"
-        session_state.browser.driver.get(login_post_url)
+        session_state.browser.driver.get("https://merch.amazon.com/dashboard")
         if not session_state.status.mba_login_successfull:
             login_mba(session_state.browser.driver, read_session("mba_email"), read_session("mba_password"))
+    if "captcha" in session_state.browser.driver.page_source.lower():
+        st.exception(ValueError("Captcha required"))
     if "your password is incorrect" in session_state.browser.driver.page_source.lower():
         st.exception(ValueError("Password is incorrect"))
     elif "verification" not in session_state.browser.driver.page_source.lower():
