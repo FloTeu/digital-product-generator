@@ -7,14 +7,16 @@ import streamlit.web.bootstrap as st_bootstrap
 from io import TextIOWrapper
 
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import WebDriverException
+from selenium.common.exceptions import WebDriverException, NoSuchElementException
 from digiprod_gen.backend.utils.decorators import timeit
 from digiprod_gen.backend.utils.helper import Timer
 from digiprod_gen.backend.utils import init_environment, initialise_config
 from digiprod_gen.backend.image.caption import extend_mba_products_with_caption
+from digiprod_gen.backend.image import conversion
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
 from digiprod_gen.backend.browser.upload.selenium_mba import publish_to_mba
+from digiprod_gen.backend.browser.selenium_fns import get_full_page_screenshot
 from digiprod_gen.frontend.session import read_session, update_mba_request, init_session_state
 from digiprod_gen.frontend import sidebar
 from digiprod_gen.frontend.tab.image_generation.selected_products import display_mba_selected_products
@@ -100,7 +102,16 @@ def display_tab_upload_views(session_state: SessionState):
         #display_mba_account_tier(session_state.browser.driver)
         if st.button("Upload product to MBA"):
             with st.spinner("Upload mba product"):
-                warnings = upload_mba_product(session_state)
+                try:
+                    warnings = upload_mba_product(session_state)
+                except NoSuchElementException:
+                    st.error("Something went wrong during upload")
+                    screenshot_bytes = get_full_page_screenshot(session_state.browser.driver)
+                    screenshot_pil = conversion.bytes2pil(screenshot_bytes)
+                    st.image(screenshot_pil)
+
+
+
             for warning in warnings:
                 st.warning(f"MBA Warning: {warning}")
         if st.button("Publish to MBA"):
