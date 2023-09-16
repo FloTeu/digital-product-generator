@@ -25,6 +25,7 @@ from digiprod_gen.frontend.session import read_session, start_browser
 def login_mba(driver: WebDriver, email: str, password: str):
     """Fill mba login form and simulate submit button click"""
     # Fill in the form fields
+    print("Try to provide mba email and password")
     username_input = driver.find_element(By.ID, "ap_email")
     password_input = driver.find_element(By.ID, "ap_password")
     username_input.send_keys(email)
@@ -270,6 +271,7 @@ def publish_to_mba(driver, searchable=True):
         st.image(image_pil)
 
 def change_language_to_en(driver: WebDriver, language_url="/switch-locale?language=en_US"):
+    driver.find_element(By.CLASS_NAME, "globe-icon").click()
     driver.find_element(By.XPATH, f"//a[@href='{language_url}']").click()
 
 def login_to_mba(tab_upload):
@@ -277,7 +279,7 @@ def login_to_mba(tab_upload):
     start_browser(session_state)
     driver = session_state.browser.driver
 
-    with tab_upload, st.spinner('Setup MBA upload...'):
+    with tab_upload, st.spinner('Login to MBA...'):
         # TODO: This might need to be changed as it was copied by browser url directly
         driver.get("https://merch.amazon.com/dashboard")
         if not session_state.status.mba_login_successfull:
