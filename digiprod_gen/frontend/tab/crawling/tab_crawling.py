@@ -1,3 +1,4 @@
+import time
 
 import math
 from bs4 import BeautifulSoup
@@ -15,6 +16,7 @@ from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketp
 from digiprod_gen.backend.data_classes.session import SessionState, CrawlingData
 from digiprod_gen.backend.transform.transform_fns import overview_product_tag2mba_product
 from digiprod_gen.backend.data_classes.mba import MBAProduct
+from digiprod_gen.backend.browser.crawling.bs_fns import tag_or_children_have_class
 from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io, send_mba_overview_request
 from digiprod_gen.backend.utils import get_price_display_str, marketplace2currency, split_list
 from digiprod_gen.frontend.session import read_session, start_browser, update_mba_request
@@ -68,8 +70,22 @@ def crawl_mba_overview2mba_products(session_state: SessionState):
     st.write(f"{len(mba_product_tags)} products extracted")
 
     for product_tag in mba_product_tags:
-        mba_product: MBAProduct = overview_product_tag2mba_product(product_tag, marketplace=request.marketplace)
+        # Ignore sponsored products
+        if tag_or_children_have_class(product_tag, "sponsored-brand-label-info-desktop"):
+            continue
+        try:
+            mba_product: MBAProduct = overview_product_tag2mba_product(product_tag, marketplace=request.marketplace)
+        except Exception as e:
+            print("Error during html to mba_product conversion", str(e))
+            continue
         mba_products.append(mba_product)
+
+    if len(mba_products) == 0 and len(mba_product_tags) > 0:
+        st.error(f"{len(mba_product_tags)} products found. But no product could be extracted")
+        time.sleep(3)
+    else:
+        st.write(f"{len(mba_product_tags)} products found. {len(mba_products)} identified as valid")
+
     # Save to session
     session_state.crawling_data.mba_products = mba_products
     # Update status

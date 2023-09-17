@@ -1,7 +1,7 @@
 import time
 import streamlit as st
 
-from typing import List
+from typing import List, Tuple
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
@@ -27,7 +27,7 @@ def mba_otp_verification(session_state: SessionState, otp_code):
     session_state.status.mba_login_successfull = True
 
 
-def upload_mba_product(session_state) -> List[str]:
+def upload_mba_product(session_state) -> Tuple[List[str], List[str]]:
     """Uploads product data to mba. If exists a lists of warnings ist returned"""
     from digiprod_gen.backend.browser.upload.selenium_mba import upload_image
     import time
@@ -73,7 +73,9 @@ def upload_mba_product(session_state) -> List[str]:
     # get sibling of warning span tag
     warnings = [w.find_element(By.XPATH, 'following-sibling::*').text
                 for w in driver.find_elements(By.XPATH, "//*[contains(@class, 'sci-warning')]")]
-    return warnings
+    errors = [error_tag.text
+                for error_tag in driver.find_elements(By.XPATH, "//*[contains(@class, 'invalid-feedback')]")]
+    return warnings, errors
 
 def remove_uploaded_image(driver: WebDriver, xpath: str):
     try:

@@ -99,10 +99,11 @@ def display_tab_upload_views(session_state: SessionState):
         st.warning("Please login with your MBA credentials (5. MBA Upload)")
     else:
         #display_mba_account_tier(session_state.browser.driver)
+        errors = []
         if st.button("Upload product to MBA"):
             with st.spinner("Upload mba product"):
                 try:
-                    warnings = upload_mba_product(session_state)
+                    warnings, errors = upload_mba_product(session_state)
                 except NoSuchElementException as e:
                     st.error("Something went wrong during upload")
                     display_full_page_screenshot(session_state.browser.driver)
@@ -110,7 +111,9 @@ def display_tab_upload_views(session_state: SessionState):
 
             for warning in warnings:
                 st.warning(f"MBA Warning: {warning}")
-        if st.button("Publish to MBA"):
+            for error in errors:
+                st.error(f"MBA Error: {error}")
+        if len(errors) == 0 and st.button("Publish to MBA"):
             try:
                 publish_to_mba(session_state.browser.driver, searchable=True)
             except Exception as e:
@@ -119,6 +122,15 @@ def display_tab_upload_views(session_state: SessionState):
             time.sleep(1)
             session_state.browser.driver.find_element(By.CLASS_NAME, "btn-close").click()
             st.balloons()
+
+
+def display_admin_views(session_state: SessionState):
+    """Display some options for the admin"""
+    if st.experimental_user.email in st.secrets.admin.emails:
+        if session_state.browser:
+            if st.button("Show Browser Screenshot"):
+                display_full_page_screenshot(session_state.browser.driver)
+            st.download_button('Download Browser Source', session_state.browser.driver.page_source, file_name="source.html")
 
 
 def display_full_page_screenshot(driver):
@@ -145,6 +157,10 @@ def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload)
     with tab_upload:
         display_tab_upload_views(session_state)
 
+    st.subheader("Admin View")
+    if st.button("Show User"):
+        st.write(st.experimental_user)
+    display_admin_views(session_state)
 
 @timeit
 def display_sidebar(session_state: SessionState, tab_crawling, tab_ig, tab_upload):

@@ -13,6 +13,8 @@ mba:
       postcode: "W2 2SZ"
     - marketplace: fr
       postcode: "75001"
+      proxy: "hamburg.perfect-privacy.com" # german page viewer can see products offered on france marketplace
+      proxy_port: 3128
     - marketplace: es
       postcode: "28001"
     - marketplace: it
