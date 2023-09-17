@@ -3,8 +3,8 @@ mba:
   marketplaces:
     - marketplace: com
       postcode: "90001"
-      proxy: "dallas.perfect-privacy.com"
-      proxy_port: 3128
+#      proxy: "dallas.perfect-privacy.com"
+#      proxy_port: 3128
     - marketplace: de
       postcode: "10115"
       proxy: "hamburg.perfect-privacy.com"
