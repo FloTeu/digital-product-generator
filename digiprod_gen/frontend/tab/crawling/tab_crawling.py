@@ -56,9 +56,10 @@ def crawl_mba_overview2mba_products(session_state: SessionState):
     mba_products: List[MBAProduct] = []
 
     st.write("Start crawling products")
-    postcode = config.mba.get_marketplace_config(request.marketplace).postcode
+    # If signed in, we provide a postcode in order to show products independently of the signed in user
+    postcode = config.mba.get_marketplace_config(request.marketplace).postcode if session_state.status.mba_login_successfull else None
     # TODO: Why does this call takes several seconds, even after page loaded already
-    search_overview_and_change_postcode(request, driver)
+    search_overview_and_change_postcode(request, driver, postcode=postcode)
     st.write("Crawling is done. Start to extract product information")
 
     html_str = driver.page_source
