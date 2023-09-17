@@ -30,3 +30,6 @@ def generate_with_stable_diffusion_xl_lora(prompt: str, lora_url: ImageGeneratio
 
 def generate_with_stable_diffusion_xl_barbie(prompt: str) -> Image:
     return generate_with_stable_diffusion_xl_lora(prompt + " in the style of TOK", lora_url=ImageGenerationSDXLLoraUrl.BARBIE)
+
+def generate_with_stable_diffusion_xl_shirt(prompt: str) -> Image:
+    return generate_with_stable_diffusion_xl_lora(prompt + " in the style of TOK", lora_url=ImageGenerationSDXLLoraUrl.SHIRT)
