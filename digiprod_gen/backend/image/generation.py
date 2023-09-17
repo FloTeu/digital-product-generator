@@ -1,5 +1,6 @@
 from PIL import Image
 from digiprod_gen.backend.image.common import replicate_generate, OutputFormat
+from digiprod_gen.backend.data_classes.common import ImageGenerationSDXLLoraUrl
 
 
 def generate_with_deepfloyd_if(prompt: str) -> Image:
@@ -20,6 +21,12 @@ def generate_with_waifu(prompt: str) -> Image:
     return replicate_generate(model, {"prompt": prompt}, output_format=OutputFormat.GENERATOR)
 
 def generate_with_stable_diffusion(prompt: str) -> Image:
-    model = "stability-ai/sdxl:2b017d9b67edd2ee1401238df49d75da53c523f36e363881e057f5dc3ed3c5b2"
+    model = "stability-ai/sdxl:8beff3369e81422112d93b89ca01426147de542cd4684c244b673b105188fe5f"
     return replicate_generate(model, {"prompt": prompt, "apply_watermark": False}, output_format=OutputFormat.GENERATOR)
 
+def generate_with_stable_diffusion_xl_lora(prompt: str, lora_url: ImageGenerationSDXLLoraUrl) -> Image:
+    model = "zylim0702/sdxl-lora-customize-model:5a2b1cff79a2cf60d2a498b424795a90e26b7a3992fbd13b340f73ff4942b81e"
+    return replicate_generate(model, {"Lora_url": lora_url.value, "prompt": prompt, "num_outputs": 1, "num_inference_steps": 30, "apply_watermark": False}, output_format=OutputFormat.GENERATOR)
+
+def generate_with_stable_diffusion_xl_barbie(prompt: str) -> Image:
+    return generate_with_stable_diffusion_xl_lora(prompt + " in the style of TOK", lora_url=ImageGenerationSDXLLoraUrl.BARBIE)

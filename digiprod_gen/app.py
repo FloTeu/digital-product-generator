@@ -126,7 +126,8 @@ def display_tab_upload_views(session_state: SessionState):
 
 def display_admin_views(session_state: SessionState):
     """Display some options for the admin"""
-    if st.experimental_user.email in st.secrets.admin.emails:
+    if  st.experimental_user.email in st.secrets.admin.emails or st.session_state["mba_email"] in st.secrets.admin.emails:
+        st.subheader("Admin View")
         if session_state.browser:
             if st.button("Show Browser Screenshot"):
                 display_full_page_screenshot(session_state.browser.driver)
@@ -157,9 +158,6 @@ def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload)
     with tab_upload:
         display_tab_upload_views(session_state)
 
-    st.subheader("Admin View")
-    if st.button("Show User"):
-        st.write(st.experimental_user)
     display_admin_views(session_state)
 
 @timeit

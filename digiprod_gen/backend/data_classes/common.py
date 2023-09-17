@@ -24,10 +24,15 @@ class BackgroundRemovalModel(str, Enum):
 class ImageGenerationModel(str, Enum):
     DEEPFLOYD_IF="Deepfloyd IF"
     STABLE_DIFFUSION="Stable Diffusion"
+    STABLE_DIFFUSION_BARBIE="Stable Diffusion Barbie"
     OPENJOURNEY="Openjourney"
     POKEMON="Pokemon"
     WAIFU_DIFFUSION="Waifu"
     MIDJOURNEY="Midjourney"
+
+class ImageGenerationSDXLLoraUrl(str, Enum):
+    """Lora fine tuned sdxl model via https://replicate.com/zylim0702/sdxl-lora-customize-training"""
+    BARBIE="https://replicate.delivery/pbxt/aEt6InPOlTpZJZ9Y1664pLuWBf5ZdIKdjDK4FmHVB2EA47tIA/trained_model.tar"
 
 
 class MBAMidjourneyOutputModel(BaseModel):
