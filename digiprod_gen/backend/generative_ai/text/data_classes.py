@@ -39,33 +39,42 @@ class ProductTextGenerator(BaseFewShotGenerator):
             MBA stands for Merch by Amazon, which is an on-demand t-shirt printing service.
             """)
 
-    def _set_context(self):
+    def _set_context(self, product_text_type: MBAProductTextType):
         """Extends self.messages with context and type List[SystemMessagePromptTemplate]"""
         context_messages = []
-        context_messages.append(SystemMessagePromptTemplate.from_template(
-            f"""Here is some information about MBA product bullet points.
-                {mba_context.mba_bullet_point_suggestion}
-            """,
-            additional_kwargs={"name": INSTRUCTOR_USER_NAME}))
-        context_messages.append(SystemMessagePromptTemplate.from_template(
-            f"""Here is some information about MBA product title.
-                {mba_context.mba_title_suggestion}
-            """,
-            additional_kwargs={"name": INSTRUCTOR_USER_NAME}))
-        context_messages.append(SystemMessagePromptTemplate.from_template(
-            f"""Here is some information about MBA product brand.
-                {mba_context.mba_brand_suggestion}
-            """,
-            additional_kwargs={"name": INSTRUCTOR_USER_NAME}))
+        if product_text_type == MBAProductTextType.BULLET:
+            context_messages.append(SystemMessagePromptTemplate.from_template(
+                f"""Here is some information about MBA product bullet points.
+                    {mba_context.mba_bullet_point_suggestion}
+                """,
+                additional_kwargs={"name": INSTRUCTOR_USER_NAME}))
+        if product_text_type == MBAProductTextType.TITLE:
+            context_messages.append(SystemMessagePromptTemplate.from_template(
+                f"""Here is some information about MBA product title.
+                    {mba_context.mba_title_suggestion}
+                """,
+                additional_kwargs={"name": INSTRUCTOR_USER_NAME}))
+        if product_text_type == MBAProductTextType.BRAND:
+            context_messages.append(SystemMessagePromptTemplate.from_template(
+                f"""Here is some information about MBA product brand.
+                    {mba_context.mba_brand_suggestion}
+                """,
+                additional_kwargs={"name": INSTRUCTOR_USER_NAME}))
         self.messages.context = context_messages
 
     def set_few_shot_examples(self, few_shot_examples: List[str], mba_text_type: MBAProductTextType):
         messages = [SystemMessagePromptTemplate.from_template(
             f"Here are some example {mba_text_type}s. Try to understand the underlying format in order to create new creative {mba_text_type}s yourself later. ",
             additional_kwargs={"name": INSTRUCTOR_USER_NAME})]
-        for i, example_prompt in enumerate(few_shot_examples):
+        for i, few_shot_example in enumerate(few_shot_examples):
+            # remove all banned words
+            for mba_banned_word in MBA_BANNED_WORDS:
+                text_words = few_shot_example.split()
+                result_words = [word for word in text_words if mba_banned_word not in word.lower()]
+                few_shot_example = ' '.join(result_words)
+
             messages.append(
-                SystemMessagePromptTemplate.from_template(f'Prompt {i}: "{example_prompt}". ',
+                SystemMessagePromptTemplate.from_template(f'{mba_text_type} example {i}: "{few_shot_example}". ',
                                                           additional_kwargs={"name": INSTRUCTOR_USER_NAME}))
         self.messages.few_shot_examples = messages
 

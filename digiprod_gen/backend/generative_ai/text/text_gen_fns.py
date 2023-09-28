@@ -30,7 +30,7 @@ def get_midjourney_prompt_gen(llm: BaseLanguageModel) -> MBAMidjourneyPromptGene
 
 def get_product_text_gen(llm, mba_products, mba_product_text_type: MBAProductTextType, marketplace: MBAMarketplaceDomain) -> ProductTextGenerator:
     product_text_gen = ProductTextGenerator(llm)
-    product_text_gen._set_context()
+    product_text_gen._set_context(mba_product_text_type)
     few_shot_examples = []
     if mba_product_text_type == MBAProductTextType.BULLET:
         for mba_product in mba_products:
