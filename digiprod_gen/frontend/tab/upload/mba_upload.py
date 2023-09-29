@@ -31,14 +31,26 @@ def upload_mba_product(session_state) -> Tuple[List[str], List[str]]:
     """Uploads product data to mba. If exists a lists of warnings ist returned"""
     from digiprod_gen.backend.browser.upload.selenium_mba import upload_image
     import time
+    image_delete_xpath = "//*[contains(@class, 'sci-delete-forever')]"
     image_pil_upload_ready = session_state.image_gen_data.image_pil_upload_ready
     driver = session_state.browser.driver
     open_dashboard(driver)
     open_create_new(driver)
     wait_until_element_exists(driver, "//*[contains(@class, 'product-card')]")
+
+    # Image Upload
+    if session_state.image_gen_data.image_pil_upload_ready == None:
+        st.error('You not uploaded/generated an image yet', icon="🚨")
+    else:
+        remove_uploaded_image(driver, image_delete_xpath)
+        upload_image(session_state.browser, image_pil_upload_ready, session_state.crawling_request.search_term)
+
+
     select_products_and_marketplaces(driver,
                                      products=session_state.upload_data.settings.product_categories,
                                      marketplaces=session_state.upload_data.settings.marketplaces)
+
+
     if not session_state.upload_data.settings.use_defaults:
         select_colors(driver,
                          colors=session_state.upload_data.settings.colors,
@@ -58,13 +70,7 @@ def upload_mba_product(session_state) -> Tuple[List[str], List[str]]:
                             bullet_2=session_state.upload_data.bullet_2,
                             description=session_state.upload_data.description)
 
-    # Image Upload
-    if session_state.image_gen_data.image_pil_upload_ready == None:
-        st.error('You not uploaded/generated an image yet', icon="🚨")
-    else:
-        image_delete_xpath = "//*[contains(@class, 'sci-delete-forever')]"
-        remove_uploaded_image(driver, image_delete_xpath)
-        upload_image(session_state.browser, image_pil_upload_ready, session_state.crawling_request.search_term)
+    if session_state.image_gen_data.image_pil_upload_ready != None:
         wait_until_element_exists(driver, image_delete_xpath)
         # wait some more time just to be sure, that mba is ready for publishing
         time.sleep(3)
