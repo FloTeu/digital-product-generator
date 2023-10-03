@@ -66,7 +66,7 @@ def display_tab_image_gen_views(session_state: SessionState):
 
 @timeit
 def display_tab_upload_views(session_state: SessionState):
-    display_image_upload(session_state.image_gen_data)
+    display_image_upload(session_state.image_gen_data, session_state.status)
 
     # listing generation
     if not session_state.status.listing_generated:

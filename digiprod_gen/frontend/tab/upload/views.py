@@ -1,9 +1,10 @@
 import streamlit as st
-from typing import List
+from typing import List, Tuple
 
 from digiprod_gen.backend.image import conversion as img_conversion
+from digiprod_gen.backend.image.utils import hex_to_rgba
 from digiprod_gen.backend.utils.helper import Timer
-from digiprod_gen.backend.data_classes.session import MBAUploadData, SessionState, MBAUploadSettings, ImageGenData
+from digiprod_gen.backend.data_classes.session import MBAUploadData, SessionState, MBAUploadSettings, ImageGenData, DigiProdGenStatus
 from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProductCategory, MBAProductColor, MBAProductFitType
 from collections import deque
 from PIL import Image, ImageOps
@@ -27,13 +28,15 @@ def display_listing_selection(upload_data: MBAUploadData):
     predicted_bullets_shifted.rotate(-1)
     st.selectbox("Suggested Bullet 2:", predicted_bullets_shifted, on_change=update_session_upload_listing, args=(ListingSelectChange.BULLET_2, ), key=ListingSelectChange.BULLET_2.value)
 
-def display_upload_ready_image(img_pil: Image):
+def display_upload_ready_image(img_pil: Image, background_color: Tuple[int,int,int,int] = (255, 255, 255, 255)):
     new_size = (4500, 5400)
-    image_pil_upload_ready = Image.new("RGBA", new_size)
+    image_pil_upload_ready = Image.new("RGBA", new_size, background_color)
 
     box = tuple((n - o) // 2 for n, o in zip(new_size, img_pil.size))
-    image_pil_upload_ready.paste(img_pil, (box[0], 0))
+    # overwrite pixels by img_pil but only if alpha channel is > 0
+    image_pil_upload_ready.paste(img_pil, (box[0], 0), img_pil)
 
+    # add grey border
     image_to_show = ImageOps.expand(image_pil_upload_ready, border=50, fill='grey')
     resize_tuple = (int(new_size[0]/10), int(new_size[1]/10))
     st.image(image_to_show.resize(resize_tuple))
@@ -53,7 +56,10 @@ def display_data_for_upload(image_pil: Image,
     col2_1, col2_2 = col2.columns(2)
 
     with Timer("display_upload_ready_image"), col1:
-        display_upload_ready_image(image_pil)
+        color_hex = st.color_picker('Pick a background color', '#000000')
+        rgba_tuple = hex_to_rgba(color_hex)
+        print(rgba_tuple)
+        display_upload_ready_image(image_pil, rgba_tuple)
 
     session_state: SessionState = st.session_state["session_state"]
     mba_upload_data: MBAUploadData = session_state.upload_data
@@ -137,9 +143,9 @@ def display_upload_settings_editor(session_mba_upload_settings: MBAUploadSetting
     display_product_color_selector(session_mba_upload_settings)
     display_product_fit_type_selector(session_mba_upload_settings)
 
-def display_image_upload(image_gen_data: ImageGenData):
+def display_image_upload(image_gen_data: ImageGenData, status: DigiProdGenStatus):
     # User can either choose newly created image or a existing one (by uploading it in this view)
-    if not image_gen_data.image_pil_upload_ready:
+    if not status.image_upload_ready:
         image = st.file_uploader("Image:", type=["png", "jpg", "jpeg"], key="image_upload_tab")
         if image:
             image_pil_upload_ready = img_conversion.bytes2pil(image.getvalue())

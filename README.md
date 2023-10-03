@@ -70,7 +70,7 @@ docker run -ti -p 8501:8501 -v %cd%:/app --rm digiprod-gen:latest  # cmd.exe
 - [x] Add proxy depending on marketplace
 - [ ] LLM transformation of product description text for image prompt (remove misleading information)
 - [ ] Fix bug youth selection fails
-- [ ] Add multi color background for upload tab
+- [x] Add multi color background for upload tab
 
 ## License
 
