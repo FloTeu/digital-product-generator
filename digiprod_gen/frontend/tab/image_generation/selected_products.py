@@ -8,14 +8,14 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import WebDriverException
 
-from digiprod_gen.backend.data_classes.mba import MBAProduct
+from digiprod_gen.backend_api.models.mba import MBAProduct
 
 
 import streamlit as st
 
 
 from typing import List
-from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest
+from digiprod_gen.backend_api.models.mba import CrawlingMBARequest
 from digiprod_gen.backend.data_classes.session import CrawlingData, SessionState
 from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io
 from digiprod_gen.backend.transform.transform_fns import extend_mba_product

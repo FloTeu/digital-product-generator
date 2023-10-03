@@ -5,7 +5,7 @@ from digiprod_gen.backend.image import conversion as img_conversion
 from digiprod_gen.backend.image.utils import hex_to_rgba
 from digiprod_gen.backend.utils.helper import Timer
 from digiprod_gen.backend.data_classes.session import MBAUploadData, SessionState, MBAUploadSettings, ImageGenData, DigiProdGenStatus
-from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProductCategory, MBAProductColor, MBAProductFitType
+from digiprod_gen.backend_api.models.mba import MBAMarketplaceDomain, MBAProductCategory, MBAProductColor, MBAProductFitType
 from collections import deque
 from PIL import Image, ImageOps
 from enum import Enum

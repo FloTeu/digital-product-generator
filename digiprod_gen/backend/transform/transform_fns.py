@@ -1,11 +1,11 @@
 from digiprod_gen.backend.browser.crawling import parser
 from digiprod_gen.backend.browser.crawling.mba.utils import is_product_feature_listing
-from digiprod_gen.backend.data_classes.mba import MBAProduct
+from digiprod_gen.backend_api.models.mba import MBAProduct
 
 
 from bs4.element import Tag
 
-from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProductCategory
+from digiprod_gen.backend_api.models.mba import MBAMarketplaceDomain, MBAProductCategory
 
 
 def overview_product_tag2mba_product(product_tag: Tag, marketplace: MBAMarketplaceDomain) -> MBAProduct:

@@ -1,4 +1,8 @@
 ---
+backend:
+  host: localhost
+  port: 8080
+  debug: true
 mba:
   marketplaces:
     - marketplace: com

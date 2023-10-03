@@ -11,7 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException, StaleElementReferenceException
 
 from digiprod_gen.backend.browser.selenium_fns import hover_over_element, wait_until_element_exists, scroll_to_top_left, SeleniumBrowser, get_full_page_screenshot
-from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProductFitType, MBAProductCategory, MBAProductColor
+from digiprod_gen.backend_api.models.mba import MBAMarketplaceDomain, MBAProductFitType, MBAProductCategory, MBAProductColor
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.io.io_fns import save_img_to_memory
 from digiprod_gen.backend.transform.transform_fns import mba_product_category2html_row_name

@@ -2,14 +2,14 @@ import streamlit as st
 
 from PIL.Image import Image
 from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser
-from digiprod_gen.backend.data_classes.mba import MBAProduct, MBAProductCategory, MBAMarketplaceDomain, MBAProductColor, MBAProductFitType
-
+from digiprod_gen.backend_api.models.mba import MBAProduct, MBAProductCategory, MBAMarketplaceDomain, MBAProductColor, MBAProductFitType
+from digiprod_gen.backend_api.caller import BackendCaller
 
 from dataclasses import dataclass, field
 from typing import List, Optional
 from operator import itemgetter
 
-from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest
+from digiprod_gen.backend_api.models.mba import CrawlingMBARequest
 from digiprod_gen.backend.data_classes.config import DigiProdGenConfig, DigiProdGenMBAMarketplaceConfig
 
 
@@ -124,6 +124,7 @@ class SessionState:
     upload_data: MBAUploadData
     status: DigiProdGenStatus
     config: DigiProdGenConfig
+    backend_caller: BackendCaller
     views: DigitProdGenViews
     session_id: str
 

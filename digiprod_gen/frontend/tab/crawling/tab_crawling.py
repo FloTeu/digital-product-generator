@@ -12,10 +12,10 @@ from selenium.webdriver.common.by import By
 
 from digiprod_gen.backend.browser.crawling.mba.utils import is_mba_product
 from digiprod_gen.backend.browser.crawling.selenium_mba import search_overview_and_change_postcode
-from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketplaceDomain
+from digiprod_gen.backend_api.models.mba import CrawlingMBARequest, MBAMarketplaceDomain
 from digiprod_gen.backend.data_classes.session import SessionState, CrawlingData
 from digiprod_gen.backend.transform.transform_fns import overview_product_tag2mba_product
-from digiprod_gen.backend.data_classes.mba import MBAProduct
+from digiprod_gen.backend_api.models.mba import MBAProduct
 from digiprod_gen.backend.browser.crawling.bs_fns import tag_or_children_have_class
 from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io, send_mba_overview_request
 from digiprod_gen.backend.utils import get_price_display_str, marketplace2currency, split_list
@@ -30,6 +30,8 @@ def crawl_mba_overview_and_display():
     # If not set yet, init session request
     if session_state.crawling_request == None:
         update_mba_request()
+
+    t = session_state.backend_caller.post("/browser/crawl_mba_overview", **session_state.crawling_request.dict())
     start_browser(session_state)
     # request: CrawlingMBARequest = session_state.crawling_request
     overview_designs_view = session_state.views.overview_designs

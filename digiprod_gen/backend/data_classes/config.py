@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import List
 
 from pydantic import BaseModel, validator, Field
-from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
+from digiprod_gen.backend_api.models.mba import MBAMarketplaceDomain
 
 class DigiProdGenBrowserConfig(BaseModel):
     selenium_data_dir_path: Path
@@ -44,7 +44,14 @@ class DigiProdGenImageGenBrConfig(BaseModel):
 class DigiProdGenImageGenConfig(BaseModel):
     background_removal: DigiProdGenImageGenBrConfig
 
+class BackendConfig(BaseModel):
+    host: str = Field(default="localhost", description="Address where backend is deployed or localhost.")
+    port: int | None
+    debug: bool = Field(default=False, description="If true, backend api code is executed via TestClient.")
+
+
 class DigiProdGenConfig(BaseModel):
+    backend: BackendConfig
     mba: DigiProdGenMBAConfig
     browser: DigiProdGenBrowserConfig
     view: DigiProdGenViewConfig

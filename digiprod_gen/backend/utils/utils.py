@@ -8,7 +8,7 @@ from pydantic_yaml import parse_yaml_file_as
 import digiprod_gen
 from digiprod_gen.backend.browser.crawling.mba.utils import get_mba_overview_urls
 from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
-from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest, MBAMarketplaceDomain
+from digiprod_gen.backend_api.models.mba import CrawlingMBARequest, MBAMarketplaceDomain
 
 def init_environment():
     os.environ["OPENAI_API_KEY"] = st.secrets["api_token"]["open_ai"]

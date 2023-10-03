@@ -4,7 +4,7 @@ import requests
 from typing import List
 from PIL import Image
 from digiprod_gen.backend.image.conversion import pil2bytes_io, bytes2pil
-from digiprod_gen.backend.data_classes.mba import MBAProduct
+from digiprod_gen.backend_api.models.mba import MBAProduct
 from digiprod_gen.backend.data_classes.common import ImageCaptioningModel
 from digiprod_gen.backend.utils.utils import booleanize
 

@@ -28,6 +28,10 @@ pydantic-yaml = "^1.1.1"
 selenium-wire = "^5.1.0"
 
 
+[tool.poetry.group.backend.dependencies]
+fastapi = "^0.103.2"
+httpx = "^0.25.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

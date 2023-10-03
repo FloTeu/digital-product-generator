@@ -213,7 +213,7 @@ def main(config: DigiProdGenConfig):
 def start_digiprod_gen(config: TextIOWrapper):
     if st.runtime.exists():
         # The app has been executed with `streamlit run app.py`
-        config_obj = initialise_config(
+        config_obj: DigiProdGenConfig = initialise_config(
             config_file_path=config
         )
         main(config=config_obj)

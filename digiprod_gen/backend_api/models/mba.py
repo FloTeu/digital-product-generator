@@ -4,6 +4,8 @@ import hashlib
 from typing import List, Optional, Union
 from PIL import Image
 from digiprod_gen.backend.data_classes.common import EnumBase
+from pydantic import BaseModel, Field
+
 
 class MBAMarketplaceDomain(str, EnumBase):
     COM="com"
@@ -66,8 +68,7 @@ class MBAProductTextType(str, Enum):
     BULLET="bullet"
 
 
-@dataclass
-class CrawlingMBARequest():
+class CrawlingMBARequest(BaseModel):
     search_term: str
     marketplace: MBAMarketplaceDomain
     product_category: MBAProductCategory
@@ -80,8 +81,7 @@ class CrawlingMBARequest():
         return hashlib.md5(f'{self.marketplace}{self.search_term}{self.product_category}'.encode()).hexdigest()
 
 
-@dataclass
-class MBAProduct():
+class MBAProduct(BaseModel):
     asin: str
     title: str
     brand: Optional[str]
@@ -89,10 +89,15 @@ class MBAProduct():
     product_url: str
     price: Optional[float]
     description: Optional[str]
-    image_pil: Optional[Image.Image]
-    image_prompt: Optional[str]
-    image_text_caption: Optional[str]
-    bullets: List[str] = field(default_factory=list)
+    # TODO: Move to another data class
+    # image_pil: Optional[Image.Image]
+    # image_prompt: Optional[str]
+    # image_text_caption: Optional[str]
+    bullets: List[str] = Field(default_factory=list)
+
+    class Config:
+        arbitrary_types_allowed = True
+
 
     def get_image_design_crop(self):
         if not self.image_pil:

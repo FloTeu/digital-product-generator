@@ -8,8 +8,7 @@ from bs4.element import Tag
 
 from digiprod_gen.backend.browser.crawling.mba import url_creator
 from digiprod_gen.backend.browser.crawling.utils import get_headers_list
-from digiprod_gen.backend.data_classes.mba import MBAProductCategory
-from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
+from digiprod_gen.backend_api.models.mba import MBAProductCategory, MBAMarketplaceDomain
 
 
 def is_mba_product(product_tag: Tag) -> bool:
