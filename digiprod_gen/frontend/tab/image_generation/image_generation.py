@@ -22,8 +22,9 @@ def display_image_generator(session_image_gen_data: ImageGenData) -> Image:
         'Image Generation Model',
         (ImageGenerationModel.STABLE_DIFFUSION.value, ImageGenerationModel.STABLE_DIFFUSION_SHIRT.value, ImageGenerationModel.STABLE_DIFFUSION_BARBIE.value, ImageGenerationModel.OPENJOURNEY.value, ImageGenerationModel.DEEPFLOYD_IF.value, ImageGenerationModel.POKEMON.value, ImageGenerationModel.WAIFU_DIFFUSION.value))
     if st.button("Generate Image"):
-        session_image_gen_data.image_pil_generated = text2image(session_image_gen_data.image_gen_prompt_selected, image_gen_model)
-        session_image_gen_data.reset_image_data()
+        with st.spinner('Generating image...'):
+            session_image_gen_data.image_pil_generated = text2image(session_image_gen_data.image_gen_prompt_selected, image_gen_model)
+            session_image_gen_data.reset_image_data()
 
 def text2image(text: str, image_gen_model: ImageGenerationModel) -> Image:
     if image_gen_model == ImageGenerationModel.DEEPFLOYD_IF:

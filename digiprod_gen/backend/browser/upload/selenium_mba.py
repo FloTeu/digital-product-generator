@@ -152,17 +152,17 @@ def select_fit_types_in_product_editor(product_editor, fit_types: List[MBAProduc
 
     # TODO: Selecting youth sice does not work sometimes.
     # Click Youth fit type
-    try:
-        youth_checkbox = product_editor_fit_types.find_element(By.CSS_SELECTOR, '.youth-checkbox input[type="checkbox"]')
-        is_checked = youth_checkbox.get_attribute('checked') == 'true'
-        if (is_checked and MBAProductFitType.YOUTH not in fit_types) or (not is_checked and MBAProductFitType.YOUTH in fit_types):
+    youth_checkbox = product_editor_fit_types.find_element(By.CSS_SELECTOR, '.youth-checkbox input[type="checkbox"]')
+    is_checked = youth_checkbox.get_attribute('checked') == 'true'
+    if (is_checked and MBAProductFitType.YOUTH not in fit_types) or (not is_checked and MBAProductFitType.YOUTH in fit_types):
+        try:
             youth_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
-    except (ElementClickInterceptedException) as e:
-        # second try
-        youth_checkbox.find_element(By.XPATH, 'following-sibling::i').click()
-    except (StaleElementReferenceException, NoSuchElementException) as e:
-        # if youth size is not available we skip this product as men and women
-        pass
+        except (ElementClickInterceptedException) as e:
+            # second try
+            youth_checkbox.find_element(By.XPATH, 'following-sibling::i').click()
+        except (StaleElementReferenceException, NoSuchElementException) as e:
+            # if youth size is not available we skip this product as men and women
+            pass
 
 def select_colors_in_product_editor(product_editor, colors: List[MBAProductColor], web_driver):
     """Selects desired colors in MBA upload/create menu for one product editor"""
