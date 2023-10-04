@@ -5,6 +5,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
 from digiprod_gen.backend_api.models.mba import MBAProduct, MBAMarketplaceDomain
 from digiprod_gen.backend_api.browser.selenium_fns import has_element_with_class
+from digiprod_gen.backend_api.browser.crawling.utils import is_product_feature_listing
 
 def extract_mba_products(driver: WebDriver, marketplace: MBAMarketplaceDomain) -> List[MBAProduct]:
     """Extracts MBAProduct objects out of mba overview page"""
@@ -27,7 +28,8 @@ def extract_mba_products(driver: WebDriver, marketplace: MBAMarketplaceDomain) -
 
 
 def overview_product_element2mba_product(product_element: WebElement, marketplace: MBAMarketplaceDomain) -> MBAProduct:
-    product_url = f"https://www.amazon.{marketplace}{overview_product_get_product_url(product_element)}"
+    asin = overview_product_get_asin(product_element)
+    product_url = f"https://www.amazon.{marketplace}/dp/{asin}"
     try:
         price = overview_product_get_price(product_element)
     except:
@@ -38,15 +40,36 @@ def overview_product_element2mba_product(product_element: WebElement, marketplac
     except:
         brand = None
     return MBAProduct(
-        asin = overview_product_get_asin(product_element),
+        asin = asin,
         title = overview_product_get_title(product_element),
         image_url = overview_product_get_image_url(product_element),
         product_url = product_url,
         brand=brand,
         price=price,
         #bullets=[],
-        description=None
+        description=None,
+        marketplace=marketplace
       )
+
+def extend_mba_product(mba_product: MBAProduct, driver: WebDriver) -> MBAProduct:
+    marketplace: MBAMarketplaceDomain = mba_product.marketplace
+    bullets = product_get_bullets(driver)
+    mba_product.bullets = [b for b in bullets if is_product_feature_listing(marketplace, b)]
+    try:
+        mba_product.description = product_get_description(driver)
+    except:
+        pass
+    try:
+        mba_product.price = product_get_price(driver)
+    except:
+        pass
+    if not mba_product.brand:
+        try:
+            mba_product.brand = product_get_brand(driver)
+        except:
+            pass
+
+    return mba_product
 
 
 '''
@@ -81,6 +104,7 @@ def overview_product_get_title(product_element: WebElement) -> str:
     return title_section_element.text.strip()
 
 def overview_product_get_product_url(product_element: WebElement) -> str:
+    # TODO: Seems like this parsing function does not work like before with bs4
     title_section_element = overview_product_get_title_section_tag(product_element)
     product_link = title_section_element.find_element(By.TAG_NAME, "a")
     return product_link.get_attribute("href")
@@ -103,6 +127,25 @@ def overview_product_get_price(product_element: WebElement) -> str:
 ### Parser Functions (product page)
 '''
 
+
+def product_get_price(element: WebElement | WebDriver):
+    price_str = element.find_element(By.XPATH, ".//div[@id='centerCol']//span[@class='a-price']//span").text
+    return price_str2price(price_str)
+
+
+def product_get_bullets(element: WebElement | WebDriver) -> List[str]:
+    try:
+        return [bullet.text.strip() for bullet in element.find_elements(By.XPATH, ".//div[@id='feature-bullets']//li")]
+    except:
+        return [bullet.text.strip() for bullet in element.find_elements(By.XPATH, ".//div[@id='productFactsExpander']//li")]
+
+
+def product_get_description(element: WebElement | WebDriver) -> str:
+    return element.find_element(By.XPATH, ".//div[@id='productDescription']").text.strip()
+
+
+def product_get_brand(element: WebElement | WebDriver) -> str:
+    return element.find_element(By.XPATH, ".//a[@id='bylineInfo']").text.strip()
 
 
 '''

@@ -1,5 +1,5 @@
 from digiprod_gen.backend.browser.crawling import parser
-from digiprod_gen.backend.browser.crawling.mba.utils import is_product_feature_listing
+from digiprod_gen.backend_api.browser.crawling.utils import is_product_feature_listing
 from digiprod_gen.backend_api.models.mba import MBAProduct
 
 

@@ -11,6 +11,7 @@ from digiprod_gen.backend.transform.transform_fns import extend_mba_product
 from digiprod_gen.backend.utils import split_list
 from digiprod_gen.backend.browser.crawling.selenium_mba import search_overview_and_change_postcode
 from digiprod_gen.backend_api.browser.selenium_fns import SeleniumBrowser
+from digiprod_gen.backend_api.models.mba import MBAProduct
 from digiprod_gen.frontend.session import read_session
 
 
@@ -84,8 +85,17 @@ def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator):
     session_state.crawling_data.selected_designs = read_session("selected_designs")
 
     with st_tab_ig, st.spinner('Crawling detail pages...'):
+        mba_products_selected = session_state.crawling_data.get_selected_mba_products()
+        for i, mba_product in enumerate(mba_products_selected):
+            # Detailed mba product is already available in session
+            if mba_product.bullets != None and mba_product.bullets != []:
+                continue
+            mba_product_detailed = session_state.backend_caller.post("/browser/crawling/mba_product",
+                                                             **mba_product.dict()).json()
+            mba_products_selected[i] = MBAProduct.parse_obj(mba_product_detailed)
+
         # crawl new detail pages
-        crawl_mba_details(session_state)
+        #crawl_mba_details(session_state)
 
     session_state.status.detail_pages_crawled = True
 

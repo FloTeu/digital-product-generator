@@ -83,6 +83,7 @@ class CrawlingMBARequest(BaseModel):
 
 
 class MBAProduct(BaseModel):
+    marketplace: MBAMarketplaceDomain
     asin: str
     title: str
     brand: Optional[str]
