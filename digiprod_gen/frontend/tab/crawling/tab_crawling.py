@@ -31,20 +31,19 @@ def crawl_mba_overview_and_display():
     if session_state.crawling_request == None:
         update_mba_request()
 
-    t = session_state.backend_caller.post("/browser/crawl_mba_overview", **session_state.crawling_request.dict())
-    start_browser(session_state)
     # request: CrawlingMBARequest = session_state.crawling_request
     overview_designs_view = session_state.views.overview_designs
     with overview_designs_view:
-
         mba_products = session_state.crawling_data.mba_products
         if not mba_products or not session_state.status.overview_page_crawled:
-            crawl_mba_overview2mba_products(session_state)
-
-        #display_mba_overview_products(session_state.crawling_data, request, shirts_per_row=session_state.config.view.cards_per_row)
-        # # Temp button to download html
-        # st.download_button('Download HTML', driver.page_source, file_name='mba_overview.html', on_click=crawl_mba_overview_and_display, args=(st_element, ), key="download_overview_html")
-        # display_start_crawling.empty()
+            #crawl_mba_overview2mba_products(session_state)
+            mba_products = session_state.backend_caller.post("/browser/crawl_mba_overview",
+                                                             **session_state.crawling_request.dict()).json()
+            mba_products_parsed: List[MBAProduct] = [MBAProduct.parse_obj(mba_p) for mba_p in mba_products]
+            # Save to session
+            session_state.crawling_data.mba_products = mba_products_parsed
+            # Update status
+            session_state.status.overview_page_crawled = True
 
 
 def crawl_mba_overview2mba_products(session_state: SessionState):

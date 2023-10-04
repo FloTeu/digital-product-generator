@@ -7,6 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from digiprod_gen.backend.utils import delete_files_in_path
+from digiprod_gen.backend.image.conversion import bytes2pil
 
 class SeleniumBrowser():
     def __init__(self) -> None:
@@ -127,6 +128,12 @@ def get_full_page_screenshot(driver: WebDriver) -> bytes:
     driver.set_window_size(original_size['width'], original_size['height'])
     return screenshot_as_png
 
+def has_element_with_class(element: WebElement, class_name):
+    elements = element.find_elements(By.CLASS_NAME, class_name)
+    return len(elements) > 0
+
+def get_element_html(element: WebElement) -> str:
+    return element.get_attribute("outerHTML")
 
 def show_web_element_png(element: WebElement):
     image_pil = bytes2pil(element.screenshot_as_png)
