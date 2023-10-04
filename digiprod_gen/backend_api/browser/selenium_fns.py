@@ -1,17 +1,11 @@
-import streamlit as st
 from seleniumwire import webdriver
-#from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
-from digiprod_gen.backend_api.models.mba import MBAMarketplaceDomain
-from digiprod_gen.backend.image.conversion import bytes2pil
 from digiprod_gen.backend.utils import delete_files_in_path
 
 class SeleniumBrowser():
@@ -81,10 +75,6 @@ def init_selenium_driver(headless=True, data_dir_path=None, proxy: str=None) -> 
     return webdriver.Chrome(options=options, seleniumwire_options=seleniumwire_options)
     #return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-def show_web_element_png(element: WebElement):
-    image_pil = bytes2pil(element.screenshot_as_png)
-    image_pil.show()
-
 
 def hover_over_element(driver: WebDriver, element_to_hover):
     # Create an instance of ActionChains and pass the driver as a parameter.
@@ -136,3 +126,8 @@ def get_full_page_screenshot(driver: WebDriver) -> bytes:
     screenshot_as_png = driver.find_element(By.TAG_NAME, 'body').screenshot_as_png
     driver.set_window_size(original_size['width'], original_size['height'])
     return screenshot_as_png
+
+
+def show_web_element_png(element: WebElement):
+    image_pil = bytes2pil(element.screenshot_as_png)
+    image_pil.show()

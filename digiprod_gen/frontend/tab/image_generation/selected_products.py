@@ -1,30 +1,17 @@
 from io import BytesIO
-import requests
 import time
 from bs4 import BeautifulSoup
 from streamlit.delta_generator import DeltaGenerator
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import WebDriverException
-
-from digiprod_gen.backend_api.models.mba import MBAProduct
-
 
 import streamlit as st
 
-
-from typing import List
-from digiprod_gen.backend_api.models.mba import CrawlingMBARequest
 from digiprod_gen.backend.data_classes.session import CrawlingData, SessionState
 from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io
 from digiprod_gen.backend.transform.transform_fns import extend_mba_product
 from digiprod_gen.backend.utils import split_list
 from digiprod_gen.backend.browser.crawling.selenium_mba import search_overview_and_change_postcode
-from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser
-from digiprod_gen.frontend.session import read_session, write_session
-
-
+from digiprod_gen.backend_api.browser.selenium_fns import SeleniumBrowser
+from digiprod_gen.frontend.session import read_session
 
 
 def crawl_mba_details(session_state: SessionState):

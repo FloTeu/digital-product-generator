@@ -15,7 +15,7 @@ from digiprod_gen.backend.image import conversion
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
 from digiprod_gen.backend.browser.upload.selenium_mba import publish_to_mba
-from digiprod_gen.backend.browser.selenium_fns import get_full_page_screenshot
+from digiprod_gen.backend_api.browser.selenium_fns import get_full_page_screenshot
 from digiprod_gen.frontend.session import read_session, update_mba_request, init_session_state
 from digiprod_gen.frontend import sidebar
 from digiprod_gen.frontend.tab.image_generation.selected_products import display_mba_selected_products
@@ -28,7 +28,7 @@ from digiprod_gen.frontend.tab.upload.views import (display_listing_selection, d
                                                     display_image_upload, display_marketplace_selector,
                                                     display_product_category_selector, display_product_color_selector,
                                                     display_product_fit_type_selector)
-from digiprod_gen.frontend.tab.upload.mba_upload import display_mba_account_tier, upload_mba_product
+from digiprod_gen.frontend.tab.upload.mba_upload import upload_mba_product
 from digiprod_gen.frontend.tab.crawling.tab_crawling import display_mba_overview_products
 
 

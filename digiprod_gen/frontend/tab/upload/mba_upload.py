@@ -1,4 +1,3 @@
-import time
 import streamlit as st
 
 from typing import List, Tuple
@@ -6,7 +5,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 
-from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists, scroll_page, focus_element, scroll_to_top_left
+from digiprod_gen.backend_api.browser.selenium_fns import wait_until_element_exists, scroll_page, focus_element, scroll_to_top_left
 from digiprod_gen.backend.browser.upload import selenium_mba
 from digiprod_gen.backend.browser.upload.selenium_mba import open_create_new, select_products_and_marketplaces, \
     select_colors, select_fit_types, insert_listing_text, open_dashboard, change_language_to_en

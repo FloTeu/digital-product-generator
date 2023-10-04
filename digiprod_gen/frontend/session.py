@@ -4,7 +4,7 @@ import streamlit as st
 
 from digiprod_gen.backend.browser.crawling.proxies import get_random_private_proxy
 from digiprod_gen.backend.browser.crawling.mba.utils import get_random_headers
-from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser, init_selenium_driver
+from digiprod_gen.backend_api.browser.selenium_fns import SeleniumBrowser
 from digiprod_gen.backend_api.models.mba import CrawlingMBARequest, MBAMarketplaceDomain, MBAProductCategory
 from digiprod_gen.backend.data_classes.session import SessionState, ImageGenData, CrawlingData, MBAUploadData, \
     DigiProdGenStatus, DigitProdGenViews

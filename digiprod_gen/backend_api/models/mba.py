@@ -75,6 +75,7 @@ class CrawlingMBARequest(BaseModel):
     headers: Optional[dict]
     proxy: Optional[str]
     mba_overview_url: Optional[str]
+    postcode: Optional[str] = Field(description="If provided, mba marketplace customer postcode is changed")
 
     def get_hash_str(self):
         """Unique hash string which takes all relevant request attributes into account"""
