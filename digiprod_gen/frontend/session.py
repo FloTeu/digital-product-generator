@@ -13,7 +13,8 @@ from digiprod_gen.frontend.backend_caller import BackendCaller
 from digiprod_gen.backend_api.utils import request2mba_overview_url, is_debug, delete_files_in_path
 
 
-def creat_session_state() -> SessionState:
+def creat_session_state(config: DigiProdGenConfig) -> SessionState:
+    backend_caller = BackendCaller(config.backend)
     crawling_data = CrawlingData()
     image_gen_data = ImageGenData()
     upload_data = MBAUploadData()
@@ -21,7 +22,7 @@ def creat_session_state() -> SessionState:
     session_id = get_session_id()
     views = DigitProdGenViews()
     return SessionState(crawling_request=None, browser=None, crawling_data=crawling_data, image_gen_data=image_gen_data,
-                        upload_data=upload_data, status=status, session_id=session_id, config=None, backend_caller=None, views=views)
+                        upload_data=upload_data, status=status, session_id=session_id, config=config, backend_caller=backend_caller, views=views)
 
 
 def start_browser(session_state: SessionState):
@@ -59,10 +60,8 @@ def get_session_id():
 
 def init_session_state(config: DigiProdGenConfig):
     """Creates a session state if its not already exists"""
-    if "session_state" not in st.session_state or st.session_state.session_state.config == None:
-        st.session_state.session_state = creat_session_state()
-        st.session_state.session_state.config = config
-        st.session_state.session_state.backend_caller = BackendCaller(config.backend)
+    if "session_state" not in st.session_state:
+        st.session_state.session_state = creat_session_state(config)
 
 
 def write_session(keys: str | List[str], value: Any):

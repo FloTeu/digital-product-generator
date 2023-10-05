@@ -19,20 +19,23 @@ def crawl_mba_overview_and_display():
     if session_state.crawling_request == None:
         update_mba_request()
 
-    session_state.crawling_request.postcode = session_state.config.mba.get_marketplace_config(
-        session_state.crawling_request.marketplace).postcode
-    session_id = session_state.session_id
-    response = session_state.backend_caller.post(f"/browser/crawling/mba_overview?session_id={session_id}",
-                                                 **session_state.crawling_request.dict())
-    #start_browser(session_state)
-    # request: CrawlingMBARequest = session_state.crawling_request
-    overview_designs_view = session_state.views.overview_designs
-    with overview_designs_view:
-        mba_products = session_state.crawling_data.mba_products
-        if not mba_products or not session_state.status.overview_page_crawled:
+
+    mba_products = session_state.crawling_data.mba_products
+    if not mba_products or not session_state.status.overview_page_crawled:
+        session_state.crawling_request.postcode = session_state.config.mba.get_marketplace_config(
+            session_state.crawling_request.marketplace).postcode
+        session_id = session_state.session_id
+        response = session_state.backend_caller.post(f"/browser/crawling/mba_overview?session_id={session_id}",
+                                                     **session_state.crawling_request.dict())
+
+        if response == None:
+            return None
+
+        #start_browser(session_state)
+        # request: CrawlingMBARequest = session_state.crawling_request
+        overview_designs_view = session_state.views.overview_designs
+        with overview_designs_view:
             #crawl_mba_overview2mba_products(session_state)
-            if response == None:
-                return None
             mba_products_parsed: List[MBAProduct] = [MBAProduct.parse_obj(mba_p) for mba_p in response.json()]
             # Save to session
             session_state.crawling_data.mba_products = mba_products_parsed

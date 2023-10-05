@@ -1,4 +1,5 @@
 import logging
+import sys
 from typing import List, Annotated
 from fastapi import FastAPI, Depends
 from functools import lru_cache
@@ -10,13 +11,15 @@ from digiprod_gen.backend_api.browser.parser import mba as mba_parser
 from digiprod_gen.backend_api.browser.selenium_fns import SeleniumBrowser, wait_until_element_exists
 from digiprod_gen.backend_api.utils.utils import delete_files_in_path, is_debug, initialise_config
 
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger("BackendAPI")
+
 app = FastAPI()
 CONFIG = initialise_config("config/app-config.yaml")
 
 @lru_cache()
 def init_selenium_browser(session_id) -> SeleniumBrowser:
-    logger.info("Init selenium browser with session_id", session_id)
+    logger.info(f"Init selenium browser with session_id {session_id}")
     # TODO: Browser would be started with every api call. Better would be to start it per session user
     data_dir_path = CONFIG.browser.selenium_data_dir_path
     delete_files_in_path(data_dir_path)
