@@ -59,7 +59,7 @@ def get_session_id():
 
 def init_session_state(config: DigiProdGenConfig):
     """Creates a session state if its not already exists"""
-    if "session_state" not in st.session_state:
+    if "session_state" not in st.session_state or st.session_state.session_state.config == None:
         st.session_state.session_state = creat_session_state()
         st.session_state.session_state.config = config
         st.session_state.session_state.backend_caller = BackendCaller(config.backend)

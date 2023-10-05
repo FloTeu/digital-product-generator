@@ -91,11 +91,11 @@ class MBAProduct(BaseModel):
     product_url: str
     price: Optional[float]
     description: Optional[str]
+    bullets: List[str] = Field(default_factory=list)
+    image_prompt: Optional[str]
+    image_text_caption: Optional[str]
     # TODO: Move to another data class
     # image_pil: Optional[Image.Image]
-    # image_prompt: Optional[str]
-    # image_text_caption: Optional[str]
-    bullets: List[str] = Field(default_factory=list)
 
     class Config:
         arbitrary_types_allowed = True
