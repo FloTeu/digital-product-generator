@@ -1,3 +1,4 @@
+import logging
 from typing import List, Annotated
 from fastapi import FastAPI, Depends
 from functools import lru_cache
@@ -9,12 +10,13 @@ from digiprod_gen.backend_api.browser.parser import mba as mba_parser
 from digiprod_gen.backend_api.browser.selenium_fns import SeleniumBrowser, wait_until_element_exists
 from digiprod_gen.backend_api.utils.utils import delete_files_in_path, is_debug, initialise_config
 
+logger = logging.getLogger("BackendAPI")
 app = FastAPI()
 CONFIG = initialise_config("config/app-config.yaml")
 
 @lru_cache()
 def init_selenium_browser(session_id) -> SeleniumBrowser:
-    print("Init selenium browser with session_id", session_id)
+    logger.info("Init selenium browser with session_id", session_id)
     # TODO: Browser would be started with every api call. Better would be to start it per session user
     data_dir_path = CONFIG.browser.selenium_data_dir_path
     delete_files_in_path(data_dir_path)
@@ -32,27 +34,27 @@ def init_selenium_browser(session_id) -> SeleniumBrowser:
 async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> List[MBAProduct]:
     """ Searches mba overview page and change postcode in order to see correct products"""
     browser = init_selenium_browser(session_id)
-    print("Start search mba overview page")
+    logger.info("Start search mba overview page")
     mba_crawling.search_overview_page(request, browser.driver)
     # If selenium is running with headless mode the first request sometimes fails
     if "something went wrong" in browser.driver.title.lower():
-        print("something went wrong during overview crawling. Try again..")
+        logger.info("something went wrong during overview crawling. Try again..")
         mba_crawling.search_overview_page(request, browser.driver)
     try:
-        print("Click ignore cookie banner")
+        logger.info("Click ignore cookie banner")
         mba_crawling.click_ignore_cookies(browser.driver)
     except:
         pass
     if request.postcode:
-        print("Try to change postcode")
+        logger.info("Try to change postcode")
         try:
             mba_crawling.change_postcode(browser.driver, request.postcode)
         except (NoSuchElementException, ElementNotInteractableException):
-            print("Could not change postcode")
+            logger.info("Could not change postcode")
             pass
         wait_until_element_exists(browser.driver, "//*[contains(@class, 'sg-col-inner')]")
 
-    print("Start parsing information to pydantic objects")
+    logger.info("Start parsing information to pydantic objects")
     return mba_parser.extract_mba_products(browser.driver, request.marketplace)
 
 
