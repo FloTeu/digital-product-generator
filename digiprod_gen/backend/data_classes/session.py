@@ -3,7 +3,7 @@ import streamlit as st
 from PIL.Image import Image
 from digiprod_gen.backend_api.browser.selenium_fns import SeleniumBrowser
 from digiprod_gen.backend_api.models.mba import MBAProduct, MBAProductCategory, MBAMarketplaceDomain, MBAProductColor, MBAProductFitType
-from digiprod_gen.backend_api.caller import BackendCaller
+from digiprod_gen.frontend.backend_caller import BackendCaller
 
 from dataclasses import dataclass, field
 from typing import List

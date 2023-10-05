@@ -29,7 +29,7 @@ selenium-wire = "^5.1.0"
 
 
 [tool.poetry.group.backend.dependencies]
-fastapi = "^0.103.2"
+fastapi = "0.103.2"
 httpx = "^0.25.0"
 
 [build-system]

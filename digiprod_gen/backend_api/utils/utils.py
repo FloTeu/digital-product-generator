@@ -1,8 +1,9 @@
 import os
 import streamlit as st
 
-from pydantic_yaml import parse_yaml_file_as
+from functools import lru_cache
 
+from pydantic_yaml import parse_yaml_file_as
 from digiprod_gen.backend_api.browser.crawling.utils import get_mba_overview_urls
 from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
 from digiprod_gen.backend_api.models.mba import CrawlingMBARequest, MBAMarketplaceDomain
@@ -17,7 +18,7 @@ def init_environment():
 #     module_file_path = os.path.dirname(digiprod_gen.__file__)
 #     return parse_file_as(DigiProdGenConfig, f"{module_file_path}/backend/config.json")
 
-@st.cache_resource
+@lru_cache
 def initialise_config(config_file_path: str) -> DigiProdGenConfig:
     return parse_yaml_file_as(DigiProdGenConfig, config_file_path)
 

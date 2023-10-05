@@ -9,7 +9,7 @@ from digiprod_gen.backend_api.models.mba import CrawlingMBARequest, MBAMarketpla
 from digiprod_gen.backend.data_classes.session import SessionState, ImageGenData, CrawlingData, MBAUploadData, \
     DigiProdGenStatus, DigitProdGenViews
 from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
-from digiprod_gen.backend_api.caller import BackendCaller
+from digiprod_gen.frontend.backend_caller import BackendCaller
 from digiprod_gen.backend_api.utils import request2mba_overview_url, is_debug, delete_files_in_path
 
 

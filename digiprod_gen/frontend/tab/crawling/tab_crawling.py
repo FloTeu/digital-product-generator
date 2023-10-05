@@ -25,9 +25,13 @@ def crawl_mba_overview_and_display():
         mba_products = session_state.crawling_data.mba_products
         if not mba_products or not session_state.status.overview_page_crawled:
             #crawl_mba_overview2mba_products(session_state)
-            mba_products = session_state.backend_caller.post("/browser/crawling/mba_overview",
-                                                             **session_state.crawling_request.dict()).json()
-            mba_products_parsed: List[MBAProduct] = [MBAProduct.parse_obj(mba_p) for mba_p in mba_products]
+            session_state.crawling_request.postcode = session_state.config.mba.get_marketplace_config(session_state.crawling_request.marketplace).postcode
+            session_id = session_state.session_id
+            response = session_state.backend_caller.post(f"/browser/crawling/mba_overview?session_id={session_id}",
+                                                             **session_state.crawling_request.dict())
+            if response == None:
+                return None
+            mba_products_parsed: List[MBAProduct] = [MBAProduct.parse_obj(mba_p) for mba_p in response.json()]
             # Save to session
             session_state.crawling_data.mba_products = mba_products_parsed
             # Update status

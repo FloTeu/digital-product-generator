@@ -90,9 +90,12 @@ def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator):
             # Detailed mba product is already available in session
             if mba_product.bullets != None and mba_product.bullets != []:
                 continue
-            mba_product_detailed = session_state.backend_caller.post("/browser/crawling/mba_product",
-                                                             **mba_product.dict()).json()
-            mba_products_selected[i] = MBAProduct.parse_obj(mba_product_detailed)
+            session_id = session_state.session_id
+            response = session_state.backend_caller.post(f"/browser/crawling/mba_product?session_id={session_id}",
+                                                             **mba_product.dict())
+            if response == None:
+                return None
+            mba_products_selected[i] = MBAProduct.parse_obj(response.json())
 
         # crawl new detail pages
         #crawl_mba_details(session_state)
