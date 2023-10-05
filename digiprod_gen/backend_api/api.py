@@ -14,6 +14,7 @@ CONFIG = initialise_config("config/app-config.yaml")
 
 @lru_cache()
 def init_selenium_browser(session_id) -> SeleniumBrowser:
+    print("Init selenium browser with session_id", session_id)
     # TODO: Browser would be started with every api call. Better would be to start it per session user
     data_dir_path = CONFIG.browser.selenium_data_dir_path
     delete_files_in_path(data_dir_path)
@@ -31,12 +32,14 @@ def init_selenium_browser(session_id) -> SeleniumBrowser:
 async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> List[MBAProduct]:
     """ Searches mba overview page and change postcode in order to see correct products"""
     browser = init_selenium_browser(session_id)
+    print("Start search mba overview page")
     mba_crawling.search_overview_page(request, browser.driver)
     # If selenium is running with headless mode the first request sometimes fails
     if "something went wrong" in browser.driver.title.lower():
         print("something went wrong during overview crawling. Try again..")
         mba_crawling.search_overview_page(request, browser.driver)
     try:
+        print("Click ignore cookie banner")
         mba_crawling.click_ignore_cookies(browser.driver)
     except:
         pass
@@ -49,6 +52,7 @@ async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> Li
             pass
         wait_until_element_exists(browser.driver, "//*[contains(@class, 'sg-col-inner')]")
 
+    print("Start parsing information to pydantic objects")
     return mba_parser.extract_mba_products(browser.driver, request.marketplace)
 
 
