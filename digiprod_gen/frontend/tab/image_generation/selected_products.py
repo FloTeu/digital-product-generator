@@ -8,7 +8,7 @@ import streamlit as st
 from digiprod_gen.backend.data_classes.session import CrawlingData, SessionState
 from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io
 from digiprod_gen.backend.transform.transform_fns import extend_mba_product
-from digiprod_gen.backend.utils import split_list
+from digiprod_gen.backend_api.utils import split_list
 from digiprod_gen.backend.browser.crawling.selenium_mba import search_overview_and_change_postcode
 from digiprod_gen.backend_api.browser.selenium_fns import SeleniumBrowser
 from digiprod_gen.backend_api.models.mba import MBAProduct

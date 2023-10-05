@@ -6,8 +6,8 @@ import streamlit as st
 from digiprod_gen.backend_api.models.mba import CrawlingMBARequest
 from digiprod_gen.backend.data_classes.session import SessionState, CrawlingData
 from digiprod_gen.backend_api.models.mba import MBAProduct
-from digiprod_gen.backend.utils import get_price_display_str, marketplace2currency, split_list
-from digiprod_gen.frontend.session import read_session, update_mba_request
+from digiprod_gen.backend_api.utils import get_price_display_str, marketplace2currency, split_list
+from digiprod_gen.frontend.session import read_session, start_browser, update_mba_request
 
 def crawl_mba_overview_and_display():
     """ Display overview products to frontend.
@@ -18,7 +18,7 @@ def crawl_mba_overview_and_display():
     # If not set yet, init session request
     if session_state.crawling_request == None:
         update_mba_request()
-
+    #start_browser(session_state)
     # request: CrawlingMBARequest = session_state.crawling_request
     overview_designs_view = session_state.views.overview_designs
     with overview_designs_view:

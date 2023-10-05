@@ -6,7 +6,7 @@ from PIL import Image
 from digiprod_gen.backend.image.conversion import pil2bytes_io, bytes2pil
 from digiprod_gen.backend_api.models.mba import MBAProduct
 from digiprod_gen.backend.data_classes.common import ImageCaptioningModel
-from digiprod_gen.backend.utils.utils import booleanize
+from digiprod_gen.backend_api.utils import booleanize
 
 def image2prompt(img_pil: Image) -> str:
     model = "methexis-inc/img2prompt:50adaf2d3ad20a6f911a8a9e3ccf777b263b8596fbd2c8fc26e8888f8a0edbb5"

@@ -6,13 +6,21 @@ from digiprod_gen.backend_api.models.mba import MBAProduct, CrawlingMBARequest
 from digiprod_gen.backend_api.browser.crawling import mba as mba_crawling
 from digiprod_gen.backend_api.browser.parser import mba as mba_parser
 from digiprod_gen.backend_api.browser.selenium_fns import SeleniumBrowser, wait_until_element_exists
+from digiprod_gen.backend_api.utils.utils import delete_files_in_path, is_debug
 
 app = FastAPI()
 
 def init_selenium_browser() -> SeleniumBrowser:
     # TODO: Browser would be started with every api call. Better would be to start it per session user
+    data_dir_path = "/tmp/selenium_data" #session_state.config.browser.selenium_data_dir_path
+    delete_files_in_path(data_dir_path)
     browser = SeleniumBrowser()
-    browser.setup()
+    browser.setup(headless=not is_debug(),
+                  data_dir_path=data_dir_path,
+                  # proxy=session_state.get_marketplace_config().get_proxy_with_secrets(
+                  #     st.secrets.proxy_perfect_privacy.user_name,
+                  #     st.secrets.proxy_perfect_privacy.password)
+                  )
     return browser
 
 

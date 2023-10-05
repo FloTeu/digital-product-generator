@@ -8,9 +8,9 @@ from io import TextIOWrapper
 
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException, NoSuchElementException
-from digiprod_gen.backend.utils.decorators import timeit
-from digiprod_gen.backend.utils.helper import Timer
-from digiprod_gen.backend.utils import init_environment, initialise_config
+from digiprod_gen.backend_api.utils.decorators import timeit
+from digiprod_gen.backend_api.utils.helper import Timer
+from digiprod_gen.backend_api.utils import init_environment, initialise_config
 from digiprod_gen.backend.image import conversion
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.data_classes.config import DigiProdGenConfig

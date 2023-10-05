@@ -11,7 +11,6 @@ from digiprod_gen.frontend.tab.image_generation.prompt_generation import prompt_
 from digiprod_gen.frontend.tab.upload.listing_generation import listing_generation
 from digiprod_gen.frontend.tab.upload.mba_upload import mba_otp_verification
 from digiprod_gen.backend.browser.upload.selenium_mba import login_to_mba
-from digiprod_gen.backend.utils import is_debug
 from digiprod_gen.backend.image.caption import extend_mba_products_with_caption
 
 def crawling_mba_overview_input():
