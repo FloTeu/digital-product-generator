@@ -40,9 +40,9 @@ def init_selenium_browser(session_id) -> SeleniumBrowser:
 @app.post("/browser/crawling/mba_overview")
 async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> List[MBAProduct]:
     """ Searches mba overview page and change postcode in order to see correct products"""
-    # browser = SeleniumBrowser()
-    # browser.setup()
-    browser = init_selenium_browser(session_id)
+    browser = SeleniumBrowser()
+    browser.setup()
+    #browser = init_selenium_browser(session_id)
     logger.info("Start search mba overview page")
     mba_crawling.search_overview_page(request, browser.driver)
     # If selenium is running with headless mode the first request sometimes fails

@@ -128,6 +128,7 @@ def display_admin_views(session_state: SessionState):
     """Display some options for the admin"""
     if  st.experimental_user.email in st.secrets.admin.emails or st.session_state["mba_email"] in st.secrets.admin.emails:
         st.subheader("Admin View")
+        st.warning("Note: This is only visible to admins")
 
         if st.button("Show Browser Screenshot (API)"):
             response = session_state.backend_caller.get(
