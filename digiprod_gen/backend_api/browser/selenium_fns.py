@@ -138,3 +138,9 @@ def get_element_html(element: WebElement) -> str:
 def show_web_element_png(element: WebElement):
     image_pil = bytes2pil(element.screenshot_as_png)
     image_pil.show()
+
+def html2file(driver: WebDriver, file_name: str = "browser.html"):
+    """Stores current html of browser to html file"""
+    html = driver.page_source
+    with open(file_name, "w") as fp:
+        fp.write(html)

@@ -4,7 +4,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
 from digiprod_gen.backend_api.models.mba import MBAProduct, MBAMarketplaceDomain
-from digiprod_gen.backend_api.browser.selenium_fns import has_element_with_class
+from digiprod_gen.backend_api.browser.selenium_fns import has_element_with_class, html2file
 from digiprod_gen.backend_api.browser.crawling.utils import is_product_feature_listing
 
 def extract_mba_products(driver: WebDriver, marketplace: MBAMarketplaceDomain) -> List[MBAProduct]:

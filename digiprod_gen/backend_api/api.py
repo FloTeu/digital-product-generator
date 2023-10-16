@@ -1,4 +1,6 @@
 import logging
+import time
+
 import sys
 from typing import List, Annotated
 from fastapi import FastAPI, Depends
@@ -36,6 +38,8 @@ def init_selenium_browser(session_id) -> SeleniumBrowser:
 @app.post("/browser/crawling/mba_overview")
 async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> List[MBAProduct]:
     """ Searches mba overview page and change postcode in order to see correct products"""
+    # browser = SeleniumBrowser()
+    # browser.setup()
     browser = init_selenium_browser(session_id)
     logger.info("Start search mba overview page")
     mba_crawling.search_overview_page(request, browser.driver)
@@ -55,11 +59,15 @@ async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> Li
         except (NoSuchElementException, ElementNotInteractableException):
             logger.info("Could not change postcode")
             pass
-        wait_until_element_exists(browser.driver, "//*[contains(@class, 'sg-col-inner')]")
-
+        ts = time.time()
+        # wait until postcode change is accepted
+        wait_until_element_exists(browser.driver, f"//*[@id='nav-global-location-slot'][contains(., '{request.postcode}')]")
+        # wait until product images are loaded
+        wait_until_element_exists(browser.driver, f"//div[@class='s-image-padding']")
+        print("Waited %.4f seconds" % (time.time() - ts))
     logger.info("Start parsing information to pydantic objects")
-    return mba_parser.extract_mba_products(browser.driver, request.marketplace)
-
+    mba_products: List[MBAProduct] = mba_parser.extract_mba_products(browser.driver, request.marketplace)
+    return mba_products
 
 @app.post("/browser/crawling/mba_product")
 async def crawl_mba_overview(mba_product: MBAProduct, session_id: str) -> MBAProduct:
