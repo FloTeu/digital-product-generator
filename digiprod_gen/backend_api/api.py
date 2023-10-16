@@ -22,17 +22,18 @@ app = FastAPI()
 CONFIG = initialise_config("config/app-config.yaml")
 
 @lru_cache()
-def init_selenium_browser(session_id) -> SeleniumBrowser:
+def init_selenium_browser(session_id, proxy=None) -> SeleniumBrowser:
     logger.info(f"Init selenium browser with session_id {session_id}")
     # TODO: Browser would be started with every api call. Better would be to start it per session user
     data_dir_path = CONFIG.browser.selenium_data_dir_path
     delete_files_in_path(data_dir_path)
     browser = SeleniumBrowser()
+    # session_state.get_marketplace_config().get_proxy_with_secrets(
+    #     st.secrets.proxy_perfect_privacy.user_name,
+    #     st.secrets.proxy_perfect_privacy.password)
     browser.setup(headless=not is_debug(),
                   data_dir_path=data_dir_path,
-                  # proxy=session_state.get_marketplace_config().get_proxy_with_secrets(
-                  #     st.secrets.proxy_perfect_privacy.user_name,
-                  #     st.secrets.proxy_perfect_privacy.password)
+                  proxy=proxy
                   )
     return browser
 
@@ -43,11 +44,12 @@ def init_selenium_browser_working() -> SeleniumBrowser:
     return browser
 
 @app.post("/browser/crawling/mba_overview")
-async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str, browser: Annotated[SeleniumBrowser, Depends(init_selenium_browser_working)]) -> List[MBAProduct]:
+async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> List[MBAProduct]:
     """ Searches mba overview page and change postcode in order to see correct products"""
+    #, browser: Annotated[SeleniumBrowser, Depends(init_selenium_browser_working)]
     # browser = SeleniumBrowser()
     # browser.setup()
-    #browser = init_selenium_browser(session_id)
+    browser = init_selenium_browser(session_id, request.proxy)
     logger.info("Start search mba overview page")
     mba_crawling.search_overview_page(request, browser.driver)
     # If selenium is running with headless mode the first request sometimes fails

@@ -128,5 +128,6 @@ class SessionState:
     views: DigitProdGenViews
     session_id: str
 
-    def get_marketplace_config(self) -> DigiProdGenMBAMarketplaceConfig:
-        return self.config.mba.get_marketplace_config(self.crawling_request.marketplace)
+    def get_marketplace_config(self, marketplace: str | None = None) -> DigiProdGenMBAMarketplaceConfig:
+        marketplace = marketplace or self.crawling_request.marketplace
+        return self.config.mba.get_marketplace_config(marketplace)

@@ -19,7 +19,7 @@ class BackendCaller:
             try:
                 return self.test_client.get(endpoint)
             except Exception as e:
-                st.error(str(e))
+                st.error(f"Backend API failed {e}")
         else:
             # TODO: implement code for deployed call
             raise NotImplementedError
@@ -31,7 +31,7 @@ class BackendCaller:
             try:
                 return self.test_client.post(endpoint, json=kwargs)
             except Exception as e:
-                st.error(str(e))
+                st.error(f"Backend API failed {e}")
         else:
             # TODO: implement code for deployed call
             raise NotImplementedError

@@ -45,8 +45,11 @@ def start_browser(session_state: SessionState):
 def create_mba_request(session_state: SessionState):
     marketplace = read_session("marketplace") or MBAMarketplaceDomain.COM
     search_term = read_session("search_term") or ""
-    proxy = get_random_private_proxy(st.secrets.proxy_perfect_privacy.user_name,
-                                     st.secrets.proxy_perfect_privacy.password, marketplace=marketplace)
+    proxy = session_state.get_marketplace_config(marketplace).get_proxy_with_secrets(
+        st.secrets.proxy_perfect_privacy.user_name,
+        st.secrets.proxy_perfect_privacy.password)
+    # proxy = get_random_private_proxy(st.secrets.proxy_perfect_privacy.user_name,
+    #                                  st.secrets.proxy_perfect_privacy.password, marketplace=marketplace)
     request = CrawlingMBARequest(marketplace=marketplace, product_category=MBAProductCategory.SHIRT,
                                  search_term=search_term, headers=get_random_headers(marketplace), proxy=proxy,
                                  mba_overview_url=None)
@@ -99,13 +102,16 @@ def update_mba_request():
         previous_marketplace = request.marketplace
         request.marketplace = st.session_state["marketplace"]
         if st.session_state.marketplace != previous_marketplace:
+            new_proxy = session_state.get_marketplace_config().get_proxy_with_secrets(
+                          st.secrets.proxy_perfect_privacy.user_name,
+                          st.secrets.proxy_perfect_privacy.password)
             # As the marketplace changed, we need to update our proxy -> restart browser
             if session_state.browser:
                 session_state.browser.reset_driver(
-                    proxy=session_state.get_marketplace_config().get_proxy_with_secrets(
-                              st.secrets.proxy_perfect_privacy.user_name,
-                              st.secrets.proxy_perfect_privacy.password)
+                    proxy=new_proxy
                 )
+            session_state.crawling_request.proxy = new_proxy
+
         request.search_term = st.session_state["search_term"]
         request.mba_overview_url = request2mba_overview_url(request)
 
