@@ -79,7 +79,7 @@ async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> Li
     return mba_products
 
 @app.post("/browser/crawling/mba_product")
-async def crawl_mba_overview(mba_product: MBAProduct, session_id: str) -> MBAProduct:
+async def crawl_mba_product(mba_product: MBAProduct, session_id: str) -> MBAProduct:
     browser = init_selenium_browser(session_id)
     browser.driver.get(mba_product.product_url)
     mba_product = mba_parser.extend_mba_product(mba_product, driver=browser.driver)
@@ -87,7 +87,7 @@ async def crawl_mba_overview(mba_product: MBAProduct, session_id: str) -> MBAPro
 
 
 @app.get("/status/browser_screenshot")
-async def crawl_mba_overview(session_id: str) -> StreamingResponse:
-    browser = init_selenium_browser(session_id)
+async def get_browser_screenshot(session_id: str, proxy: str | None = None) -> StreamingResponse:
+    browser = init_selenium_browser(session_id, proxy)
     screenshot_bytes = get_full_page_screenshot(browser.driver)
     return StreamingResponse(io.BytesIO(screenshot_bytes), media_type="image/png")

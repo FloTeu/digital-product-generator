@@ -132,7 +132,7 @@ def display_admin_views(session_state: SessionState):
 
         if st.button("Show Browser Screenshot (API)"):
             response = session_state.backend_caller.get(
-                f"/status/browser_screenshot?session_id={session_state.session_id}")
+                f"/status/browser_screenshot?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}")
             browser_screenshot_pil = conversion.bytes2pil(response.content)
             st.image(browser_screenshot_pil)
 
