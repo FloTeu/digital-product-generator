@@ -36,12 +36,17 @@ def init_selenium_browser(session_id) -> SeleniumBrowser:
                   )
     return browser
 
-
-@app.post("/browser/crawling/mba_overview")
-async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> List[MBAProduct]:
-    """ Searches mba overview page and change postcode in order to see correct products"""
+def init_selenium_browser_working() -> SeleniumBrowser:
+    # TODO: Browser would be started with every api call. Better would be to start it per session user
     browser = SeleniumBrowser()
     browser.setup()
+    return browser
+
+@app.post("/browser/crawling/mba_overview")
+async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str, browser: Annotated[SeleniumBrowser, Depends(init_selenium_browser_working)]) -> List[MBAProduct]:
+    """ Searches mba overview page and change postcode in order to see correct products"""
+    # browser = SeleniumBrowser()
+    # browser.setup()
     #browser = init_selenium_browser(session_id)
     logger.info("Start search mba overview page")
     mba_crawling.search_overview_page(request, browser.driver)
