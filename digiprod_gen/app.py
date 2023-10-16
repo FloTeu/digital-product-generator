@@ -128,8 +128,15 @@ def display_admin_views(session_state: SessionState):
     """Display some options for the admin"""
     if  st.experimental_user.email in st.secrets.admin.emails or st.session_state["mba_email"] in st.secrets.admin.emails:
         st.subheader("Admin View")
+
+        if st.button("Show Browser Screenshot (API)"):
+            response = session_state.backend_caller.get(
+                f"/status/browser_screenshot?session_id={session_state.session_id}")
+            browser_screenshot_pil = conversion.bytes2pil(response.content)
+            st.image(browser_screenshot_pil)
+
         if session_state.browser:
-            if st.button("Show Browser Screenshot"):
+            if st.button("Show Browser Screenshot (Frontend)"):
                 display_full_page_screenshot(session_state.browser.driver)
             st.download_button('Download Browser Source', session_state.browser.driver.page_source, file_name="source.html")
 

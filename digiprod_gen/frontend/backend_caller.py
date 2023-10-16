@@ -16,7 +16,10 @@ class BackendCaller:
     def get(self, endpoint: str) -> Any:
         """Executes a backend get call"""
         if self.config.debug:
-            return self.test_client.get(endpoint)
+            try:
+                return self.test_client.get(endpoint)
+            except Exception as e:
+                st.error(str(e))
         else:
             # TODO: implement code for deployed call
             raise NotImplementedError

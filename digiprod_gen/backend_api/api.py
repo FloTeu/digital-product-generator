@@ -1,16 +1,18 @@
 import logging
 import time
+import io
 
 import sys
 from typing import List, Annotated
 from fastapi import FastAPI, Depends
+from fastapi.responses import StreamingResponse
 from functools import lru_cache
 
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
 from digiprod_gen.backend_api.models.mba import MBAProduct, CrawlingMBARequest
 from digiprod_gen.backend_api.browser.crawling import mba as mba_crawling
 from digiprod_gen.backend_api.browser.parser import mba as mba_parser
-from digiprod_gen.backend_api.browser.selenium_fns import SeleniumBrowser, wait_until_element_exists
+from digiprod_gen.backend_api.browser.selenium_fns import SeleniumBrowser, wait_until_element_exists, get_full_page_screenshot
 from digiprod_gen.backend_api.utils.utils import delete_files_in_path, is_debug, initialise_config
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -75,3 +77,10 @@ async def crawl_mba_overview(mba_product: MBAProduct, session_id: str) -> MBAPro
     browser.driver.get(mba_product.product_url)
     mba_product = mba_parser.extend_mba_product(mba_product, driver=browser.driver)
     return mba_product
+
+
+@app.get("/status/browser_screenshot")
+async def crawl_mba_overview(session_id: str) -> StreamingResponse:
+    browser = init_selenium_browser(session_id)
+    screenshot_bytes = get_full_page_screenshot(browser.driver)
+    return StreamingResponse(io.BytesIO(screenshot_bytes), media_type="image/png")
