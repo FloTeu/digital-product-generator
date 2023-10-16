@@ -18,11 +18,16 @@ class DigiProdGenMBAMarketplaceConfig(BaseModel):
     postcode: str = Field(description="Valid example postcode of the main country in which the marketplace operates")
     proxy: str | None = Field(description="Crawling proxy which should be used to get better response by mba server")
     proxy_port: int | None = Field(description="Port on which the proxy can be accessed")
+    proxy_socks: str | None = Field(description="Optional SOCKS to hide ip address")
+
 
     def get_proxy_with_secrets(self, user_name, password) -> str | None:
         """If proxy exists, return proxy url with secrets. Otherwise None"""
-        if self.proxy:
+        if self.proxy and "perfect-privacy.com" in self.proxy:
             return f"http://{user_name}:{password}@{self.proxy}:{self.proxy_port}"
+        elif self.proxy:
+            http_or_socks = self.proxy_socks or "http://"
+            return f"{http_or_socks}://{self.proxy}:{self.proxy_port}"
         return None
 
 class DigiProdGenMBAConfig(BaseModel):

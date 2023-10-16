@@ -70,17 +70,17 @@ async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> Li
             pass
         ts = time.time()
         # wait until postcode change is accepted
-        wait_until_element_exists(browser.driver, f"//*[@id='nav-global-location-slot'][contains(., '{request.postcode}')]")
+        wait_until_element_exists(browser.driver, f"//*[@id='nav-global-location-slot'][contains(., '{request.postcode}')]", timeout=4)
         # wait until product images are loaded
-        wait_until_element_exists(browser.driver, f"//div[@class='s-image-padding']")
-        print("Waited %.4f seconds" % (time.time() - ts))
+        wait_until_element_exists(browser.driver, f"//div[@class='s-image-padding']", timeout=2)
+        print("Waited for postcode change %.4f seconds" % (time.time() - ts))
     logger.info("Start parsing information to pydantic objects")
     mba_products: List[MBAProduct] = mba_parser.extract_mba_products(browser.driver, request.marketplace)
     return mba_products
 
 @app.post("/browser/crawling/mba_product")
-async def crawl_mba_product(mba_product: MBAProduct, session_id: str) -> MBAProduct:
-    browser = init_selenium_browser(session_id)
+async def crawl_mba_product(mba_product: MBAProduct, session_id: str, proxy: str | None = None) -> MBAProduct:
+    browser = init_selenium_browser(session_id, proxy)
     browser.driver.get(mba_product.product_url)
     mba_product = mba_parser.extend_mba_product(mba_product, driver=browser.driver)
     return mba_product

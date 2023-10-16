@@ -91,7 +91,7 @@ def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator):
             if mba_product.bullets != None and mba_product.bullets != []:
                 continue
             session_id = session_state.session_id
-            response = session_state.backend_caller.post(f"/browser/crawling/mba_product?session_id={session_id}",
+            response = session_state.backend_caller.post(f"/browser/crawling/mba_product?session_id={session_id}&proxy={session_state.crawling_request.proxy}",
                                                              **mba_product.dict())
             if response == None:
                 return None

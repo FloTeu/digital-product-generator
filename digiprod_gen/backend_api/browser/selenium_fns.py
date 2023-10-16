@@ -1,4 +1,5 @@
 from seleniumwire import webdriver
+#from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
@@ -66,7 +67,9 @@ def init_selenium_driver(headless=True, data_dir_path=None, proxy: str=None) -> 
         seleniumwire_options = {
             'proxy': {
                 'http': proxy,
+                #'https': proxy,
                 'verify_ssl': False,
+                'no_proxy': 'localhost,127.0.0.1'
             },
         }
     if data_dir_path:
