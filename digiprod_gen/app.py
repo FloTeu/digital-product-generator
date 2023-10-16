@@ -136,6 +136,11 @@ def display_admin_views(session_state: SessionState):
             browser_screenshot_pil = conversion.bytes2pil(response.content)
             st.image(browser_screenshot_pil)
 
+        if st.button("Show Browser Settings (API)"):
+            response = session_state.backend_caller.get(
+                f"/status/browser_settings?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}")
+            st.text(response.json())
+
         if session_state.browser:
             if st.button("Show Browser Screenshot (Frontend)"):
                 display_full_page_screenshot(session_state.browser.driver)
