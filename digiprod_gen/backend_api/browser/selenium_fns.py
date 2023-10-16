@@ -1,5 +1,4 @@
 from seleniumwire import webdriver
-import seleniumwire.undetected_chromedriver as uc
 #from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
