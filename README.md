@@ -75,6 +75,7 @@ docker run -ti -p 8501:8501 -v %cd%:/app --rm digiprod-gen:latest  # cmd.exe
 - [x] Add multi color background for upload tab
 - [] Refactor backed code to REST api
 - [] Clean up pyproject.toml dependencies
+- [] Crawling performance optimization: Only change postcode if less than 48 products could be found  
 
 ## License
 

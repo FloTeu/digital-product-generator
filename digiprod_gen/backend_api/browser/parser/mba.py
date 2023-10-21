@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from digiprod_gen.backend_api.models.mba import MBAProduct, MBAMarketplaceDomain
 from digiprod_gen.backend_api.browser.selenium_fns import has_element_with_class, html2file
 from digiprod_gen.backend_api.browser.crawling.utils import is_product_feature_listing
+from digiprod_gen.backend_api.utils.exceptions import HtmlHasChangedException
 
 def extract_mba_products(driver: WebDriver, marketplace: MBAMarketplaceDomain) -> List[MBAProduct]:
     """Extracts MBAProduct objects out of mba overview page"""
@@ -133,11 +134,15 @@ def product_get_price(element: WebElement | WebDriver):
     return price_str2price(price_str)
 
 
-def product_get_bullets(element: WebElement | WebDriver) -> List[str]:
-    try:
-        return [bullet.text.strip() for bullet in element.find_elements(By.XPATH, ".//div[@id='feature-bullets']//li")]
-    except:
-        return [bullet.text.strip() for bullet in element.find_elements(By.XPATH, ".//div[@id='productFactsExpander']//li")]
+def product_get_bullets(element: WebDriver) -> List[str]:
+    # get parent of first element with class "product-facts-title" and extract all li elements
+    if "feature-bullets" in element.page_source:
+        li_elements = element.find_elements(By.XPATH, "//*[contains(@id, 'feature-bullets')][1]//li")
+    elif "product-facts-title" in element.page_source:
+        li_elements = element.find_elements(By.XPATH, "//*[contains(@class, 'product-facts-title')][1]/parent::*//li")
+    else:
+        raise HtmlHasChangedException()
+    return [bullet.text.strip() for bullet in li_elements]
 
 
 def product_get_description(element: WebElement | WebDriver) -> str:

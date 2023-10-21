@@ -85,8 +85,11 @@ def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator):
     session_state.crawling_data.selected_designs = read_session("selected_designs")
 
     with st_tab_ig, st.spinner('Crawling detail pages...'):
-        mba_products_selected = session_state.crawling_data.get_selected_mba_products()
-        for i, mba_product in enumerate(mba_products_selected):
+        mba_products_selected_human = session_state.crawling_data.selected_designs
+        for i in mba_products_selected_human:
+            # i is a human readable number -> decrement to get index
+            mba_products_selected_index = i - 1
+            mba_product = session_state.crawling_data.mba_products[mba_products_selected_index]
             # Detailed mba product is already available in session
             if mba_product.bullets != None and mba_product.bullets != []:
                 continue
@@ -95,7 +98,7 @@ def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator):
                                                              **mba_product.dict())
             if response == None:
                 return None
-            mba_products_selected[i] = MBAProduct.parse_obj(response.json())
+            session_state.crawling_data.mba_products[mba_products_selected_index] = MBAProduct.parse_obj(response.json())
 
         # crawl new detail pages
         #crawl_mba_details(session_state)
