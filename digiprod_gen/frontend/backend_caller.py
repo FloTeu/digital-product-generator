@@ -13,11 +13,11 @@ class BackendCaller:
         if self.config.debug:
             self.test_client = TestClient(app)
 
-    def get(self, endpoint: str) -> Any:
+    def get(self, endpoint: str, **kwargs) -> Any:
         """Executes a backend get call"""
         if self.config.debug:
             try:
-                return self.test_client.get(endpoint)
+                return self.test_client.get(endpoint, **kwargs)
             except Exception as e:
                 st.error(f"Backend API failed {e}")
         else:

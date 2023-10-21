@@ -1,5 +1,6 @@
 import os
 import streamlit as st
+
 from streamlit.delta_generator import DeltaGenerator
 
 from digiprod_gen.frontend.session import update_mba_request
@@ -12,6 +13,8 @@ from digiprod_gen.frontend.tab.upload.listing_generation import listing_generati
 from digiprod_gen.frontend.tab.upload.mba_upload import mba_otp_verification
 from digiprod_gen.backend.browser.upload.selenium_mba import login_to_mba
 from digiprod_gen.backend.image.caption import extend_mba_products_with_caption
+from digiprod_gen.frontend.session import read_session
+from digiprod_gen.backend_api.utils.utils import booleanize
 
 def crawling_mba_overview_input():
     st.subheader("1. Crawling MBA Overview")
@@ -40,14 +43,35 @@ def listing_generation_input(tab_ig: DeltaGenerator):
 
 
 def mab_login_input(tab_upload: DeltaGenerator):
+    session_state: SessionState = st.session_state["session_state"]
     st.subheader("5. MBA Upload")
     st.text_input("MBA Email", value=os.environ.get("mba_user_name", ""), key="mba_email")
     st.text_input("MBA Password", type="password", value=os.environ.get("mba_password", ""), key="mba_password")
-    st.button("Login", on_click=login_to_mba, args=(tab_upload, ), key="button_mba_login")
+    def login_to_mba_fn(tab_upload):
+        response = session_state.backend_caller.get(
+            f"/browser/upload/mba_login?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}",
+            auth=(read_session("mba_email"), read_session("mba_password")))
+        # TODO: Print exception to frontend
+        t = 0
 
-def mba_otp_input(session_state: SessionState):
-    # Only show input if amazon asks for otp
-    driver = session_state.browser.driver
-    if driver and "verification" in driver.page_source.lower() and "otp" in driver.page_source.lower():
-        otp_code = st.text_input("OTP")
-        st.button("Send OTP Token", on_click=mba_otp_verification, args=(session_state, otp_code, ), key="button_send_otp_token")
+        if response.status_code == 409 and "OTP" in response.text:
+            # Only show input if amazon asks for otp
+            mba_otp_input()
+        with tab_upload:
+            if response.status_code == 401:
+                st.exception(ValueError("Password is incorrect"))
+
+        if response.status_code == 200 and booleanize(response.text):
+            session_state.status.mba_login_successfull = True
+
+        # if "captcha" in driver.page_source.lower():
+        #     st.exception(ValueError("Captcha required"))
+        # if "your password is incorrect" in driver.page_source.lower():
+        #     st.exception(ValueError("Password is incorrect"))
+
+    st.button("Login", on_click=login_to_mba_fn, args=(tab_upload, ), key="button_mba_login")
+
+def mba_otp_input():
+    # Display otp input in sidebar
+    otp_code = st.text_input("OTP")
+    st.button("Send OTP Token", on_click=mba_otp_verification, args=(otp_code, ), key="button_send_otp_token")

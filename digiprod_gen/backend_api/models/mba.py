@@ -81,7 +81,6 @@ class CrawlingMBARequest(BaseModel):
         """Unique hash string which takes all relevant request attributes into account"""
         return hashlib.md5(f'{self.marketplace}{self.search_term}{self.product_category}'.encode()).hexdigest()
 
-
 class MBAProduct(BaseModel):
     marketplace: MBAMarketplaceDomain
     asin: str

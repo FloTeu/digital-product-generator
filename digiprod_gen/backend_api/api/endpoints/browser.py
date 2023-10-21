@@ -1,16 +1,19 @@
 import time
 import sys
 import logging
-from typing import List
+from typing import List, Annotated
 from functools import lru_cache
 
-from fastapi import APIRouter
+
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from selenium.common import NoSuchElementException, ElementNotInteractableException
 
 from digiprod_gen.backend_api.api.common import  CONFIG
 from digiprod_gen.backend_api.browser.crawling import mba as mba_crawling
 from digiprod_gen.backend_api.browser.parser import mba as mba_parser
 from digiprod_gen.backend_api.browser.selenium_fns import wait_until_element_exists, SeleniumBrowser
+from digiprod_gen.backend_api.browser.upload import selenium_mba as upload_mba_fns
 from digiprod_gen.backend_api.models.mba import CrawlingMBARequest, MBAProduct
 from digiprod_gen.backend_api.utils import delete_files_in_path, is_debug
 
@@ -18,6 +21,7 @@ from digiprod_gen.backend_api.utils import delete_files_in_path, is_debug
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger("BackendAPI")
 
+security = HTTPBasic()
 router = APIRouter()
 
 @lru_cache()
@@ -76,6 +80,43 @@ async def crawl_mba_product(mba_product: MBAProduct, session_id: str, proxy: str
     mba_product = mba_parser.extend_mba_product(mba_product, driver=browser.driver)
     return mba_product
 
+
+@router.get("/upload/mba_login")
+async def mba_login(credentials: Annotated[HTTPBasicCredentials, Depends(security)], session_id: str, proxy: str | None = None) -> bool:
+    browser = init_selenium_browser(session_id, proxy)
+    upload_mba_fns.open_dashboard(browser.driver)
+    upload_mba_fns.login_mba(browser.driver, credentials.username, credentials.password)
+    # TODO: Wait until the page is loaded
+    if "OTP" in browser.driver.page_source:
+        raise HTTPException(status_code=409, detail="OTP required")
+    if "captcha" in browser.driver.page_source.lower():
+        raise HTTPException(status_code=409, detail="Captcha required")
+    if "your password is incorrect" in browser.driver.page_source.lower():
+        raise HTTPException(status_code=401, detail="Wrong credentials")
+    elif "verification" not in browser.driver.page_source.lower() and "otp" not in browser.driver.page_source.lower():
+        upload_mba_fns.open_dashboard(browser.driver)
+        upload_mba_fns.wait_until_dashboard_is_ready(browser.driver)
+        if "merch.amazon.com/dashboard" in browser.driver.current_url:
+            # always change to english, in order to have the same html text
+            upload_mba_fns.change_language_to_en(browser.driver)
+            return True
+    return False
+
+
+@router.post("/upload/upload_mba_product")
+async def upload_mba_product(mba_product: MBAProduct, session_id: str, proxy: str | None = None) -> MBAProduct:
+    browser = init_selenium_browser(session_id, proxy)
+    browser.driver.get(mba_product.product_url)
+    mba_product = mba_parser.extend_mba_product(mba_product, driver=browser.driver)
+    return mba_product
+
+
+@router.post("/upload/publish_mba_product")
+async def publish_mba_product(mba_product: MBAProduct, session_id: str, proxy: str | None = None) -> MBAProduct:
+    browser = init_selenium_browser(session_id, proxy)
+    browser.driver.get(mba_product.product_url)
+    mba_product = mba_parser.extend_mba_product(mba_product, driver=browser.driver)
+    return mba_product
 
 def init_selenium_browser_working() -> SeleniumBrowser:
     # TODO: Browser would be started with every api call. Better would be to start it per session user
