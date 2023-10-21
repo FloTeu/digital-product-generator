@@ -31,6 +31,7 @@ selenium-wire = "^5.1.0"
 fastapi = "0.103.2"
 httpx = "^0.25.0"
 uvicorn = "^0.23.2"
+python-multipart = "^0.0.6"
 
 [build-system]
 requires = ["poetry-core"]

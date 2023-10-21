@@ -1,8 +1,8 @@
+import json
+import hashlib
 from dataclasses import dataclass, field
 from enum import Enum
-import hashlib
 from typing import List, Optional, Union
-from PIL import Image
 from digiprod_gen.backend.data_classes.common import EnumBase
 from pydantic import BaseModel, Field
 
@@ -112,3 +112,35 @@ class MBAProduct(BaseModel):
         # Cropped image of above dimension
         # (It will not change original image)
         return self.image_pil.crop((left, top, right, bottom))
+
+
+@dataclass
+class MBAUploadSettings:
+    use_defaults: bool = field(default=False)
+    product_categories: List[MBAProductCategory] = field(default_factory=list)
+    marketplaces: List[MBAMarketplaceDomain] = field(default_factory=list)
+    colors: List[MBAProductColor] = field(default_factory=list)
+    fit_types: List[MBAProductFitType] = field(default_factory=list)
+
+
+class UploadMBARequest(BaseModel):
+    title: str
+    brand: str
+    bullet_1: str | None = None
+    bullet_2: str | None = None
+    description: str | None = None
+    settings: MBAUploadSettings = Field(default_factory=MBAUploadSettings)
+
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate_to_json
+
+    @classmethod
+    def validate_to_json(cls, value):
+        if isinstance(value, str):
+            return cls(**json.loads(value))
+        return value
+
+class UploadMBAResponse(BaseModel):
+    warnings: List[str]
+    errors: List[str]

@@ -1,5 +1,6 @@
 import os
 import time
+import uuid
 
 import streamlit as st
 from selenium.webdriver.chrome.webdriver import WebDriver
@@ -10,6 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException, StaleElementReferenceException
 
 from digiprod_gen.backend_api.browser.selenium_fns import hover_over_element, wait_until_element_exists, SeleniumBrowser, get_full_page_screenshot
+from digiprod_gen.backend_api.browser import selenium_fns
 from digiprod_gen.backend_api.models.mba import MBAMarketplaceDomain, MBAProductFitType, MBAProductCategory, MBAProductColor
 from digiprod_gen.backend.transform.transform_fns import mba_product_category2html_row_name
 from PIL import Image
@@ -201,10 +203,9 @@ def select_colors(driver: WebDriver, product_categories: List[MBAProductCategory
     iterate_over_product_cards(driver, product_categories=product_categories, editor_change_fn=select_colors_in_product_editor, colors=colors, web_driver=driver)
 
 
-def upload_image(browser: SeleniumBrowser, image_pil: Image, file_name: str):
+def upload_image(browser: SeleniumBrowser, image_pil: Image):
     driver = browser.driver
-    file_name_cleaned = ''.join(e for e in file_name if e.isalnum())
-    temp_file_path = f"{browser.data_dir_path}/{file_name_cleaned}.png"
+    temp_file_path = f"{browser.data_dir_path}/{uuid.uuid4().hex}.png"
     image_pil.save(temp_file_path, format='png')
     # # store image to temp memory
     # temp_file_path = save_img_to_memory(image_pil)
@@ -255,3 +256,16 @@ def change_language_to_en(driver: WebDriver, language_url="/switch-locale?langua
     globe_icon = wait_until_element_exists(driver, "//*[contains(@class, 'globe-icon')]")
     globe_icon.click()
     driver.find_element(By.XPATH, f"//a[@href='{language_url}']").click()
+
+def remove_uploaded_image(driver: WebDriver, xpath: str):
+    try:
+        delete_image_i_tag = driver.find_element(By.XPATH, xpath)
+        # Element must be in focus in order to be clickable
+        selenium_fns.focus_element(driver, delete_image_i_tag)
+        selenium_fns.scroll_page(driver, -300)
+        selenium_fns.scroll_to_top_left(driver)
+        delete_image_i_tag.click()
+
+    except (NoSuchElementException, ElementClickInterceptedException) as e:
+        print("Exception", str(e))
+        pass

@@ -5,18 +5,20 @@ from typing import List, Annotated
 from functools import lru_cache
 
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from selenium.common import NoSuchElementException, ElementNotInteractableException
+from selenium.webdriver.common.by import By
 
 from digiprod_gen.backend_api.api.common import  CONFIG
 from digiprod_gen.backend_api.browser.crawling import mba as mba_crawling
 from digiprod_gen.backend_api.browser.parser import mba as mba_parser
 from digiprod_gen.backend_api.browser.selenium_fns import wait_until_element_exists, SeleniumBrowser
 from digiprod_gen.backend_api.browser.upload import selenium_mba as upload_mba_fns
-from digiprod_gen.backend_api.models.mba import CrawlingMBARequest, MBAProduct
+from digiprod_gen.backend_api.models.mba import CrawlingMBARequest, MBAProduct, UploadMBAResponse
 from digiprod_gen.backend_api.utils import delete_files_in_path, is_debug
-
+from digiprod_gen.backend_api.models.mba import UploadMBARequest
+from PIL import Image
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger("BackendAPI")
@@ -111,11 +113,56 @@ async def mba_login_otp(otp_code: str, session_id: str, proxy: str | None = None
     return True
 
 @router.post("/upload/upload_mba_product")
-async def upload_mba_product(mba_product: MBAProduct, session_id: str, proxy: str | None = None) -> MBAProduct:
+async def upload_mba_product(
+                             upload_request: UploadMBARequest,
+                             session_id: str,
+                             image_upload_ready: UploadFile = File(...),
+                             proxy: str | None = None) -> UploadMBAResponse:
     browser = init_selenium_browser(session_id, proxy)
-    browser.driver.get(mba_product.product_url)
-    mba_product = mba_parser.extend_mba_product(mba_product, driver=browser.driver)
-    return mba_product
+    image_delete_xpath = "//*[contains(@class, 'sci-delete-forever')]"
+    image_pil_upload_ready = Image.open(image_upload_ready.file)
+    driver = browser.driver
+    upload_mba_fns.open_dashboard(driver)
+    upload_mba_fns.open_create_new(driver)
+    wait_until_element_exists(driver, "//*[contains(@class, 'product-card')]")
+
+    # Image Upload
+    upload_mba_fns.remove_uploaded_image(driver, image_delete_xpath)
+    upload_mba_fns.upload_image(browser, image_pil_upload_ready)
+
+
+    upload_mba_fns.select_products_and_marketplaces(driver,
+                                     products=upload_request.settings.product_categories,
+                                     marketplaces=upload_request.settings.marketplaces)
+
+
+    if not upload_request.settings.use_defaults:
+        upload_mba_fns.select_colors(driver,
+                         colors=upload_request.settings.colors,
+                         product_categories=upload_request.settings.product_categories,
+                         )
+        upload_mba_fns.select_fit_types(driver,
+                         fit_types=upload_request.settings.fit_types,
+                         product_categories=upload_request.settings.product_categories,
+                         )
+    # Listing Upload
+    # TODO: how to handle case with Marketplace different to com (language of bullets is german for example but form takes englisch text input)
+    upload_mba_fns.insert_listing_text(driver, title=upload_request.title,
+                        brand=upload_request.brand, bullet_1=upload_request.bullet_1,
+                        bullet_2=upload_request.bullet_2,
+                        description=upload_request.description)
+
+    wait_until_element_exists(driver, image_delete_xpath)
+    # wait some more time just to be sure, that mba is ready for publishing
+    time.sleep(3)
+
+    # extract warnings
+    # get sibling of warning span tag
+    warnings = [w.find_element(By.XPATH, 'following-sibling::*').text
+                for w in driver.find_elements(By.XPATH, "//*[contains(@class, 'sci-warning')]")]
+    errors = [error_tag.text
+                for error_tag in driver.find_elements(By.XPATH, "//*[contains(@class, 'invalid-feedback')]")]
+    return UploadMBAResponse(warnings=warnings, errors=errors)
 
 
 @router.post("/upload/publish_mba_product")

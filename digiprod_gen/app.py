@@ -11,6 +11,7 @@ from selenium.common.exceptions import WebDriverException, NoSuchElementExceptio
 from digiprod_gen.backend_api.utils.decorators import timeit
 from digiprod_gen.backend_api.utils.helper import Timer
 from digiprod_gen.backend_api.utils import init_environment, initialise_config
+from digiprod_gen.backend_api.models.mba import UploadMBAResponse, UploadMBARequest
 from digiprod_gen.backend.image import conversion
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
@@ -100,28 +101,51 @@ def display_tab_upload_views(session_state: SessionState):
     else:
         #display_mba_account_tier(session_state.browser.driver)
         errors = []
-        if st.button("Upload product to MBA"):
-            with st.spinner("Upload mba product"):
-                try:
-                    warnings, errors = upload_mba_product(session_state)
-                except NoSuchElementException as e:
-                    st.error("Something went wrong during upload")
-                    display_full_page_screenshot(session_state.browser.driver)
-                    raise e
+        # Image Upload
+        if session_state.image_gen_data.image_pil_upload_ready == None:
+            st.error('You not uploaded/generated an image yet', icon="🚨")
+        else:
+            if st.button("Upload product to MBA"):
+                with st.spinner("Upload mba product"):
+                    try:
+                        if session_state.upload_data.bullet_1 == None and session_state.upload_data.bullet_2 == None:
+                            st.error('You not defined your listings yet', icon="🚨")
+                        upload_request = UploadMBARequest(
+                            title=session_state.upload_data.title,
+                            brand=session_state.upload_data.brand,
+                            bullet_1=session_state.upload_data.bullet_1,
+                            bullet_2=session_state.upload_data.bullet_2,
+                            description=session_state.upload_data.description,
+                            settings=session_state.upload_data.settings
+                        )
+                        response = session_state.backend_caller.post(
+                            f"/browser/upload/upload_mba_product?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}",
+                            **upload_request.dict()
+                        )
+                        if response.status_code == 200:
+                            upload_response: UploadMBAResponse = UploadMBAResponse.parse_obj(upload_response.json())
+                            warnings = upload_response.warnings
+                            errors = upload_response.errors
+                        else:
+                            warnings, errors = [],[]
+                    except NoSuchElementException as e:
+                        st.error("Something went wrong during upload")
+                        display_full_page_screenshot(session_state.browser.driver)
+                        raise e
 
-            for warning in warnings:
-                st.warning(f"MBA Warning: {warning}")
-            for error in errors:
-                st.error(f"MBA Error: {error}")
-        if len(errors) == 0 and st.button("Publish to MBA"):
-            try:
-                publish_to_mba(session_state.browser.driver, searchable=True)
-            except Exception as e:
-                st.error("Something went wrong during publishing")
-                display_full_page_screenshot(session_state.browser.driver)
-            time.sleep(1)
-            session_state.browser.driver.find_element(By.CLASS_NAME, "btn-close").click()
-            st.balloons()
+                for warning in warnings:
+                    st.warning(f"MBA Warning: {warning}")
+                for error in errors:
+                    st.error(f"MBA Error: {error}")
+            if len(errors) == 0 and st.button("Publish to MBA"):
+                try:
+                    publish_to_mba(session_state.browser.driver, searchable=True)
+                except Exception as e:
+                    st.error("Something went wrong during publishing")
+                    display_full_page_screenshot(session_state.browser.driver)
+                time.sleep(1)
+                session_state.browser.driver.find_element(By.CLASS_NAME, "btn-close").click()
+                st.balloons()
 
 
 def display_admin_views(session_state: SessionState):

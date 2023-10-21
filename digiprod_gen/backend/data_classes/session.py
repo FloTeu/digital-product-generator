@@ -2,7 +2,7 @@ import streamlit as st
 
 from PIL.Image import Image
 from digiprod_gen.backend_api.browser.selenium_fns import SeleniumBrowser
-from digiprod_gen.backend_api.models.mba import MBAProduct, MBAProductCategory, MBAMarketplaceDomain, MBAProductColor, MBAProductFitType
+from digiprod_gen.backend_api.models.mba import MBAProduct, MBAUploadSettings
 from digiprod_gen.frontend.backend_caller import BackendCaller
 
 from dataclasses import dataclass, field
@@ -50,19 +50,6 @@ class ImageGenData:
 
     def get_valid_upload_png(self):
         return self.image_pil_upload_ready
-
-
-
-
-
-@dataclass
-class MBAUploadSettings:
-    use_defaults: bool = field(default=False)
-    product_categories: List[MBAProductCategory] = field(default_factory=list)
-    marketplaces: List[MBAMarketplaceDomain] = field(default_factory=list)
-    colors: List[MBAProductColor] = field(default_factory=list)
-    fit_types: List[MBAProductFitType] = field(default_factory=list)
-
 
 
 @dataclass

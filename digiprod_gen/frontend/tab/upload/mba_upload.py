@@ -27,7 +27,7 @@ def mba_otp_verification(session_state: SessionState, otp_code):
 
 
 def upload_mba_product(session_state) -> Tuple[List[str], List[str]]:
-    """Uploads product data to mba. If exists a lists of warnings ist returned"""
+    """Uploads product data to mba. If exists a lists of warnings is returned"""
     from digiprod_gen.backend.browser.upload.selenium_mba import upload_image
     import time
     image_delete_xpath = "//*[contains(@class, 'sci-delete-forever')]"
