@@ -277,7 +277,7 @@ def login_to_mba(tab_upload):
     with tab_upload, st.spinner('Login to MBA...'):
         # TODO: This might need to be changed as it was copied by browser url directly
         driver.get("https://merch.amazon.com/dashboard")
-        if not session_state.status.mba_login_successfull:
+        if not session_state.status.mba_login_successful:
             login_mba(driver, read_session("mba_email"), read_session("mba_password"))
     if "captcha" in driver.page_source.lower():
         st.exception(ValueError("Captcha required"))
@@ -289,7 +289,7 @@ def login_to_mba(tab_upload):
         wait_until_dashboard_is_ready(driver)
         if "merch.amazon.com/dashboard" in driver.current_url:
             change_language_to_en(driver)
-            session_state.status.mba_login_successfull = True
+            session_state.status.mba_login_successful = True
         # else:
         #     st.exception(ValueError("Dashboard is not accessible"))
         #     login_mba(driver, read_session("mba_email"), read_session("mba_password"))

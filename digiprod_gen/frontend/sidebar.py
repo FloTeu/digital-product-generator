@@ -43,35 +43,38 @@ def listing_generation_input(tab_ig: DeltaGenerator):
 
 
 def mab_login_input(tab_upload: DeltaGenerator):
-    session_state: SessionState = st.session_state["session_state"]
-    st.subheader("5. MBA Upload")
-    st.text_input("MBA Email", value=os.environ.get("mba_user_name", ""), key="mba_email")
-    st.text_input("MBA Password", type="password", value=os.environ.get("mba_password", ""), key="mba_password")
     def login_to_mba_fn(tab_upload):
+        session_state: SessionState = st.session_state["session_state"]
         response = session_state.backend_caller.get(
             f"/browser/upload/mba_login?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}",
             auth=(read_session("mba_email"), read_session("mba_password")))
-        # TODO: Print exception to frontend
-        t = 0
-
         if response.status_code == 409 and "OTP" in response.text:
-            # Only show input if amazon asks for otp
-            mba_otp_input()
+            session_state.status.mba_login_otp_required = True
         with tab_upload:
             if response.status_code == 401:
                 st.exception(ValueError("Password is incorrect"))
+            if response.status_code == 409 and "Captcha" in response.text:
+                st.exception(ValueError("Captcha is required"))
 
         if response.status_code == 200 and booleanize(response.text):
-            session_state.status.mba_login_successfull = True
+            session_state.status.mba_login_successful = True
 
-        # if "captcha" in driver.page_source.lower():
-        #     st.exception(ValueError("Captcha required"))
-        # if "your password is incorrect" in driver.page_source.lower():
-        #     st.exception(ValueError("Password is incorrect"))
 
+    st.subheader("5. MBA Upload")
+    st.text_input("MBA Email", value=os.environ.get("mba_user_name", ""), key="mba_email")
+    st.text_input("MBA Password", type="password", value=os.environ.get("mba_password", ""), key="mba_password")
     st.button("Login", on_click=login_to_mba_fn, args=(tab_upload, ), key="button_mba_login")
 
 def mba_otp_input():
+    def login_to_mba_send_otp_fn(otp_code):
+        session_state: SessionState = st.session_state["session_state"]
+        response = session_state.backend_caller.get(
+            f"/browser/upload/mba_login_otp?otp_code={otp_code}&session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}",
+            )
+        if response.status_code == 200 and booleanize(response.text):
+            session_state.status.mba_login_otp_required = False
+            session_state.status.mba_login_successful = True
+
     # Display otp input in sidebar
     otp_code = st.text_input("OTP")
-    st.button("Send OTP Token", on_click=mba_otp_verification, args=(otp_code, ), key="button_send_otp_token")
+    st.button("Send OTP Token", on_click=login_to_mba_send_otp_fn, args=(otp_code, ), key="button_send_otp_token")

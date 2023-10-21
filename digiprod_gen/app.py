@@ -95,7 +95,7 @@ def display_tab_upload_views(session_state: SessionState):
         display_product_fit_type_selector(mba_upload_settings)
 
     #if session_state.status.detail_pages_crawled:
-    if not session_state.status.mba_login_successfull:
+    if not session_state.status.mba_login_successful:
         st.warning("Please login with your MBA credentials (5. MBA Upload)")
     else:
         #display_mba_account_tier(session_state.browser.driver)
@@ -196,12 +196,8 @@ def display_sidebar(session_state: SessionState, tab_crawling, tab_ig, tab_uploa
 
         # MBA Login
         sidebar.mab_login_input(tab_upload)
-        try:
-            if session_state.browser:
-                sidebar.mba_otp_input(session_state)
-        except WebDriverException:
-            # TODO: Find out why this error is thrown
-            pass
+        if session_state.status.mba_login_otp_required:
+            sidebar.mba_otp_input()
 
 
 def main(config: DigiProdGenConfig):

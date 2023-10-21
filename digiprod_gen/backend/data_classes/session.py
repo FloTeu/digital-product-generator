@@ -85,7 +85,8 @@ class DigiProdGenStatus:
     prompts_generated: bool = False
     image_upload_ready: bool = False
     listing_generated: bool = False
-    mba_login_successfull: bool = False
+    mba_login_otp_required: bool = False
+    mba_login_successful: bool = False
     product_uploaded: bool = False
 
     def refresh(self):

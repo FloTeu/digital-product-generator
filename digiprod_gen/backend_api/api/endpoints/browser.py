@@ -86,7 +86,8 @@ async def mba_login(credentials: Annotated[HTTPBasicCredentials, Depends(securit
     browser = init_selenium_browser(session_id, proxy)
     upload_mba_fns.open_dashboard(browser.driver)
     upload_mba_fns.login_mba(browser.driver, credentials.username, credentials.password)
-    # TODO: Wait until the page is loaded
+    # make sure page following is loaded
+    time.sleep(1)
     if "OTP" in browser.driver.page_source:
         raise HTTPException(status_code=409, detail="OTP required")
     if "captcha" in browser.driver.page_source.lower():
@@ -95,13 +96,19 @@ async def mba_login(credentials: Annotated[HTTPBasicCredentials, Depends(securit
         raise HTTPException(status_code=401, detail="Wrong credentials")
     elif "verification" not in browser.driver.page_source.lower() and "otp" not in browser.driver.page_source.lower():
         upload_mba_fns.open_dashboard(browser.driver)
-        upload_mba_fns.wait_until_dashboard_is_ready(browser.driver)
         if "merch.amazon.com/dashboard" in browser.driver.current_url:
             # always change to english, in order to have the same html text
             upload_mba_fns.change_language_to_en(browser.driver)
             return True
     return False
 
+@router.get("/upload/mba_login_otp")
+async def mba_login_otp(otp_code: str, session_id: str, proxy: str | None = None) -> bool:
+    browser = init_selenium_browser(session_id, proxy)
+    upload_mba_fns.authenticate_mba_with_opt_code(browser.driver, otp_code)
+    upload_mba_fns.wait_until_dashboard_is_ready(browser.driver)
+    upload_mba_fns.change_language_to_en(browser.driver)
+    return True
 
 @router.post("/upload/upload_mba_product")
 async def upload_mba_product(mba_product: MBAProduct, session_id: str, proxy: str | None = None) -> MBAProduct:

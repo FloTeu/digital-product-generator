@@ -23,7 +23,7 @@ def mba_otp_verification(session_state: SessionState, otp_code):
     selenium_mba.authenticate_mba_with_opt_code(session_state.browser.driver, otp_code)
     selenium_mba.wait_until_dashboard_is_ready(session_state.browser.driver)
     change_language_to_en(session_state.browser.driver)
-    session_state.status.mba_login_successfull = True
+    session_state.status.mba_login_successful = True
 
 
 def upload_mba_product(session_state) -> Tuple[List[str], List[str]]:
