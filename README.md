@@ -16,6 +16,8 @@
 Digital Product Generator is a [streamlit](https://streamlit.io) app that allows users to create digital products such a Print on Demand (POD) designs.
 The designs are created with the help generative AI such as GPT-3.5 or Midjourney.
 
+> [!IMPORTANT]  
+> This project is currently under development and not ready for production use
 
 ## Installation
 
@@ -71,6 +73,8 @@ docker run -ti -p 8501:8501 -v %cd%:/app --rm digiprod-gen:latest  # cmd.exe
 - [ ] LLM transformation of product description text for image prompt (remove misleading information)
 - [ ] Fix bug youth selection fails
 - [x] Add multi color background for upload tab
+- [] Refactor backed code to REST api
+- [] Clean up pyproject.toml dependencies
 
 ## License
 
