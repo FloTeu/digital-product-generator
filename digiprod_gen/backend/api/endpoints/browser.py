@@ -15,6 +15,7 @@ from digiprod_gen.backend.browser.crawling import mba as mba_crawling
 from digiprod_gen.backend.browser.parser import mba as mba_parser
 from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists, SeleniumBrowser
 from digiprod_gen.backend.browser.upload import selenium_mba as upload_mba_fns
+from digiprod_gen.backend.browser.crawling.utils.common import get_random_user_agent
 from digiprod_gen.backend.models.mba import MBAProduct
 from digiprod_gen.backend.models.response import UploadMBAResponse
 from digiprod_gen.backend.utils import delete_files_in_path, is_debug
@@ -34,9 +35,12 @@ def init_selenium_browser(session_id, proxy=None) -> SeleniumBrowser:
     data_dir_path = CONFIG.browser.selenium_data_dir_path
     delete_files_in_path(data_dir_path)
     browser = SeleniumBrowser()
+    # get random user agent, each time new browser is created
+    user_agent = get_random_user_agent()
     browser.setup(headless=not is_debug(),
                   data_dir_path=data_dir_path,
-                  proxy=proxy
+                  proxy=proxy,
+                  user_agent=user_agent
                   )
     return browser
 
