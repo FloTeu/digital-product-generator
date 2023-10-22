@@ -31,12 +31,12 @@ router = APIRouter()
 @lru_cache()
 def init_selenium_browser(session_id, proxy=None) -> SeleniumBrowser:
     # New browser is started per session and per proxy
-    logger.info(f"Init selenium browser with session_id {session_id}")
+    # get random user agent, each time new browser is created
+    user_agent = get_random_user_agent()
+    logger.info(f"Init selenium browser with session_id {session_id} and user agent {user_agent}")
     data_dir_path = CONFIG.browser.selenium_data_dir_path
     delete_files_in_path(data_dir_path)
     browser = SeleniumBrowser()
-    # get random user agent, each time new browser is created
-    user_agent = get_random_user_agent()
     browser.setup(headless=not is_debug(),
                   data_dir_path=data_dir_path,
                   proxy=proxy,
