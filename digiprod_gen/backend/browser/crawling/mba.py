@@ -16,6 +16,9 @@ def click_ignore_cookies(driver: WebDriver):
     """ Click reject all cookies link"""
     driver.find_element("id", "sp-cc-rejectall-link").click()
 
+def click_accept_cookies(driver: WebDriver):
+    """ Click reject all cookies link"""
+    driver.find_element("id", "sp-cc-accept").click()
 
 def change_postcode(driver, postcode):
     """Changes customer postcode address in order to show the deliverable products"""

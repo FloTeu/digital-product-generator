@@ -54,7 +54,7 @@ async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> Li
     logger.info("Start search utils overview page")
     mba_crawling.search_overview_page(request, browser.driver)
     # If selenium is running with headless mode the first request sometimes fails
-    first_mba_overview_interactions(browser, request)
+    first_mba_overview_interactions(browser, request, ignore_cookies=False)
     mba_product_web_elements = mba_parser.get_mba_product_web_elements(browser.driver)
     counter = 0
     while len(mba_product_web_elements) == 0:
@@ -63,7 +63,7 @@ async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> Li
         logger.info(f"Restart browser with user agent {user_agent}")
         browser.reset_driver(proxy=request.proxy, user_agent=user_agent)
         mba_crawling.search_overview_page(request, browser.driver)
-        first_mba_overview_interactions(browser, request)
+        first_mba_overview_interactions(browser, request, ignore_cookies=False)
         mba_product_web_elements = mba_parser.get_mba_product_web_elements(browser.driver)
         counter+=1
         if counter >= 5:
@@ -92,13 +92,17 @@ async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> Li
     return mba_products
 
 
-def first_mba_overview_interactions(browser, request):
+def first_mba_overview_interactions(browser, request, ignore_cookies=True):
     if "something went wrong" in browser.driver.title.lower():
         logger.info("something went wrong during overview crawling. Try again..")
         mba_crawling.search_overview_page(request, browser.driver)
     try:
-        logger.info("Click ignore cookie banner")
-        mba_crawling.click_ignore_cookies(browser.driver)
+        if ignore_cookies:
+            logger.info("Click ignore cookie banner")
+            mba_crawling.click_ignore_cookies(browser.driver)
+        else:
+            logger.info("Click accept cookie banner")
+            mba_crawling.click_accept_cookies(browser.driver)
     except:
         pass
 
