@@ -56,6 +56,7 @@ async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> Li
     # If selenium is running with headless mode the first request sometimes fails
     first_mba_overview_interactions(browser, request)
     mba_product_web_elements = mba_parser.get_mba_product_web_elements(browser.driver)
+    counter = 0
     while len(mba_product_web_elements) == 0:
         # Assumption: If no products are displayed, something is wrong with the browser setup
         user_agent = get_random_user_agent()
@@ -64,6 +65,11 @@ async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> Li
         mba_crawling.search_overview_page(request, browser.driver)
         first_mba_overview_interactions(browser, request)
         mba_product_web_elements = mba_parser.get_mba_product_web_elements(browser.driver)
+        counter+=1
+        if counter >= 5:
+            logger.warning(f"Could not get any products after 5 browser restarts")
+            return []
+
 
     # Amazon shows max 48 products on one page
     if request.postcode and len(mba_product_web_elements) < 48:
