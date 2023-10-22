@@ -2,8 +2,8 @@ import streamlit as st
 import httpx
 
 from fastapi.testclient import TestClient
-from digiprod_gen.backend_api.models.config import BackendConfig
-from digiprod_gen.backend_api.api.api import app
+from digiprod_gen.backend.models.config import BackendConfig
+from digiprod_gen.backend.api.api import app
 
 class BackendCaller:
     """Gateway between frontend and backend

@@ -3,10 +3,10 @@ from streamlit.delta_generator import DeltaGenerator
 
 import streamlit as st
 
-from digiprod_gen.backend_api.models.session import CrawlingData, SessionState
-from digiprod_gen.backend_api.io.io_fns import image_url2image_bytes_io
-from digiprod_gen.backend_api.utils import split_list
-from digiprod_gen.backend_api.models.mba import MBAProduct
+from digiprod_gen.backend.models.session import CrawlingData, SessionState
+from digiprod_gen.backend.io.io_fns import image_url2image_bytes_io
+from digiprod_gen.backend.utils import split_list
+from digiprod_gen.backend.models.mba import MBAProduct
 from digiprod_gen.frontend.session import read_session
 
 

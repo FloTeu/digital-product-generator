@@ -2,15 +2,15 @@ from typing import List, Any
 
 import streamlit as st
 
-from digiprod_gen.backend_api.browser.crawling.utils.utils_mba import get_random_headers
-from digiprod_gen.backend_api.browser.selenium_fns import SeleniumBrowser
-from digiprod_gen.backend_api.models.mba import CrawlingMBARequest, MBAMarketplaceDomain, MBAProductCategory
-from digiprod_gen.backend_api.models.session import SessionState, ImageGenData, CrawlingData, MBAUploadData, \
+from digiprod_gen.backend.browser.crawling.utils.utils_mba import get_random_headers
+from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser
+from digiprod_gen.backend.models.mba import CrawlingMBARequest, MBAMarketplaceDomain, MBAProductCategory
+from digiprod_gen.backend.models.session import SessionState, ImageGenData, CrawlingData, MBAUploadData, \
     DigiProdGenStatus, DigitProdGenViews
-from digiprod_gen.backend_api.models.config import DigiProdGenConfig
+from digiprod_gen.backend.models.config import DigiProdGenConfig
 from digiprod_gen.frontend.backend_caller import BackendCaller
-from digiprod_gen.backend_api.utils import is_debug, delete_files_in_path
-from digiprod_gen.backend_api.transform.transform_fns import request2mba_overview_url
+from digiprod_gen.backend.utils import is_debug, delete_files_in_path
+from digiprod_gen.backend.transform.transform_fns import request2mba_overview_url
 
 
 def creat_session_state(config: DigiProdGenConfig) -> SessionState:

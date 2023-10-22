@@ -6,14 +6,14 @@ import streamlit.web.bootstrap as st_bootstrap
 from io import TextIOWrapper
 
 from selenium.common.exceptions import NoSuchElementException
-from digiprod_gen.backend_api.utils.decorators import timeit
-from digiprod_gen.backend_api.utils.helper import Timer
-from digiprod_gen.backend_api.utils import init_environment, initialise_config
-from digiprod_gen.backend_api.models.mba import UploadMBAResponse, UploadMBARequest
-from digiprod_gen.backend_api.image import conversion
-from digiprod_gen.backend_api.models.session import SessionState
-from digiprod_gen.backend_api.models.config import DigiProdGenConfig
-from digiprod_gen.backend_api.browser.selenium_fns import get_full_page_screenshot
+from digiprod_gen.backend.utils.decorators import timeit
+from digiprod_gen.backend.utils.helper import Timer
+from digiprod_gen.backend.utils import init_environment, initialise_config
+from digiprod_gen.backend.models.mba import UploadMBAResponse, UploadMBARequest
+from digiprod_gen.backend.image import conversion
+from digiprod_gen.backend.models.session import SessionState
+from digiprod_gen.backend.models.config import DigiProdGenConfig
+from digiprod_gen.backend.browser.selenium_fns import get_full_page_screenshot
 from digiprod_gen.frontend.session import read_session, update_mba_request, init_session_state
 from digiprod_gen.frontend import sidebar
 from digiprod_gen.frontend.tab.image_generation.selected_products import display_mba_selected_products
