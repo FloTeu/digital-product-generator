@@ -1,6 +1,6 @@
 from PIL import Image
-from digiprod_gen.backend.image.conversion import pil2bytes_io
-from digiprod_gen.backend.image.common import replicate_generate
+from digiprod_gen.backend_api.image.conversion import pil2bytes_io
+from digiprod_gen.backend_api.image.common import replicate_generate
 
 
 def real_esrgan_resolution(img_pil: Image) -> Image:

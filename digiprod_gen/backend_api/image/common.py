@@ -4,7 +4,7 @@ import replicate
 import requests
 from PIL import Image
 
-from digiprod_gen.backend.image.conversion import bytes2pil
+from digiprod_gen.backend_api.image.conversion import bytes2pil
 
 
 class OutputFormat(Enum):

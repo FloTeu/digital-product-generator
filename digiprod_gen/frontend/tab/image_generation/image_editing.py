@@ -2,11 +2,11 @@ import streamlit as st
 from PIL import Image
 from typing import Tuple
 
-from digiprod_gen.backend.image.conversion import pil2bytes_io, bytes2pil, pil2np
-from digiprod_gen.backend.image.background_removal import simple_remove_background, rembg
-from digiprod_gen.backend.image.upscale import pil_upscale, some_upscalers_upscale
-from digiprod_gen.backend.image.outpainting import outpainting_with_paella
-from digiprod_gen.backend.image.compress import jpeg_compress, png_compress
+from digiprod_gen.backend_api.image.conversion import pil2bytes_io, bytes2pil, pil2np
+from digiprod_gen.backend_api.image.background_removal import simple_remove_background, rembg
+from digiprod_gen.backend_api.image.upscale import pil_upscale, some_upscalers_upscale
+from digiprod_gen.backend_api.image.outpainting import outpainting_with_paella
+from digiprod_gen.backend_api.image.compress import jpeg_compress, png_compress
 from digiprod_gen.backend_api.models.session import ImageGenData
 from digiprod_gen.backend_api.models.config import DigiProdGenImageGenBrConfig
 from digiprod_gen.backend_api.models.common import UpscalerModel, BackgroundRemovalModel

@@ -1,9 +1,9 @@
 import io
 from typing import Tuple
 from PIL import Image
-from digiprod_gen.backend.image.conversion import pil2bytes_io, bytes2pil
-from digiprod_gen.backend.image.common import replicate_generate, OutputFormat
-from digiprod_gen.backend.image.stabilityai import get_upscaling_client
+from digiprod_gen.backend_api.image.conversion import pil2bytes_io
+from digiprod_gen.backend_api.image.common import replicate_generate
+from digiprod_gen.backend_api.image.stabilityai import get_upscaling_client
 import stability_sdk.interfaces.gooseai.generation.generation_pb2 as generation
 
 def pil_upscale(img_pil: Image, shape: Tuple[int, int]) -> Image:

@@ -1,8 +1,8 @@
 from typing import Tuple
 from PIL import Image
 
-from digiprod_gen.backend.image.conversion import pil2bytes_io, bytes2pil
-from digiprod_gen.backend.image.common import replicate_generate, OutputFormat
+from digiprod_gen.backend_api.image.conversion import pil2bytes_io
+from digiprod_gen.backend_api.image.common import replicate_generate, OutputFormat
 
 
 def outpainting_with_paella(img_pil: Image, prompt: str, output_relativ_size: Tuple[float, float] = (1.5, 1.5)) -> Image:

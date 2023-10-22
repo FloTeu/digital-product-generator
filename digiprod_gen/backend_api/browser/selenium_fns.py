@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from digiprod_gen.backend_api.utils import delete_files_in_path
-from digiprod_gen.backend.image.conversion import bytes2pil
+from digiprod_gen.backend_api.image.conversion import bytes2pil
 
 class SeleniumBrowser():
     def __init__(self) -> None:

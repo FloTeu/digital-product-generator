@@ -10,7 +10,7 @@ from digiprod_gen.backend_api.utils.decorators import timeit
 from digiprod_gen.backend_api.utils.helper import Timer
 from digiprod_gen.backend_api.utils import init_environment, initialise_config
 from digiprod_gen.backend_api.models.mba import UploadMBAResponse, UploadMBARequest
-from digiprod_gen.backend.image import conversion
+from digiprod_gen.backend_api.image import conversion
 from digiprod_gen.backend_api.models.session import SessionState
 from digiprod_gen.backend_api.models.config import DigiProdGenConfig
 from digiprod_gen.backend_api.browser.selenium_fns import get_full_page_screenshot

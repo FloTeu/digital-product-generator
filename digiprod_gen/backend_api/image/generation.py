@@ -1,5 +1,5 @@
 from PIL import Image
-from digiprod_gen.backend.image.common import replicate_generate, OutputFormat
+from digiprod_gen.backend_api.image.common import replicate_generate, OutputFormat
 from digiprod_gen.backend_api.models.common import ImageGenerationSDXLLoraUrl
 
 

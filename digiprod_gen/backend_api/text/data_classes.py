@@ -1,15 +1,13 @@
 from typing import List
-from langchain.base_language import BaseLanguageModel
 from langchain.prompts import HumanMessagePromptTemplate, SystemMessagePromptTemplate
 
 from llm_few_shot_gen.generators.base import BaseFewShotGenerator
 from llm_few_shot_gen.generators.midjourney import MidjourneyPromptGenerator
 from llm_few_shot_gen.constants import INSTRUCTOR_USER_NAME
 from digiprod_gen.backend_api.models.mba import MBAMarketplaceDomain
-from digiprod_gen.backend.generative_ai.text import mba_context
+from digiprod_gen.backend_api.text import mba_context
 from digiprod_gen.backend_api.models.mba import MBAProductTextType
-from digiprod_gen.backend_api.models.mba import MBAProduct
-from digiprod_gen.backend.generative_ai.text.mba_banned_word import MBA_BANNED_WORDS
+from digiprod_gen.backend_api.text.mba_banned_word import MBA_BANNED_WORDS
 
 def get_generate_bullets_text(marketplace: MBAMarketplaceDomain, max_number_chars) -> str:
     if marketplace in [MBAMarketplaceDomain.COM, MBAMarketplaceDomain.UK]:

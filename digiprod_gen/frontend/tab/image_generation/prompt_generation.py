@@ -4,7 +4,7 @@ import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 from langchain.chat_models import ChatOpenAI
 
-from digiprod_gen.backend.generative_ai.text.text_gen_fns import get_midjourney_prompt_gen, mba_products2llm_prompt_gen_input
+from digiprod_gen.backend_api.text.text_gen_fns import get_midjourney_prompt_gen, mba_products2llm_prompt_gen_input
 from digiprod_gen.backend_api.models.common import MBAMidjourneyOutputModel
 from digiprod_gen.frontend.session import read_session
 from digiprod_gen.backend_api.models.session import SessionState

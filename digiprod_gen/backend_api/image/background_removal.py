@@ -1,10 +1,8 @@
 
 import requests
-import numpy as np
 import replicate
 from PIL import Image
-from typing import Tuple
-from digiprod_gen.backend.image.conversion import pil2cv, cv2pil, pil2bytes_io, bytes2pil
+from digiprod_gen.backend_api.image.conversion import pil2bytes_io, bytes2pil
 
 def rembg(img_pil: Image) -> Image:
     model = "ilkerc/rembg:e809cddc666ccfd38a044f795cf65baab62eedc4273d096bf05935b9a3059b59"
