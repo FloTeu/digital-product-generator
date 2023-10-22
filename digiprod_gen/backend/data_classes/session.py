@@ -15,7 +15,7 @@ from digiprod_gen.backend.data_classes.config import DigiProdGenConfig, DigiProd
 
 @dataclass
 class CrawlingData:
-    mba_products: List[MBAProduct] = field(default_factory=list)  # crawled mba products
+    mba_products: List[MBAProduct] = field(default_factory=list)  # crawled utils products
     selected_designs: List[int] = field(default_factory=list) # user selected products for prompt generation
 
     def get_selected_mba_products(self) -> List[MBAProduct]:
@@ -79,7 +79,7 @@ class DigiProdGenStatus:
     def refresh(self):
         """
         Refreshes all status, after the data source has changed
-        mba auth status can stay, since its independent of the input data
+        utils auth status can stay, since its independent of the input data
         """
         self.overview_page_crawled = False
         self.detail_pages_crawled = False

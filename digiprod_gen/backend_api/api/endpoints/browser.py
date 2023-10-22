@@ -41,12 +41,12 @@ def init_selenium_browser(session_id, proxy=None) -> SeleniumBrowser:
 
 @router.post("/crawling/mba_overview")
 async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> List[MBAProduct]:
-    """ Searches mba overview page and change postcode in order to see correct products"""
+    """ Searches utils overview page and change postcode in order to see correct products"""
     #, browser: Annotated[SeleniumBrowser, Depends(init_selenium_browser_working)]
     # browser = SeleniumBrowser()
     # browser.setup()
     browser = init_selenium_browser(session_id, request.proxy)
-    logger.info("Start search mba overview page")
+    logger.info("Start search utils overview page")
     mba_crawling.search_overview_page(request, browser.driver)
     # If selenium is running with headless mode the first request sometimes fails
     if "something went wrong" in browser.driver.title.lower():
@@ -119,7 +119,7 @@ async def upload_mba_product(
                              image_upload_ready: UploadFile = File(...),
                              proxy: str | None = None) -> UploadMBAResponse:
     """
-    Uploads mba product to mba account (without publishing it)
+    Uploads utils product to utils account (without publishing it)
     """
     browser = init_selenium_browser(session_id, proxy)
     image_delete_xpath = "//*[contains(@class, 'sci-delete-forever')]"
@@ -156,7 +156,7 @@ async def upload_mba_product(
                         description=upload_request.description)
 
     wait_until_element_exists(driver, image_delete_xpath)
-    # wait some more time just to be sure, that mba is ready for publishing
+    # wait some more time just to be sure, that utils is ready for publishing
     time.sleep(3)
 
     # extract warnings
@@ -171,11 +171,11 @@ async def upload_mba_product(
 @router.get("/upload/publish_mba_product")
 async def publish_mba_product(session_id: str, proxy: str | None = None, searchable: bool = True) -> bool:
     """
-    Publishes mba product to marketplace.
+    Publishes utils product to marketplace.
     If success return True, otherwise False
     """
     browser = init_selenium_browser(session_id, proxy)
-    print("Try to publish mba product")
+    print("Try to publish utils product")
     upload_mba_fns.publish_to_mba(browser.driver, searchable=searchable)
     time.sleep(1)
     browser.driver.find_element(By.CLASS_NAME, "btn-close").click()

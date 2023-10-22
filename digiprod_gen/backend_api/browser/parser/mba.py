@@ -5,15 +5,15 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
 from digiprod_gen.backend_api.models.mba import MBAProduct, MBAMarketplaceDomain
 from digiprod_gen.backend_api.browser.selenium_fns import has_element_with_class, html2file
-from digiprod_gen.backend_api.browser.crawling.utils import is_product_feature_listing
+from digiprod_gen.backend_api.browser.crawling.utils.utils_mba import is_product_feature_listing
 from digiprod_gen.backend_api.utils.exceptions import HtmlHasChangedException
 
 def extract_mba_products(driver: WebDriver, marketplace: MBAMarketplaceDomain) -> List[MBAProduct]:
-    """Extracts MBAProduct objects out of mba overview page"""
+    """Extracts MBAProduct objects out of utils overview page"""
     mba_products: List[MBAProduct] = []
     #product_tags = driver.find_elements(By.CSS_SELECTOR,"div.sg-col-inner")
     product_elements = driver.find_elements(By.XPATH, "//div[@class='sg-col-inner']")
-    # ignore products which are no mba product or sponsored products
+    # ignore products which are no utils product or sponsored products
     mba_product_elements = [p for p in product_elements if is_mba_product(p) and not has_element_with_class(p, "sponsored-brand-label-info-desktop")]
 
     for product_element in mba_product_elements:
@@ -21,7 +21,7 @@ def extract_mba_products(driver: WebDriver, marketplace: MBAMarketplaceDomain) -
         mba_products.append(mba_product)
 
     if len(mba_product_elements) == 0:
-        raise ValueError(f"No mba products could be found")
+        raise ValueError(f"No utils products could be found")
     elif len(mba_products) == 0 and len(mba_product_elements) > 0:
         raise ValueError(f"{len(mba_product_elements)} products found. But no product could be extracted")
 
@@ -163,7 +163,7 @@ def price_str2price(price_str: str) -> float:
     return float(re.findall("\d+\.\d+", price_str.replace(",", "."))[0])
 
 def is_mba_product(product_element: WebElement) -> bool:
-    """product is considered as mba product if it contains a asin id"""
+    """product is considered as utils product if it contains a asin id"""
     try:
         asin = overview_product_get_asin(product_element)
         return True

@@ -4,9 +4,8 @@ import streamlit as st
 from functools import lru_cache
 
 from pydantic_yaml import parse_yaml_file_as
-from digiprod_gen.backend_api.browser.crawling.utils import get_mba_overview_urls
 from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
-from digiprod_gen.backend_api.models.mba import CrawlingMBARequest, MBAMarketplaceDomain
+from digiprod_gen.backend_api.models.mba import MBAMarketplaceDomain
 
 def init_environment():
     os.environ["OPENAI_API_KEY"] = st.secrets["api_token"]["open_ai"]
@@ -56,19 +55,6 @@ def get_price_display_str(marketplace: MBAMarketplaceDomain, price: float, curre
         return f"{price}{currency}"
     else:
         raise NotImplementedError
-
-def request2mba_overview_url(request: CrawlingMBARequest) -> str:
-    start_page = 0
-    number_pages = 1
-    mba_urls = get_mba_overview_urls(
-        marketplace=request.marketplace,
-        search_term=request.search_term,
-        product_category=request.product_category,
-        start_page=start_page,
-        number_pages=number_pages
-    )
-    return mba_urls[0]
-
 
 # def generate_caption(processor, model, image: Image, tokenizer=None, use_float_16=False, device="cpu"):
 #     inputs = processor(images=image, return_tensors="pt").to(device)

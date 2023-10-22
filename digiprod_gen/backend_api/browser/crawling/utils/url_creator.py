@@ -3,12 +3,13 @@ import sys
 import urllib.parse as urlparse
 from urllib.parse import urlencode
 
-from digiprod_gen.backend.browser.crawling.mba import url_fns
+from digiprod_gen.backend_api.browser.crawling.utils import url_fns
+
 
 def main(argv):
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument('keyword', help='Keyword that you like to query in mba', type=str)
-    parser.add_argument('marketplace', help='Shortcut of mba marketplace. I.e "com" or "de", "co.uk"', type=str)
+    parser.add_argument('keyword', help='Keyword that you like to query in utils', type=str)
+    parser.add_argument('marketplace', help='Shortcut of utils marketplace. I.e "com" or "de", "co.uk"', type=str)
     parser.add_argument('pod_product',
                         help='Name of Print on Demand product. I.e "shirt", "premium", "longsleeve", "sweatshirt", "hoodie", "popsocket", "kdp"',
                         type=str)

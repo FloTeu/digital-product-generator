@@ -8,7 +8,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 
 
 def search_overview_page(request: CrawlingMBARequest, driver: WebDriver):
-    """Executes an overview search on mba marketplace"""
+    """Executes an overview search on utils marketplace"""
     driver.get(request.mba_overview_url)
 
 

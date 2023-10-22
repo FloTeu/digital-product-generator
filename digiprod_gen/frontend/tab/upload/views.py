@@ -59,8 +59,10 @@ def display_data_for_upload(image_pil: Image,
     with Timer("display_upload_ready_image"), col1:
         color_hex = st.color_picker('Pick a background color', '#000000')
         rgba_tuple = hex_to_rgba(color_hex)
-        display_upload_ready_image(image_pil, rgba_tuple)
-
+        try:
+            display_upload_ready_image(image_pil, rgba_tuple)
+        except:
+            st.warning("Could not display image")
     session_state: SessionState = st.session_state["session_state"]
     mba_upload_data: MBAUploadData = session_state.upload_data
 

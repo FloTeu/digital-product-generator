@@ -2,7 +2,6 @@ import os
 import time
 import uuid
 
-import streamlit as st
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
@@ -10,18 +9,18 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException, StaleElementReferenceException
 
-from digiprod_gen.backend_api.browser.selenium_fns import hover_over_element, wait_until_element_exists, SeleniumBrowser, get_full_page_screenshot
+from digiprod_gen.backend_api.browser.selenium_fns import hover_over_element, wait_until_element_exists, SeleniumBrowser
 from digiprod_gen.backend_api.browser import selenium_fns
 from digiprod_gen.backend_api.models.mba import MBAMarketplaceDomain, MBAProductFitType, MBAProductCategory, MBAProductColor
-from digiprod_gen.backend.transform.transform_fns import mba_product_category2html_row_name
+from digiprod_gen.backend_api.transform.transform_fns import mba_product_category2html_row_name
 from PIL import Image
 from typing import List
 
 
 def login_mba(driver: WebDriver, email: str, password: str):
-    """Fill mba login form and simulate submit button click"""
+    """Fill utils login form and simulate submit button click"""
     # Fill in the form fields
-    print("Try to provide mba email and password")
+    print("Try to provide utils email and password")
     username_input = driver.find_element(By.ID, "ap_email")
     password_input = driver.find_element(By.ID, "ap_password")
     username_input.send_keys(email)
@@ -32,7 +31,7 @@ def login_mba(driver: WebDriver, email: str, password: str):
     submit_button.click()
 
 def authenticate_mba_with_opt_code(driver: WebDriver, second_factor_code: str):
-    """Fill mba second factor authentification form and simulate submit button click"""
+    """Fill utils second factor authentification form and simulate submit button click"""
     otp_code = driver.find_element(By.NAME, "otpCode")
     remember_device = driver.find_element(By.NAME, "rememberDevice")
     otp_code.send_keys(second_factor_code)
@@ -219,7 +218,7 @@ def upload_image(browser: SeleniumBrowser, image_pil: Image):
     os.remove(temp_file_path)
 
 def insert_listing_text(driver, title: str, brand: str, bullet_1: str | None = None, bullet_2: str | None = None, description: str | None = None):
-    """Inserts all mba listings i.e. Text, Brand, bullets and description"""
+    """Inserts all utils listings i.e. Text, Brand, bullets and description"""
     # Get input objects
     title_input = driver.find_element(By.ID, "designCreator-productEditor-title")
     brand_input = driver.find_element(By.ID, "designCreator-productEditor-brandName")

@@ -6,8 +6,7 @@ import streamlit.web.bootstrap as st_bootstrap
 
 from io import TextIOWrapper
 
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import WebDriverException, NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException
 from digiprod_gen.backend_api.utils.decorators import timeit
 from digiprod_gen.backend_api.utils.helper import Timer
 from digiprod_gen.backend_api.utils import init_environment, initialise_config
@@ -15,7 +14,6 @@ from digiprod_gen.backend_api.models.mba import UploadMBAResponse, UploadMBARequ
 from digiprod_gen.backend.image import conversion
 from digiprod_gen.backend.data_classes.session import SessionState
 from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
-from digiprod_gen.backend.browser.upload.selenium_mba import publish_to_mba
 from digiprod_gen.backend_api.browser.selenium_fns import get_full_page_screenshot
 from digiprod_gen.frontend.session import read_session, update_mba_request, init_session_state
 from digiprod_gen.frontend import sidebar
@@ -29,7 +27,6 @@ from digiprod_gen.frontend.tab.upload.views import (display_listing_selection, d
                                                     display_image_upload, display_marketplace_selector,
                                                     display_product_category_selector, display_product_color_selector,
                                                     display_product_fit_type_selector)
-from digiprod_gen.frontend.tab.upload.mba_upload import upload_mba_product
 from digiprod_gen.frontend.tab.crawling.tab_crawling import display_mba_overview_products
 
 
@@ -106,7 +103,7 @@ def display_tab_upload_views(session_state: SessionState):
             st.error('You not uploaded/generated an image yet', icon="🚨")
         else:
             if st.button("Upload product to MBA"):
-                with st.spinner("Upload mba product"):
+                with st.spinner("Upload utils product"):
                     try:
                         if session_state.upload_data.title == None or session_state.upload_data.brand == None:
                             st.error('You not defined your required brand and title yet', icon="🚨")

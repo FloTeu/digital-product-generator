@@ -1,27 +1,17 @@
 import random
 import numpy as np
 from typing import List
-from digiprod_gen.backend.browser.crawling import parser
 
+from digiprod_gen.backend_api.browser.crawling.utils.common import get_headers_list
 
-from bs4.element import Tag
-
-from digiprod_gen.backend.browser.crawling.mba import url_creator
-from digiprod_gen.backend.browser.crawling.utils import get_headers_list
+from digiprod_gen.backend_api.browser.crawling.utils import url_creator
 from digiprod_gen.backend_api.models.mba import MBAProductCategory, MBAMarketplaceDomain
 
 
-def is_mba_product(product_tag: Tag) -> bool:
-    """product is considered as mba product if it contains a asin id"""
-    try:
-        asin = parser.overview_product_get_asin(product_tag)
-        return True
-    except:
-        return False
 
 
 def get_mba_overview_urls(marketplace: MBAMarketplaceDomain, product_category: MBAProductCategory, search_term: str, start_page=0, number_pages=1) -> List[str]:
-    """Returns a List of urls of mba overview pages"""
+    """Returns a List of urls of utils overview pages"""
     urls_mba = []
     url_mba = url_creator.main([search_term, marketplace.value, product_category.value, "best_seller"])
 
@@ -88,3 +78,5 @@ def is_product_feature_listing(marketplace: MBAMarketplaceDomain, product_featur
                ["Coton", "polyester", "coupe classique", "manche courte", "manche mi-longue", "lavage en machine à froid"])) and len(product_feature) >= 10
     else:
         raise ValueError("Not defined for marketplace %s" % marketplace)
+
+

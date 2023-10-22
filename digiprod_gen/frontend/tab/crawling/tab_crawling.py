@@ -44,7 +44,7 @@ def crawl_mba_overview_and_display():
 
 #
 # def crawl_mba_overview2mba_products(session_state: SessionState):
-#     """ Crawl mba overview page and retry until the server returns a 200 status code.
+#     """ Crawl utils overview page and retry until the server returns a 200 status code.
 #         Transforms html to list of MBAProduct objects and stores them in session.
 #     """
 #     request = session_state.crawling_request
@@ -55,7 +55,7 @@ def crawl_mba_overview_and_display():
 #
 #     st.write("Start crawling products")
 #     # If signed in, we provide a postcode in order to show products independently of the signed in user
-#     postcode = config.mba.get_marketplace_config(request.marketplace).postcode if session_state.status.mba_login_successfull else None
+#     postcode = config.utils.get_marketplace_config(request.marketplace).postcode if session_state.status.mba_login_successfull else None
 #     # TODO: Why does this call takes several seconds, even after page loaded already
 #     search_overview_and_change_postcode(request, driver, postcode=postcode)
 #     st.write("Crawling is done. Start to extract product information")
@@ -92,7 +92,7 @@ def crawl_mba_overview_and_display():
 #     return mba_products
 
 def display_mba_overview_products(crawling_data: CrawlingData, request: CrawlingMBARequest, shirts_per_row=4):
-    """ Displays already crawled mba overview products to frontend.
+    """ Displays already crawled utils overview products to frontend.
     """
     mba_products: List[MBAProduct] = crawling_data.mba_products
     currency_str: str = marketplace2currency(request.marketplace)

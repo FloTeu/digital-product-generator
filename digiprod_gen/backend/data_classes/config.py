@@ -14,9 +14,9 @@ class DigiProdGenBrowserConfig(BaseModel):
         return data_dir_path
 
 class DigiProdGenMBAMarketplaceConfig(BaseModel):
-    marketplace: MBAMarketplaceDomain = Field(description="mba marketplace domain")
+    marketplace: MBAMarketplaceDomain = Field(description="utils marketplace domain")
     postcode: str = Field(description="Valid example postcode of the main country in which the marketplace operates")
-    proxy: str | None = Field(description="Crawling proxy which should be used to get better response by mba server")
+    proxy: str | None = Field(description="Crawling proxy which should be used to get better response by utils server")
     proxy_port: int | None = Field(description="Port on which the proxy can be accessed")
     proxy_socks: str | None = Field(description="Optional SOCKS to hide ip address")
 
