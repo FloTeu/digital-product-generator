@@ -54,15 +54,19 @@ async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> Li
     logger.info("Start search utils overview page")
     mba_crawling.search_overview_page(request, browser.driver)
     # If selenium is running with headless mode the first request sometimes fails
-    if "something went wrong" in browser.driver.title.lower():
-        logger.info("something went wrong during overview crawling. Try again..")
+    first_mba_overview_interactions(browser, request)
+    mba_product_web_elements = mba_parser.get_mba_product_web_elements(browser.driver)
+    while len(mba_product_web_elements) == 0:
+        # Assumption: If no products are displayed, something is wrong with the browser setup
+        user_agent = get_random_user_agent()
+        logger.info(f"Restart browser with user agent {user_agent}")
+        browser.reset_driver(proxy=request.proxy, user_agent=user_agent)
         mba_crawling.search_overview_page(request, browser.driver)
-    try:
-        logger.info("Click ignore cookie banner")
-        mba_crawling.click_ignore_cookies(browser.driver)
-    except:
-        pass
-    if request.postcode:
+        first_mba_overview_interactions(browser, request)
+        mba_product_web_elements = mba_parser.get_mba_product_web_elements(browser.driver)
+
+    # Amazon shows max 48 products on one page
+    if request.postcode and len(mba_product_web_elements) < 48:
         logger.info("Try to change postcode")
         try:
             mba_crawling.change_postcode(browser.driver, request.postcode)
@@ -75,9 +79,22 @@ async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> Li
         # wait until product images are loaded
         wait_until_element_exists(browser.driver, f"//div[@class='s-image-padding']", timeout=2)
         print("Waited for postcode change %.4f seconds" % (time.time() - ts))
+        mba_product_web_elements = mba_parser.get_mba_product_web_elements(browser.driver)
+
     logger.info("Start parsing information to pydantic objects")
-    mba_products: List[MBAProduct] = mba_parser.extract_mba_products(browser.driver, request.marketplace)
+    mba_products: List[MBAProduct] = mba_parser.extract_mba_products(mba_product_web_elements, request.marketplace)
     return mba_products
+
+
+def first_mba_overview_interactions(browser, request):
+    if "something went wrong" in browser.driver.title.lower():
+        logger.info("something went wrong during overview crawling. Try again..")
+        mba_crawling.search_overview_page(request, browser.driver)
+    try:
+        logger.info("Click ignore cookie banner")
+        mba_crawling.click_ignore_cookies(browser.driver)
+    except:
+        pass
 
 
 @router.post("/crawling/mba_product")

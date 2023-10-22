@@ -8,20 +8,24 @@ from digiprod_gen.backend.browser.selenium_fns import has_element_with_class, ht
 from digiprod_gen.backend.browser.crawling.utils.utils_mba import is_product_feature_listing
 from digiprod_gen.backend.utils.exceptions import HtmlHasChangedException
 
-def extract_mba_products(driver: WebDriver, marketplace: MBAMarketplaceDomain) -> List[MBAProduct]:
-    """Extracts MBAProduct objects out of utils overview page"""
-    mba_products: List[MBAProduct] = []
-    #product_tags = driver.find_elements(By.CSS_SELECTOR,"div.sg-col-inner")
+
+
+def get_mba_product_web_elements(driver: WebDriver) -> List[WebElement]:
+    """Returns a list of selenium web elements containing valid mba products"""
     product_elements = driver.find_elements(By.XPATH, "//div[@class='sg-col-inner']")
     # ignore products which are no utils product or sponsored products
-    mba_product_elements = [p for p in product_elements if is_mba_product(p) and not has_element_with_class(p, "sponsored-brand-label-info-desktop")]
+    return [p for p in product_elements if is_mba_product(p) and not has_element_with_class(p, "sponsored-brand-label-info-desktop")]
 
+
+def extract_mba_products(mba_product_elements: List[WebElement], marketplace: MBAMarketplaceDomain) -> List[MBAProduct]:
+    """Extracts MBAProduct objects out of utils overview page"""
+    mba_products: List[MBAProduct] = []
     for product_element in mba_product_elements:
         mba_product: MBAProduct = overview_product_element2mba_product(product_element, marketplace=marketplace)
         mba_products.append(mba_product)
 
     if len(mba_product_elements) == 0:
-        raise ValueError(f"No utils products could be found")
+        raise ValueError(f"No mba products could be found")
     elif len(mba_products) == 0 and len(mba_product_elements) > 0:
         raise ValueError(f"{len(mba_product_elements)} products found. But no product could be extracted")
 

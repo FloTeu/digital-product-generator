@@ -17,9 +17,10 @@ class SeleniumBrowser():
         self.data_dir_path = None
         self.headless = None
         self.proxy = None
+        self.user_agent = None
 
     def setup(self, headless=False, data_dir_path=None, proxy=None, user_agent=None):
-        self.driver = init_selenium_driver(headless=headless, data_dir_path=data_dir_path, proxy=proxy)
+        self.driver = init_selenium_driver(headless=headless, data_dir_path=data_dir_path, proxy=proxy, user_agent=user_agent)
         self.headless = headless
         self.data_dir_path = data_dir_path
         self.is_ready = True
