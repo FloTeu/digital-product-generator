@@ -18,14 +18,16 @@ class SeleniumBrowser():
         self.headless = None
         self.proxy = None
         self.user_agent = None
+        self.headers = None
 
-    def setup(self, headless=False, data_dir_path=None, proxy=None, user_agent=None):
-        self.driver = init_selenium_driver(headless=headless, data_dir_path=data_dir_path, proxy=proxy, user_agent=user_agent)
+    def setup(self, headless=False, data_dir_path=None, proxy=None, user_agent=None, headers=None):
+        self.driver = init_selenium_driver(headless=headless, data_dir_path=data_dir_path, proxy=proxy, user_agent=user_agent, headers=headers)
         self.headless = headless
         self.data_dir_path = data_dir_path
         self.is_ready = True
         self.proxy = proxy
         self.user_agent = user_agent
+        self.headers = headers
 
     def close_driver(self):
         self.driver.close()
@@ -35,7 +37,7 @@ class SeleniumBrowser():
         self.driver.quit()
         self.is_ready = False
 
-    def reset_driver(self, proxy: str | None=None, user_agent: str | None=None):
+    def reset_driver(self, proxy: str | None=None, user_agent: str | None=None, headers: dict | None=None):
         """ If possible quits the existing selenium driver and starts a new one
             Optionally a new proxy can be provided
         """
@@ -44,12 +46,12 @@ class SeleniumBrowser():
             self.quit_driver()
         except:
             pass
-        self.driver = init_selenium_driver(headless=self.headless, data_dir_path=self.data_dir_path, proxy=proxy or self.proxy, user_agent=user_agent or self.user_agent)
+        self.driver = init_selenium_driver(headless=self.headless, data_dir_path=self.data_dir_path, proxy=proxy or self.proxy, user_agent=user_agent or self.user_agent, headers=headers or self.headers)
         if proxy:
             self.proxy = proxy
         self.is_ready = True
 
-def init_selenium_driver(headless=True, data_dir_path=None, proxy: str=None, user_agent: str | None = None) -> WebDriver:
+def init_selenium_driver(headless=True, data_dir_path=None, proxy: str=None, user_agent: str | None = None, headers: dict | None=None) -> WebDriver:
     """Instantiate a WebDriver object (in this case, using Chrome)"""
     options = Options() #either firefox or chrome options
     options.add_argument('--disable-gpu')
@@ -81,7 +83,32 @@ def init_selenium_driver(headless=True, data_dir_path=None, proxy: str=None, use
         options.add_argument(f'--user-data-dir={data_dir_path}')
     if headless:
         options.add_argument('--headless')
-    return webdriver.Chrome(options=options, seleniumwire_options=seleniumwire_options)
+    driver = webdriver.Chrome(options=options, seleniumwire_options=seleniumwire_options)
+
+    # def request_interceptor(request):
+    #     for header_key, header_value in headers.items():
+    #         if header_key == "user-agent":
+    #             # Delete previous header
+    #             try:
+    #                 del request.headers[header_key]
+    #             except Exception:
+    #                 pass
+    #             # Set new custom header
+    #             request.headers[header_key] = header_value
+    #
+    # driver.request_interceptor = request_interceptor
+
+    allowed_headers_to_change = ['user-agent', 'upgrade-insecure-requests', 'accept', 'sec-ch-ua', 'sec-ch-ua-mobile',
+                                'sec-ch-ua-platform', 'sec-fetch-site', 'sec-fetch-mod', 'sec-fetch-user', 'accept-language'] #, ], 'accept-encoding']
+    print("allowed_headers_to_change", allowed_headers_to_change)
+    # ['upgrade-insecure-requests', 'user-agent', 'accept', 'sec-ch-ua', 'sec-ch-ua-mobile', 'sec-ch-ua-platform',
+    #  'sec-fetch-site', 'sec-fetch-mod', 'sec-fetch-user', 'accept-encoding', 'accept-language']
+
+    new_headers = {k: v for k, v in headers.items() if k in allowed_headers_to_change}
+    driver.header_overrides = new_headers
+
+    return driver
+
     #return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 

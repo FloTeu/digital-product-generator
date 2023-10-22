@@ -15,7 +15,7 @@ from digiprod_gen.backend.browser.crawling import mba as mba_crawling
 from digiprod_gen.backend.browser.parser import mba as mba_parser
 from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists, SeleniumBrowser
 from digiprod_gen.backend.browser.upload import selenium_mba as upload_mba_fns
-from digiprod_gen.backend.browser.crawling.utils.common import get_random_user_agent
+from digiprod_gen.backend.browser.crawling.utils.common import get_random_user_agent, get_random_headers
 from digiprod_gen.backend.models.mba import MBAProduct
 from digiprod_gen.backend.models.response import UploadMBAResponse
 from digiprod_gen.backend.utils import delete_files_in_path, is_debug
@@ -32,15 +32,15 @@ router = APIRouter()
 def init_selenium_browser(session_id, proxy=None) -> SeleniumBrowser:
     # New browser is started per session and per proxy
     # get random user agent, each time new browser is created
-    user_agent = get_random_user_agent()
-    logger.info(f"Init selenium browser with session_id {session_id} and user agent {user_agent}")
+    headers = get_random_headers()
+    logger.info(f"Init selenium browser with session_id {session_id} and user agent {headers['user-agent']}")
     data_dir_path = CONFIG.browser.selenium_data_dir_path
     delete_files_in_path(data_dir_path)
     browser = SeleniumBrowser()
     browser.setup(headless=not is_debug(),
                   data_dir_path=data_dir_path,
                   proxy=proxy,
-                  user_agent=user_agent
+                  headers=headers
                   )
     return browser
 
@@ -59,9 +59,9 @@ async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> Li
     counter = 0
     while len(mba_product_web_elements) == 0:
         # Assumption: If no products are displayed, something is wrong with the browser setup
-        user_agent = get_random_user_agent()
-        logger.info(f"Restart browser with user agent {user_agent}")
-        browser.reset_driver(proxy=request.proxy, user_agent=user_agent)
+        headers = get_random_headers()
+        logger.info(f"Restart browser with headers {headers}")
+        browser.reset_driver(proxy=request.proxy, headers=headers)
         mba_crawling.search_overview_page(request, browser.driver)
         first_mba_overview_interactions(browser, request, ignore_cookies=False)
         mba_product_web_elements = mba_parser.get_mba_product_web_elements(browser.driver)
@@ -103,7 +103,7 @@ def first_mba_overview_interactions(browser, request, ignore_cookies=True):
         else:
             logger.info("Click accept cookie banner")
             mba_crawling.click_accept_cookies(browser.driver)
-    except:
+    except NoSuchElementException:
         pass
 
 

@@ -20,3 +20,7 @@ def get_user_agent_list() -> List[str]:
 def get_random_user_agent():
     user_agent_list = get_user_agent_list()
     return random.choice(user_agent_list)
+
+def get_random_headers():
+    headers_list = get_headers_list()
+    return random.choice(headers_list)
