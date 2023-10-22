@@ -209,6 +209,16 @@ async def publish_mba_product(session_id: str, proxy: str | None = None, searcha
     browser.driver.find_element(By.CLASS_NAME, "btn-close").click()
     return True
 
+
+@router.get("/browse")
+async def search_url(url: str, session_id: str, proxy: str | None = None):
+    browser = init_selenium_browser(session_id, proxy)
+    time.sleep(1)
+    if "http" not in url:
+        url = "https://" + url
+    browser.driver.get(url)
+
+
 def init_selenium_browser_working() -> SeleniumBrowser:
     # TODO: Browser would be started with every api call. Better would be to start it per session user
     browser = SeleniumBrowser()

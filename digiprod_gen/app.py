@@ -163,6 +163,11 @@ def display_admin_views(session_state: SessionState):
         st.subheader("Admin View")
         st.warning("Note: This is only visible to admins")
 
+        url = st.text_input("Url")
+        if st.button("Browse url"):
+            response = session_state.backend_caller.get(
+                f"/browser/browse?url={url}&session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}")
+
         if st.button("Show Browser Screenshot (API)"):
             response = session_state.backend_caller.get(
                 f"/status/browser_screenshot?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}")
