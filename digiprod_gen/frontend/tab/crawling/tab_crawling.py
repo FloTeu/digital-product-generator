@@ -3,7 +3,7 @@ from typing import List
 
 import streamlit as st
 
-from digiprod_gen.backend.models.mba import CrawlingMBARequest
+from digiprod_gen.backend.models.request import CrawlingMBARequest
 from digiprod_gen.backend.models.session import SessionState, CrawlingData
 from digiprod_gen.backend.models.mba import MBAProduct
 from digiprod_gen.backend.utils import get_price_display_str, marketplace2currency, split_list

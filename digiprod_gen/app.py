@@ -9,7 +9,8 @@ from selenium.common.exceptions import NoSuchElementException
 from digiprod_gen.backend.utils.decorators import timeit
 from digiprod_gen.backend.utils.helper import Timer
 from digiprod_gen.backend.utils import init_environment, initialise_config
-from digiprod_gen.backend.models.mba import UploadMBAResponse, UploadMBARequest
+from digiprod_gen.backend.models.response import UploadMBAResponse
+from digiprod_gen.backend.models.request import UploadMBARequest
 from digiprod_gen.backend.image import conversion
 from digiprod_gen.backend.models.session import SessionState
 from digiprod_gen.backend.models.config import DigiProdGenConfig

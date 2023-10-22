@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from typing import List
 from operator import itemgetter
 
-from digiprod_gen.backend.models.mba import CrawlingMBARequest
+from digiprod_gen.backend.models.request import CrawlingMBARequest
 from digiprod_gen.backend.models.config import DigiProdGenConfig, DigiProdGenMBAMarketplaceConfig
 
 

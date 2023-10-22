@@ -1,5 +1,6 @@
 from digiprod_gen.backend.browser.crawling.utils.utils_mba import get_mba_overview_urls
-from digiprod_gen.backend.models.mba import MBAProductCategory, CrawlingMBARequest
+from digiprod_gen.backend.models.mba import MBAProductCategory
+from digiprod_gen.backend.models.request import CrawlingMBARequest
 
 
 def mba_product_category2html_row_name(mba_product: MBAProductCategory):

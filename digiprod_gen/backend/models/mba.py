@@ -1,5 +1,3 @@
-import json
-import hashlib
 from enum import Enum
 from typing import List, Optional
 from digiprod_gen.backend.models.common import EnumBase
@@ -67,19 +65,6 @@ class MBAProductTextType(str, Enum):
     BULLET="bullet"
 
 
-class CrawlingMBARequest(BaseModel):
-    search_term: str
-    marketplace: MBAMarketplaceDomain
-    product_category: MBAProductCategory
-    headers: Optional[dict]
-    proxy: Optional[str]
-    mba_overview_url: Optional[str]
-    postcode: Optional[str] = Field(description="If provided, utils marketplace customer postcode is changed")
-
-    def get_hash_str(self):
-        """Unique hash string which takes all relevant request attributes into account"""
-        return hashlib.md5(f'{self.marketplace}{self.search_term}{self.product_category}'.encode()).hexdigest()
-
 class MBAProduct(BaseModel):
     marketplace: MBAMarketplaceDomain
     asin: str
@@ -121,24 +106,3 @@ class MBAUploadSettings(BaseModel):
     fit_types: List[MBAProductFitType] = Field(default_factory=list)
 
 
-class UploadMBARequest(BaseModel):
-    title: str
-    brand: str
-    bullet_1: str | None = None
-    bullet_2: str | None = None
-    description: str | None = None
-    settings: MBAUploadSettings = Field(default_factory=MBAUploadSettings)
-
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate_to_json
-
-    @classmethod
-    def validate_to_json(cls, value):
-        if isinstance(value, str):
-            return cls(**json.loads(value))
-        return value
-
-class UploadMBAResponse(BaseModel):
-    warnings: List[str]
-    errors: List[str]

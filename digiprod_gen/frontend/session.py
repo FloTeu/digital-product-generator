@@ -4,7 +4,8 @@ import streamlit as st
 
 from digiprod_gen.backend.browser.crawling.utils.utils_mba import get_random_headers
 from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser
-from digiprod_gen.backend.models.mba import CrawlingMBARequest, MBAMarketplaceDomain, MBAProductCategory
+from digiprod_gen.backend.models.mba import MBAMarketplaceDomain, MBAProductCategory
+from digiprod_gen.backend.models.request import CrawlingMBARequest
 from digiprod_gen.backend.models.session import SessionState, ImageGenData, CrawlingData, MBAUploadData, \
     DigiProdGenStatus, DigitProdGenViews
 from digiprod_gen.backend.models.config import DigiProdGenConfig

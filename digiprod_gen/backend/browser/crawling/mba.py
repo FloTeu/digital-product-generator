@@ -1,7 +1,7 @@
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
 import time
-from digiprod_gen.backend.models.mba import CrawlingMBARequest
+from digiprod_gen.backend.models.request import CrawlingMBARequest
 from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists
 
 from selenium.webdriver.chrome.webdriver import WebDriver

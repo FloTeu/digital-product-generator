@@ -15,9 +15,10 @@ from digiprod_gen.backend.browser.crawling import mba as mba_crawling
 from digiprod_gen.backend.browser.parser import mba as mba_parser
 from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists, SeleniumBrowser
 from digiprod_gen.backend.browser.upload import selenium_mba as upload_mba_fns
-from digiprod_gen.backend.models.mba import CrawlingMBARequest, MBAProduct, UploadMBAResponse
+from digiprod_gen.backend.models.mba import MBAProduct
+from digiprod_gen.backend.models.response import UploadMBAResponse
 from digiprod_gen.backend.utils import delete_files_in_path, is_debug
-from digiprod_gen.backend.models.mba import UploadMBARequest
+from digiprod_gen.backend.models.request import UploadMBARequest, CrawlingMBARequest
 from PIL import Image
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
