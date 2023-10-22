@@ -5,7 +5,7 @@ from streamlit.delta_generator import DeltaGenerator
 from langchain.chat_models import ChatOpenAI
 
 from digiprod_gen.backend_api.text.text_gen_fns import get_product_text_gen, remove_banned_words
-from digiprod_gen.backend.prompt_engineering.utils import extract_list_from_output
+from digiprod_gen.backend_api.prompt_engineering.utils import extract_list_from_output
 from digiprod_gen.frontend.session import read_session
 
 from digiprod_gen.backend_api.models.mba import CrawlingMBARequest, MBAProductTextType, MBAMarketplaceDomain

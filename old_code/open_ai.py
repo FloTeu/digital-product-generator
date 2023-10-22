@@ -7,7 +7,7 @@ from typing import List
 from digiprod_gen.backend_api.models.mba import MBAMarketplaceDomain, MBAProduct
 
 sys.path.append("...")
-from digiprod_gen.backend.prompt_engineering.utils import get_midjourney_example_prompts
+from digiprod_gen.backend_api.prompt_engineering import get_midjourney_example_prompts
 
 openai.api_key = st.secrets["open_ai_api_key"]
 
