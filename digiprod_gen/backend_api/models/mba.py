@@ -114,13 +114,12 @@ class MBAProduct(BaseModel):
         return self.image_pil.crop((left, top, right, bottom))
 
 
-@dataclass
-class MBAUploadSettings:
-    use_defaults: bool = field(default=False)
-    product_categories: List[MBAProductCategory] = field(default_factory=list)
-    marketplaces: List[MBAMarketplaceDomain] = field(default_factory=list)
-    colors: List[MBAProductColor] = field(default_factory=list)
-    fit_types: List[MBAProductFitType] = field(default_factory=list)
+class MBAUploadSettings(BaseModel):
+    use_defaults: bool = Field(default=False)
+    product_categories: List[MBAProductCategory] = Field(default_factory=list)
+    marketplaces: List[MBAMarketplaceDomain] = Field(default_factory=list)
+    colors: List[MBAProductColor] = Field(default_factory=list)
+    fit_types: List[MBAProductFitType] = Field(default_factory=list)
 
 
 class UploadMBARequest(BaseModel):

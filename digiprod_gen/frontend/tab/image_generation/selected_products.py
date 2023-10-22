@@ -95,8 +95,8 @@ def crawl_details_update_overview_page(st_tab_ig: DeltaGenerator):
                 continue
             session_id = session_state.session_id
             response = session_state.backend_caller.post(f"/browser/crawling/mba_product?session_id={session_id}&proxy={session_state.crawling_request.proxy}",
-                                                             **mba_product.dict())
-            if response == None:
+                                                             json=mba_product.dict())
+            if response.status_code != 200:
                 return None
             session_state.crawling_data.mba_products[mba_products_selected_index] = MBAProduct.parse_obj(response.json())
 

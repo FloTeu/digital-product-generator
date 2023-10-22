@@ -8,10 +8,13 @@ def bytes2bytes_io(image_bytes: bytes) -> BytesIO:
 def bytes2pil(image_bytes: bytes) -> Image:
     return Image.open(bytes2bytes_io(image_bytes))
 
-def pil2bytes_io(img_pil: Image) -> BytesIO:
+def pil2bytes_io(img_pil: Image, format="PNG") -> BytesIO:
     img_byte_arr = BytesIO()
-    img_pil.save(img_byte_arr, format='PNG')
+    img_pil.save(img_byte_arr, format=format)
     return img_byte_arr
+
+def pil2bytes(img_pil: Image) -> bytes:
+    return pil2bytes_io(img_pil).getvalue()
 
 def pil2np(img_pil: Image):
     return np.array(img_pil)

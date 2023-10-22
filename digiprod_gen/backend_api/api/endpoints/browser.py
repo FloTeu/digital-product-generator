@@ -177,3 +177,16 @@ def init_selenium_browser_working() -> SeleniumBrowser:
     browser = SeleniumBrowser()
     browser.setup()
     return browser
+
+@router.post("/upload-image/")
+async def upload_image(file: UploadFile = File(...)):
+    from fastapi.responses import JSONResponse
+    # Check if a file was provided
+    if file is None:
+        return JSONResponse(content={"message": "No file provided"}, status_code=400)
+
+    # Process the uploaded image (e.g., save it to a directory)
+    # You can save the image using `file.file.read()`
+
+    # Return a response indicating success
+    return JSONResponse(content={"message": "Image uploaded successfully"})

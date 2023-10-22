@@ -108,6 +108,10 @@ def display_tab_upload_views(session_state: SessionState):
             if st.button("Upload product to MBA"):
                 with st.spinner("Upload mba product"):
                     try:
+                        if session_state.upload_data.title == None or session_state.upload_data.brand == None:
+                            st.error('You not defined your required brand and title yet', icon="🚨")
+                            session_state.upload_data.title ="Test Title"
+                            session_state.upload_data.brand ="Test Brand"
                         if session_state.upload_data.bullet_1 == None and session_state.upload_data.bullet_2 == None:
                             st.error('You not defined your listings yet', icon="🚨")
                         upload_request = UploadMBARequest(
@@ -118,12 +122,21 @@ def display_tab_upload_views(session_state: SessionState):
                             description=session_state.upload_data.description,
                             settings=session_state.upload_data.settings
                         )
+                        request_dict = upload_request.dict()
+                        image_byte_array = conversion.pil2bytes_io(session_state.image_gen_data.image_pil_upload_ready, format="PNG")
+                        image_byte_array.seek(0)
+                        headers = {
+                            'accept': 'application/json',
+                        }
+                        files = {
+                            "image_upload_ready": ("image_upload_ready.png", image_byte_array, 'image/png')
+                        }
                         response = session_state.backend_caller.post(
                             f"/browser/upload/upload_mba_product?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}",
-                            **upload_request.dict()
+                            headers=headers, data={"upload_request": upload_request.json()}, files=files
                         )
                         if response.status_code == 200:
-                            upload_response: UploadMBAResponse = UploadMBAResponse.parse_obj(upload_response.json())
+                            upload_response: UploadMBAResponse = UploadMBAResponse.parse_obj(response.json())
                             warnings = upload_response.warnings
                             errors = upload_response.errors
                         else:

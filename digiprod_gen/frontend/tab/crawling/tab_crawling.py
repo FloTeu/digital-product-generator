@@ -26,14 +26,14 @@ def crawl_mba_overview_and_display():
             session_state.crawling_request.marketplace).postcode
         session_id = session_state.session_id
         response = session_state.backend_caller.post(f"/browser/crawling/mba_overview?session_id={session_id}",
-                                                     **session_state.crawling_request.dict())
+                                                     json=session_state.crawling_request.dict())
 
         #start_browser(session_state)
         # request: CrawlingMBARequest = session_state.crawling_request
         # TODO: Why do we need the view container here, if we not display anything?
         overview_designs_view = session_state.views.overview_designs
         with overview_designs_view:
-            if response == None:
+            if response.status_code != 200:
                 return None
             #crawl_mba_overview2mba_products(session_state)
             mba_products_parsed: List[MBAProduct] = [MBAProduct.parse_obj(mba_p) for mba_p in response.json()]
