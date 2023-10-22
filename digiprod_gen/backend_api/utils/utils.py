@@ -4,7 +4,7 @@ import streamlit as st
 from functools import lru_cache
 
 from pydantic_yaml import parse_yaml_file_as
-from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
+from digiprod_gen.backend_api.models.config import DigiProdGenConfig
 from digiprod_gen.backend_api.models.mba import MBAMarketplaceDomain
 
 def init_environment():

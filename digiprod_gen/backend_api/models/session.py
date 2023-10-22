@@ -10,7 +10,7 @@ from typing import List
 from operator import itemgetter
 
 from digiprod_gen.backend_api.models.mba import CrawlingMBARequest
-from digiprod_gen.backend.data_classes.config import DigiProdGenConfig, DigiProdGenMBAMarketplaceConfig
+from digiprod_gen.backend_api.models.config import DigiProdGenConfig, DigiProdGenMBAMarketplaceConfig
 
 
 @dataclass

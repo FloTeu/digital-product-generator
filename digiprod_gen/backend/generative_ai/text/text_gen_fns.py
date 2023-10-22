@@ -1,7 +1,7 @@
 from typing import List
 
 from digiprod_gen.backend_api.models.mba import MBAProduct, MBAProductTextType, MBAMarketplaceDomain
-from digiprod_gen.backend.data_classes.common import MBAMidjourneyOutputModel
+from digiprod_gen.backend_api.models.common import MBAMidjourneyOutputModel
 from digiprod_gen.backend.generative_ai.text.data_classes import MBAMidjourneyPromptGenerator, ProductTextGenerator
 from llm_few_shot_gen.few_shot_examples.utils import get_shirt_design_prompt_examples
 from langchain.llms.base import BaseLanguageModel

@@ -4,7 +4,7 @@ from typing import List, Tuple
 from digiprod_gen.backend.image import conversion as img_conversion
 from digiprod_gen.backend.image.utils import hex_to_rgba
 from digiprod_gen.backend_api.utils.helper import Timer
-from digiprod_gen.backend.data_classes.session import MBAUploadData, SessionState, ImageGenData, DigiProdGenStatus
+from digiprod_gen.backend_api.models.session import MBAUploadData, SessionState, ImageGenData, DigiProdGenStatus
 from digiprod_gen.backend_api.models.mba import MBAMarketplaceDomain, MBAProductCategory, MBAProductColor, \
     MBAProductFitType, MBAUploadSettings
 from collections import deque

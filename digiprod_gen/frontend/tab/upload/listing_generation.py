@@ -9,7 +9,7 @@ from digiprod_gen.backend.prompt_engineering.utils import extract_list_from_outp
 from digiprod_gen.frontend.session import read_session
 
 from digiprod_gen.backend_api.models.mba import CrawlingMBARequest, MBAProductTextType, MBAMarketplaceDomain
-from digiprod_gen.backend.data_classes.session import SessionState
+from digiprod_gen.backend_api.models.session import SessionState
 from digiprod_gen.backend.generative_ai.text.mba_banned_word import MBA_BANNED_WORDS
 
 

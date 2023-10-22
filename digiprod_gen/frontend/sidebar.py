@@ -5,7 +5,7 @@ from streamlit.delta_generator import DeltaGenerator
 
 from digiprod_gen.frontend.session import update_mba_request
 from digiprod_gen.backend_api.models.mba import MBAMarketplaceDomain
-from digiprod_gen.backend.data_classes.session import SessionState
+from digiprod_gen.backend_api.models.session import SessionState
 from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_and_display
 from digiprod_gen.frontend.tab.image_generation.selected_products import crawl_details_update_overview_page
 from digiprod_gen.frontend.tab.image_generation.prompt_generation import prompt_generation

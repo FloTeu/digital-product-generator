@@ -1,4 +1,3 @@
-import time
 import click
 
 import streamlit as st
@@ -12,8 +11,8 @@ from digiprod_gen.backend_api.utils.helper import Timer
 from digiprod_gen.backend_api.utils import init_environment, initialise_config
 from digiprod_gen.backend_api.models.mba import UploadMBAResponse, UploadMBARequest
 from digiprod_gen.backend.image import conversion
-from digiprod_gen.backend.data_classes.session import SessionState
-from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
+from digiprod_gen.backend_api.models.session import SessionState
+from digiprod_gen.backend_api.models.config import DigiProdGenConfig
 from digiprod_gen.backend_api.browser.selenium_fns import get_full_page_screenshot
 from digiprod_gen.frontend.session import read_session, update_mba_request, init_session_state
 from digiprod_gen.frontend import sidebar

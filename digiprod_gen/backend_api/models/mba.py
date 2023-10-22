@@ -1,9 +1,8 @@
 import json
 import hashlib
-from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional, Union
-from digiprod_gen.backend.data_classes.common import EnumBase
+from typing import List, Optional
+from digiprod_gen.backend_api.models.common import EnumBase
 from pydantic import BaseModel, Field
 
 

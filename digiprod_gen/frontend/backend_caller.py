@@ -1,9 +1,8 @@
 import streamlit as st
 import httpx
-from typing import Any
 
 from fastapi.testclient import TestClient
-from digiprod_gen.backend.data_classes.config import BackendConfig
+from digiprod_gen.backend_api.models.config import BackendConfig
 from digiprod_gen.backend_api.api.api import app
 
 class BackendCaller:

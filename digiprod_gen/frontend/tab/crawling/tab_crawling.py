@@ -4,10 +4,10 @@ from typing import List
 import streamlit as st
 
 from digiprod_gen.backend_api.models.mba import CrawlingMBARequest
-from digiprod_gen.backend.data_classes.session import SessionState, CrawlingData
+from digiprod_gen.backend_api.models.session import SessionState, CrawlingData
 from digiprod_gen.backend_api.models.mba import MBAProduct
 from digiprod_gen.backend_api.utils import get_price_display_str, marketplace2currency, split_list
-from digiprod_gen.frontend.session import read_session, start_browser, update_mba_request
+from digiprod_gen.frontend.session import read_session, update_mba_request
 
 def crawl_mba_overview_and_display():
     """ Display overview products to frontend.
