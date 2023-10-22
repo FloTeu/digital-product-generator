@@ -89,7 +89,7 @@ async def mba_login(credentials: Annotated[HTTPBasicCredentials, Depends(securit
     upload_mba_fns.open_dashboard(browser.driver)
     upload_mba_fns.login_mba(browser.driver, credentials.username, credentials.password)
     # make sure page following is loaded
-    time.sleep(1)
+    time.sleep(3)
     if "OTP" in browser.driver.page_source:
         raise HTTPException(status_code=409, detail="OTP required")
     if "captcha" in browser.driver.page_source.lower():
@@ -118,6 +118,9 @@ async def upload_mba_product(
                              session_id: str,
                              image_upload_ready: UploadFile = File(...),
                              proxy: str | None = None) -> UploadMBAResponse:
+    """
+    Uploads mba product to mba account (without publishing it)
+    """
     browser = init_selenium_browser(session_id, proxy)
     image_delete_xpath = "//*[contains(@class, 'sci-delete-forever')]"
     image_pil_upload_ready = Image.open(image_upload_ready.file)
@@ -165,28 +168,21 @@ async def upload_mba_product(
     return UploadMBAResponse(warnings=warnings, errors=errors)
 
 
-@router.post("/upload/publish_mba_product")
-async def publish_mba_product(mba_product: MBAProduct, session_id: str, proxy: str | None = None) -> MBAProduct:
+@router.get("/upload/publish_mba_product")
+async def publish_mba_product(session_id: str, proxy: str | None = None, searchable: bool = True) -> bool:
+    """
+    Publishes mba product to marketplace.
+    If success return True, otherwise False
+    """
     browser = init_selenium_browser(session_id, proxy)
-    browser.driver.get(mba_product.product_url)
-    mba_product = mba_parser.extend_mba_product(mba_product, driver=browser.driver)
-    return mba_product
+    print("Try to publish mba product")
+    upload_mba_fns.publish_to_mba(browser.driver, searchable=searchable)
+    time.sleep(1)
+    browser.driver.find_element(By.CLASS_NAME, "btn-close").click()
+    return True
 
 def init_selenium_browser_working() -> SeleniumBrowser:
     # TODO: Browser would be started with every api call. Better would be to start it per session user
     browser = SeleniumBrowser()
     browser.setup()
     return browser
-
-@router.post("/upload-image/")
-async def upload_image(file: UploadFile = File(...)):
-    from fastapi.responses import JSONResponse
-    # Check if a file was provided
-    if file is None:
-        return JSONResponse(content={"message": "No file provided"}, status_code=400)
-
-    # Process the uploaded image (e.g., save it to a directory)
-    # You can save the image using `file.file.read()`
-
-    # Return a response indicating success
-    return JSONResponse(content={"message": "Image uploaded successfully"})

@@ -218,7 +218,7 @@ def upload_image(browser: SeleniumBrowser, image_pil: Image):
     # delete file again
     os.remove(temp_file_path)
 
-def insert_listing_text(driver, title: str, brand: str, bullet_1: str, bullet_2: str, description: str):
+def insert_listing_text(driver, title: str, brand: str, bullet_1: str | None = None, bullet_2: str | None = None, description: str | None = None):
     """Inserts all mba listings i.e. Text, Brand, bullets and description"""
     # Get input objects
     title_input = driver.find_element(By.ID, "designCreator-productEditor-title")
@@ -237,8 +237,10 @@ def insert_listing_text(driver, title: str, brand: str, bullet_1: str, bullet_2:
     # fill data
     title_input.send_keys(title)
     brand_input.send_keys(brand)
-    bullet_one_input.send_keys(bullet_1)
-    bullet_two_input.send_keys(bullet_2)
+    if bullet_1:
+        bullet_one_input.send_keys(bullet_1)
+    if bullet_2:
+        bullet_two_input.send_keys(bullet_2)
     if description:
         description_input.send_keys(description)
 

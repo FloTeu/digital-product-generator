@@ -151,14 +151,13 @@ def display_tab_upload_views(session_state: SessionState):
                 for error in errors:
                     st.error(f"MBA Error: {error}")
             if len(errors) == 0 and st.button("Publish to MBA"):
-                try:
-                    publish_to_mba(session_state.browser.driver, searchable=True)
-                except Exception as e:
+                response = session_state.backend_caller.get(
+                    f"/browser/upload/publish_mba_product?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}&searchable=false"
+                )
+                if response.status_code == 200:
+                    st.balloons()
+                else:
                     st.error("Something went wrong during publishing")
-                    display_full_page_screenshot(session_state.browser.driver)
-                time.sleep(1)
-                session_state.browser.driver.find_element(By.CLASS_NAME, "btn-close").click()
-                st.balloons()
 
 
 def display_admin_views(session_state: SessionState):
