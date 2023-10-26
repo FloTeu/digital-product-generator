@@ -42,10 +42,6 @@ def display_upload_ready_image(img_pil: Image, background_color: Tuple[int,int,i
     resize_tuple = (int(new_size[0]/10), int(new_size[1]/10))
     st.image(image_to_show.resize(resize_tuple))
 
-    # update session image
-    session_state: SessionState = st.session_state["session_state"]
-    session_state.image_gen_data.image_pil_upload_ready = image_pil_upload_ready
-
 def display_data_for_upload(image_pil: Image,
                             title: str | None,
                             brand: str | None,
