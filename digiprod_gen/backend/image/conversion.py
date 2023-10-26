@@ -34,3 +34,8 @@ def pil2cv(img_pil):
 
 def np2pil(img_np):
     return Image.fromarray(img_np)
+
+def pilrgba2pilrgb(img_pil: Image) -> Image:
+    # Convert the 4-channel image to a 3-channel image (RGB)
+    if img_pil.mode == "RGBA":
+        return img_pil.convert("RGB")

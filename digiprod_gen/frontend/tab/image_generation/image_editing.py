@@ -2,7 +2,7 @@ import streamlit as st
 from PIL import Image
 from typing import Tuple
 
-from digiprod_gen.backend.image.conversion import pil2bytes_io, bytes2pil, pil2np
+from digiprod_gen.backend.image.conversion import pil2bytes_io, bytes2pil, pil2np, pilrgba2pilrgb
 from digiprod_gen.backend.image.background_removal import simple_remove_background, rembg
 from digiprod_gen.backend.image.upscale import pil_upscale, some_upscalers_upscale
 from digiprod_gen.backend.image.outpainting import outpainting_with_paella
@@ -156,7 +156,8 @@ def image_upscaling(image_pil: Image, upscaler: UpscalerModel = UpscalerModel.SO
         # increase resolution after simple upscale
         # image_pil_upscaled = real_esrgan_resolution(image_pil_upscaled)
     elif upscaler == UpscalerModel.SOME_UPSCALER:
-        image_pil_upscaled = some_upscalers_upscale(image_pil)
+        # Convert 4 channels to 3 channels
+        image_pil_upscaled = some_upscalers_upscale(pilrgba2pilrgb(image_pil))
     else:
         raise NotImplementedError
     return image_pil_upscaled
