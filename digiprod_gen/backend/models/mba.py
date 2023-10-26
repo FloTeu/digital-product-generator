@@ -84,18 +84,6 @@ class MBAProduct(BaseModel):
         arbitrary_types_allowed = True
 
 
-    def get_image_design_crop(self):
-        if not self.image_pil:
-            raise ValueError("Pillow image not yet set")
-        width, height = self.image_pil.size
-        # Setting the points for cropped image
-        left = width / 5
-        top = height / 5
-        right = 4 * (width / 5)
-        bottom = 4 * (height / 5)
-        # Cropped image of above dimension
-        # (It will not change original image)
-        return self.image_pil.crop((left, top, right, bottom))
 
 
 class MBAUploadSettings(BaseModel):

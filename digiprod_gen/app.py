@@ -227,7 +227,7 @@ def display_sidebar(session_state: SessionState, tab_crawling, tab_ig, tab_uploa
             if session_state.status.detail_pages_crawled:
                 mba_products_selected = session_state.crawling_data.get_selected_mba_products()
             if mba_products_selected and session_state.status.detail_pages_crawled:
-                sidebar.prompt_generation_input(tab_ig, mba_products_selected)
+                sidebar.prompt_generation_input(tab_ig, session_state.crawling_data)
 
         if session_state.status.detail_pages_crawled:
             sidebar.listing_generation_input(tab_upload)

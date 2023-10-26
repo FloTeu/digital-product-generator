@@ -5,6 +5,7 @@ from typing import List
 from PIL import Image
 from digiprod_gen.backend.image.conversion import pil2bytes_io, bytes2pil
 from digiprod_gen.backend.models.mba import MBAProduct
+from digiprod_gen.backend.models.session import CrawlingData
 from digiprod_gen.backend.models.common import ImageCaptioningModel
 from digiprod_gen.backend.utils import booleanize
 
@@ -43,18 +44,19 @@ def image2visual_caption(img_pil: Image) -> str:
     )
     return visual_caption
 
-def extend_mba_products_with_caption(mba_products: List[MBAProduct], image_caption_model: ImageCaptioningModel = ImageCaptioningModel.BLIP2):
+def extend_mba_products_with_caption(crawling_data: CrawlingData, image_caption_model: ImageCaptioningModel = ImageCaptioningModel.BLIP2):
+    mba_products: List[MBAProduct] = crawling_data.get_selected_mba_products()
     for mba_product in mba_products:
-        if mba_product.image_pil == None:
-            mba_product.image_pil = bytes2pil(requests.get(mba_product.image_url, stream=True).content)
+        if crawling_data.get_mba_product_image(mba_product.asin) == None:
+            crawling_data.mba_product_images[mba_product.asin] = bytes2pil(requests.get(mba_product.image_url, stream=True).content)
         if mba_product.image_text_caption == None:
-            img_pil = mba_product.get_image_design_crop()
+            img_pil = crawling_data.get_image_design_crop(mba_product.asin)
             if has_text_inprint(img_pil):
                 mba_product.image_text_caption = image2text_caption(img_pil)
         if mba_product.image_prompt == None:
             if image_caption_model == ImageCaptioningModel.BLIP2:
-                mba_product.image_prompt = image2visual_caption(mba_product.get_image_design_crop())
+                mba_product.image_prompt = image2visual_caption(crawling_data.get_image_design_crop(mba_product.asin))
             elif image_caption_model == ImageCaptioningModel.IMG2PROMPT:
-                mba_product.image_prompt = image2prompt(mba_product.get_image_design_crop())
+                mba_product.image_prompt = image2prompt(crawling_data.get_image_design_crop(mba_product.asin))
             else:
                 raise NotImplementedError

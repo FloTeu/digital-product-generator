@@ -3,6 +3,7 @@ import streamlit as st
 
 from streamlit.delta_generator import DeltaGenerator
 from langchain.chat_models import ChatOpenAI
+from langchain.schema.output_parser import OutputParserException
 
 from digiprod_gen.backend.text.text_gen_fns import get_midjourney_prompt_gen, mba_products2llm_prompt_gen_input
 from digiprod_gen.backend.models.common import MBAMidjourneyOutputModel
@@ -20,7 +21,12 @@ def prompt_generation(st_tab_ig: DeltaGenerator):
         # prompt generation
         ts_start = time.time()
         llm_prompt_gen_input = mba_products2llm_prompt_gen_input(mba_products_selected)
-        llm_output: MBAMidjourneyOutputModel = midjourney_prompt_gen.generate(text=llm_prompt_gen_input)
+        try:
+            llm_output: MBAMidjourneyOutputModel = midjourney_prompt_gen.generate(text=llm_prompt_gen_input)
+        except OutputParserException:
+            # Retry if output has the wrong format
+            llm_output: MBAMidjourneyOutputModel = midjourney_prompt_gen.generate(text=llm_prompt_gen_input)
+
         predicted_prompts = llm_output.image_prompts
         print("mid_gen time elapsed %.2f seconds" % (time.time() - ts_start))
         session_state.image_gen_data.image_gen_prompts = predicted_prompts

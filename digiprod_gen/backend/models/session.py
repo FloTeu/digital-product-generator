@@ -6,7 +6,7 @@ from digiprod_gen.backend.models.mba import MBAProduct, MBAUploadSettings
 from digiprod_gen.frontend.backend_caller import BackendCaller
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Dict
 from operator import itemgetter
 
 from digiprod_gen.backend.models.request import CrawlingMBARequest
@@ -17,6 +17,7 @@ from digiprod_gen.backend.models.config import DigiProdGenConfig, DigiProdGenMBA
 class CrawlingData:
     mba_products: List[MBAProduct] = field(default_factory=list)  # crawled utils products
     selected_designs: List[int] = field(default_factory=list) # user selected products for prompt generation
+    mba_product_images: Dict[str, Image] = field(default_factory=dict) # key is mba product id/asin, value is the image
 
     def get_selected_mba_products(self) -> List[MBAProduct]:
         """
@@ -30,6 +31,23 @@ class CrawlingData:
             return [self.mba_products[selected_designs_i[0]]]
         else:
             return list(itemgetter(*selected_designs_i)(self.mba_products))
+
+    def get_mba_product_image(self, id: str) -> Image | None:
+        return self.mba_product_images.get(id, None)
+
+    def get_image_design_crop(self, id: str):
+        image_pil = self.get_mba_product_image(id)
+        if not image_pil:
+            raise ValueError("Pillow image not yet set")
+        width, height = image_pil.size
+        # Setting the points for cropped image
+        left = width / 5
+        top = height / 5
+        right = 4 * (width / 5)
+        bottom = 4 * (height / 5)
+        # Cropped image of above dimension
+        # (It will not change original image)
+        return image_pil.crop((left, top, right, bottom))
 
 @dataclass
 class ImageGenData:
