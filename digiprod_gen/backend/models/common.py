@@ -19,7 +19,8 @@ class UpscalerModel(str, Enum):
 
 class BackgroundRemovalModel(str, Enum):
     OPEN_CV="Simple Background Removal"
-    REM_BG="AI Background Removal"
+    REM_BG="1. AI Background Removal"
+    EASY_REM_BG="2. AI Background Removal"
 
 class ImageGenerationModel(str, Enum):
     DEEPFLOYD_IF="Deepfloyd IF"

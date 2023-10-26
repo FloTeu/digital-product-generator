@@ -14,6 +14,15 @@ def rembg(img_pil: Image) -> Image:
     return bytes2pil(requests.get(img_url, stream=True).content)
 
 
+def easy_rem_bg(img_pil: Image) -> Image:
+    model = "lucataco/remove-bg:95fcc2a26d3899cd6c2691c900465aaeff466285a65c14638cc5f36f34befaf1"
+    img_url = replicate.run(
+        model,
+        input={"image": pil2bytes_io(img_pil)}
+    )
+    return bytes2pil(requests.get(img_url, stream=True).content)
+
+
 def extend_with_alpha(image):
     # If image already has an alpha channel, return it unchanged
     if image.mode.endswith("A"):
