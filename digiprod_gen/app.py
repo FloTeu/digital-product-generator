@@ -136,6 +136,8 @@ def display_tab_upload_views(session_state: SessionState):
                             upload_response: UploadMBAResponse = UploadMBAResponse.parse_obj(response.json())
                             warnings = upload_response.warnings
                             errors = upload_response.errors
+                            if len(warnings) == 0 and len(errors) == 0:
+                                session_state.status.product_uploaded = True
                         else:
                             warnings, errors = [],[]
                     except NoSuchElementException as e:
@@ -147,7 +149,7 @@ def display_tab_upload_views(session_state: SessionState):
                     st.warning(f"MBA Warning: {warning}")
                 for error in errors:
                     st.error(f"MBA Error: {error}")
-            if len(errors) == 0 and st.button("Publish to MBA"):
+            if len(errors) == 0 and session_state.status.product_uploaded and st.button("Publish to MBA"):
                 response = session_state.backend_caller.get(
                     f"/browser/upload/publish_mba_product?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}&searchable=false"
                 )
