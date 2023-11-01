@@ -1,9 +1,9 @@
 from typing import List
 from langchain.prompts import HumanMessagePromptTemplate, SystemMessagePromptTemplate
 
-from llm_few_shot_gen.generators.base import BaseFewShotGenerator
-from llm_few_shot_gen.generators.midjourney import MidjourneyPromptGenerator
-from llm_few_shot_gen.constants import INSTRUCTOR_USER_NAME
+from llm_prompting_gen.generators.base import BaseFewShotGenerator
+from llm_prompting_gen.generators.midjourney import MidjourneyPromptGenerator
+from llm_prompting_gen.constants import INSTRUCTOR_USER_NAME
 from digiprod_gen.backend.models.mba import MBAMarketplaceDomain
 from digiprod_gen.backend.text import mba_context
 from digiprod_gen.backend.models.mba import MBAProductTextType
