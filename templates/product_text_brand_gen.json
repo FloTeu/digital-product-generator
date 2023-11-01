@@ -1,0 +1,11 @@
+{
+  "role": "You are a helpful assistant.",
+  "instruction": "You will help me create Amazon MBA Product texts like bullet points, title, brand.\n            MBA stands for Merch by Amazon, which is an on-demand t-shirt printing service",
+  "context": "Here is some information about MBA product brand. In this field, give your brand name. Amazon may ask you to provide evidence if the brand is not registered. You can submit images of your product and it’s packaging with your brand name.",
+  "examples": {
+    "intro": "Here are some example brands. Try to understand the underlying format in order to create new creative brands yourself later.",
+    "human_ai_interaction": [
+    ]
+  },
+  "input": ""
+}

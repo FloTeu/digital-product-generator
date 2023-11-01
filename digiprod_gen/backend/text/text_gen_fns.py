@@ -1,10 +1,8 @@
 from typing import List
 
 from digiprod_gen.backend.models.mba import MBAProduct, MBAProductTextType, MBAMarketplaceDomain
-from digiprod_gen.backend.models.common import MBAMidjourneyOutputModel
-from digiprod_gen.backend.text.data_classes import MBAMidjourneyPromptGenerator, ProductTextGenerator
-from llm_prompting_gen.few_shot_examples.utils import get_shirt_design_prompt_examples
-from langchain.llms.base import BaseLanguageModel
+from digiprod_gen.backend.text.data_classes import ProductTextGenerator
+
 
 def combine_bullets(product: MBAProduct) -> str:
     return ' '.join(product.bullets) + ' ' if product.bullets else ""
@@ -19,14 +17,6 @@ def mba_products2llm_prompt_gen_input(mba_products: List[MBAProduct]) -> str:
         else:
             llm_prompt_gen_input += combine_bullets(mba_product)
     return llm_prompt_gen_input.strip()
-
-
-def get_midjourney_prompt_gen(llm: BaseLanguageModel) -> MBAMidjourneyPromptGenerator:
-    midjourney_prompt_gen = MBAMidjourneyPromptGenerator(llm, pydantic_cls=MBAMidjourneyOutputModel)
-    prompt_examples = get_shirt_design_prompt_examples()
-    midjourney_prompt_gen.set_few_shot_examples(prompt_examples)
-    return midjourney_prompt_gen
-
 
 def get_product_text_gen(llm, mba_products, mba_product_text_type: MBAProductTextType, marketplace: MBAMarketplaceDomain) -> ProductTextGenerator:
     product_text_gen = ProductTextGenerator(llm)

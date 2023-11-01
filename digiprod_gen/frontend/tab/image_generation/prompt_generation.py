@@ -9,13 +9,13 @@ from digiprod_gen.backend.text.text_gen_fns import get_midjourney_prompt_gen, mb
 from digiprod_gen.backend.models.common import MBAMidjourneyOutputModel
 from digiprod_gen.frontend.session import read_session
 from digiprod_gen.backend.models.session import SessionState
-
+from llm_prompting_gen.generators import ParsablePromptEngineeringGenerator
 
 def prompt_generation(st_tab_ig: DeltaGenerator):
     session_state: SessionState = read_session("session_state")
     mba_products_selected = session_state.crawling_data.get_selected_mba_products()
     llm = ChatOpenAI(temperature=0.7)
-    midjourney_prompt_gen = get_midjourney_prompt_gen(llm)
+    midjourney_prompt_gen = ParsablePromptEngineeringGenerator.from_json("templates/stable_diffusion_prompt_gen.json", llm, pydantic_cls=MBAMidjourneyOutputModel)
 
     with st_tab_ig, st.spinner('Prompt generation...'):
         # prompt generation

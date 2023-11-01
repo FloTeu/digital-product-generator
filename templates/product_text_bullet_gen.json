@@ -1,0 +1,11 @@
+{
+  "role": "You are a helpful assistant.",
+  "instruction": "You will help me create Amazon MBA Product texts like bullet points, title, brand.\n            MBA stands for Merch by Amazon, which is an on-demand t-shirt printing service",
+  "context": "Here is some information about MBA product bullet points. Next, you must add bullet points to the Amazon product listing. These points appear next to the product images and describe your product benefits in detail. You can use relevant keywords in these bullet points to improve your product ranking in the search result. \nHere are some more tips for creating the bullet points:\nStart each bullet points with a capital letter.\nSellers can add five bullet points, and vendors are allowed to add ten bullet points.\nWrite as sentence fragments, and do not use ending punctuation.\nDescribe five features and benefits of your product in the bullet points\nEnsure all the bullet points have a similar length, not too long or short. \nAvoid using promotional content, discounts, and offers in the bullet points\nDon’t use HTML or other coding elements to create fancy symbols or emojis in the bullet points. ",
+  "examples": {
+    "intro": "Here are some example bullets. Try to understand the underlying format in order to create new creative bullets yourself later. ",
+    "human_ai_interaction": [
+    ]
+  },
+  "input": ""
+}
