@@ -25,6 +25,7 @@ click = "^8.1.7"
 pydantic-yaml = "^1.1.1"
 selenium-wire = "^5.1.0"
 llm-prompting-gen = "^0.1.3"
+pillow = "^10.1.0"
 
 
 [tool.poetry.group.backend.dependencies]
