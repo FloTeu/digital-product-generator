@@ -1,7 +1,9 @@
 from typing import List
 
-from digiprod_gen.backend.models.mba import MBAProduct, MBAProductTextType, MBAMarketplaceDomain
-from digiprod_gen.backend.text.data_classes import ProductTextGenerator
+from digiprod_gen.backend.models.mba import MBAProduct, MBAProductTextType
+from digiprod_gen.backend.text.mba_banned_word import MBA_BANNED_WORDS
+from llm_prompting_gen.generators import ParsablePromptEngineeringGenerator, PromptEngineeringGenerator
+from llm_prompting_gen.models.prompt_engineering import PEFewShotExample
 
 
 def combine_bullets(product: MBAProduct) -> str:
@@ -18,26 +20,33 @@ def mba_products2llm_prompt_gen_input(mba_products: List[MBAProduct]) -> str:
             llm_prompt_gen_input += combine_bullets(mba_product)
     return llm_prompt_gen_input.strip()
 
-def get_product_text_gen(llm, mba_products, mba_product_text_type: MBAProductTextType, marketplace: MBAMarketplaceDomain) -> ProductTextGenerator:
-    product_text_gen = ProductTextGenerator(llm)
-    product_text_gen._set_context(mba_product_text_type)
-    few_shot_examples = []
+def remove_banned_words(example: str):
+    for mba_banned_word in MBA_BANNED_WORDS:
+        text_words = example.split()
+        result_words = [word for word in text_words if mba_banned_word not in word.lower()]
+        example = ' '.join(result_words)
+    return example
+
+def get_product_text_gen(llm, mba_products, mba_product_text_type: MBAProductTextType) -> ParsablePromptEngineeringGenerator:
     if mba_product_text_type == MBAProductTextType.BULLET:
-        for mba_product in mba_products:
-            for bullet in mba_product.bullets:
-                few_shot_examples.append(bullet)
+        product_text_gen = PromptEngineeringGenerator.from_json("templates/product_text_bullet_gen.json", llm=llm)
+        product_text_gen.prompt_elements.examples.examples = [remove_banned_words(bullet) for mba_product in mba_products for bullet in mba_product.bullets]
     elif mba_product_text_type == MBAProductTextType.BRAND:
-        for mba_product in mba_products:
-            few_shot_examples.append(mba_product.brand)
+        product_text_gen = PromptEngineeringGenerator.from_json("templates/product_text_brand_gen.json", llm=llm)
+        product_text_gen.prompt_elements.examples.examples = [remove_banned_words(mba_product.brand) for mba_product in mba_products]
     elif mba_product_text_type == MBAProductTextType.TITLE:
-        for mba_product in mba_products:
-            few_shot_examples.append(mba_product.title)
-    product_text_gen.set_few_shot_examples(few_shot_examples, mba_product_text_type)
-    product_text_gen._set_io_prompt(mba_product_text_type, marketplace)
+        product_text_gen = PromptEngineeringGenerator.from_json("templates/product_text_title_gen.json", llm=llm)
+        product_text_gen.prompt_elements.examples.examples = [remove_banned_words(mba_product.title) for mba_product in mba_products]
+
+    # Make sure output does not contain the banned words
+    product_text_gen.prompt_elements.instruction = f"{product_text_gen.prompt_elements.instruction}\nDo not include any of the following words: {MBA_BANNED_WORDS} in your output."
+
+    # # Input similar to few shot examples
+    # product_text_gen.prompt_elements.input = f"Create six product {mba_product_text_type} texts in the format described above"
     return product_text_gen
 
 
-def remove_banned_words(text_suggestions: List[str], banned_words):
+def remove_banned_words_from_list(text_suggestions: List[str], banned_words):
     result = []
     for text_suggestion in text_suggestions:
         # Split the string into words

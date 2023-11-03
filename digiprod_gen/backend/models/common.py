@@ -38,9 +38,18 @@ class ImageGenerationSDXLLoraUrl(str, Enum):
     SHIRT="https://replicate.delivery/pbxt/LKrczWaqJqJXCRjRUT4fdKWMpeo5JR2aRoVOg03eppYU6VKjA/trained_model.tar"
 
 
-class MBAMidjourneyOutputModel(BaseModel):
-    image_prompts: List[str] = Field(description="List of text-to-image prompts")
-
+# class MBAMidjourneyOutputModel(BaseModel):
+#     image_prompts: List[str] = Field(description="List of text-to-image prompts")
+#
+#
+# class MBAProductBrandOutputModel(BaseModel):
+#     brands: List[str] = Field(description="List of product brands")
+#
+# class MBAProductTitleOutputModel(BaseModel):
+#     titles: List[str] = Field(description="List of product titles")
+#
+# class MBAProductBulletsOutputModel(BaseModel):
+#     bullets: List[str] = Field(description="List of product bullet point")
 
 
 
