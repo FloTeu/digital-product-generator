@@ -1,6 +1,6 @@
 from typing import List
-from digiprod_gen.backend.prompt_engineering import midjourney_prompt_examples
-from digiprod_gen.backend.data_classes.common import MBAMidjourneyOutputModel
+
+
 def get_midjourney_example_prompts() -> List[str]:
     return [midjourney.__dict__[item] for item in dir(midjourney) if item.startswith("prompt_example")]
 

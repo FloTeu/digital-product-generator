@@ -1,14 +1,21 @@
 
 import requests
-import numpy as np
 import replicate
 from PIL import Image
-from typing import Tuple
-from digiprod_gen.backend.image.conversion import pil2cv, cv2pil, pil2bytes_io, bytes2pil
+from digiprod_gen.backend.image.conversion import pil2bytes_io, bytes2pil
 
 def rembg(img_pil: Image) -> Image:
     model = "ilkerc/rembg:e809cddc666ccfd38a044f795cf65baab62eedc4273d096bf05935b9a3059b59"
     model = "cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003"
+    img_url = replicate.run(
+        model,
+        input={"image": pil2bytes_io(img_pil)}
+    )
+    return bytes2pil(requests.get(img_url, stream=True).content)
+
+
+def easy_rem_bg(img_pil: Image) -> Image:
+    model = "lucataco/remove-bg:95fcc2a26d3899cd6c2691c900465aaeff466285a65c14638cc5f36f34befaf1"
     img_url = replicate.run(
         model,
         input={"image": pil2bytes_io(img_pil)}

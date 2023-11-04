@@ -5,7 +5,7 @@ import streamlit as st
 
 from io import BytesIO
 from PIL import Image
-from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest
+from digiprod_gen.backend.models.request import CrawlingMBARequest
 
 
 @st.cache_data

@@ -1,4 +1,3 @@
-import time
 import click
 
 import streamlit as st
@@ -6,15 +5,15 @@ import streamlit.web.bootstrap as st_bootstrap
 
 from io import TextIOWrapper
 
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import WebDriverException, NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException
 from digiprod_gen.backend.utils.decorators import timeit
 from digiprod_gen.backend.utils.helper import Timer
 from digiprod_gen.backend.utils import init_environment, initialise_config
+from digiprod_gen.backend.models.response import UploadMBAResponse
+from digiprod_gen.backend.models.request import UploadMBARequest
 from digiprod_gen.backend.image import conversion
-from digiprod_gen.backend.data_classes.session import SessionState
-from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
-from digiprod_gen.backend.browser.upload.selenium_mba import publish_to_mba
+from digiprod_gen.backend.models.session import SessionState
+from digiprod_gen.backend.models.config import DigiProdGenConfig
 from digiprod_gen.backend.browser.selenium_fns import get_full_page_screenshot
 from digiprod_gen.frontend.session import read_session, update_mba_request, init_session_state
 from digiprod_gen.frontend import sidebar
@@ -28,7 +27,6 @@ from digiprod_gen.frontend.tab.upload.views import (display_listing_selection, d
                                                     display_image_upload, display_marketplace_selector,
                                                     display_product_category_selector, display_product_color_selector,
                                                     display_product_fit_type_selector)
-from digiprod_gen.frontend.tab.upload.mba_upload import display_mba_account_tier, upload_mba_product
 from digiprod_gen.frontend.tab.crawling.tab_crawling import display_mba_overview_products
 
 
@@ -95,41 +93,96 @@ def display_tab_upload_views(session_state: SessionState):
         display_product_fit_type_selector(mba_upload_settings)
 
     #if session_state.status.detail_pages_crawled:
-    if not session_state.status.mba_login_successfull:
+    if not session_state.status.mba_login_successful:
         st.warning("Please login with your MBA credentials (5. MBA Upload)")
     else:
         #display_mba_account_tier(session_state.browser.driver)
         errors = []
-        if st.button("Upload product to MBA"):
-            with st.spinner("Upload mba product"):
-                try:
-                    warnings, errors = upload_mba_product(session_state)
-                except NoSuchElementException as e:
-                    st.error("Something went wrong during upload")
-                    display_full_page_screenshot(session_state.browser.driver)
-                    raise e
+        # Image Upload
+        if session_state.image_gen_data.image_pil_upload_ready == None:
+            st.error('You not uploaded/generated an image yet', icon="🚨")
+        else:
+            if st.button("Upload product to MBA"):
+                with st.spinner("Upload utils product"):
+                    try:
+                        if session_state.upload_data.title == None or session_state.upload_data.brand == None:
+                            st.error('You not defined your required brand and title yet', icon="🚨")
+                            session_state.upload_data.title ="Test Title"
+                            session_state.upload_data.brand ="Test Brand"
+                        if session_state.upload_data.bullet_1 == None and session_state.upload_data.bullet_2 == None:
+                            st.error('You not defined your listings yet', icon="🚨")
+                        upload_request = UploadMBARequest(
+                            title=session_state.upload_data.title,
+                            brand=session_state.upload_data.brand,
+                            bullet_1=session_state.upload_data.bullet_1,
+                            bullet_2=session_state.upload_data.bullet_2,
+                            description=session_state.upload_data.description,
+                            settings=session_state.upload_data.settings
+                        )
+                        request_dict = upload_request.dict()
+                        image_byte_array = conversion.pil2bytes_io(session_state.image_gen_data.image_pil_upload_ready, format="PNG")
+                        image_byte_array.seek(0)
+                        headers = {
+                            'accept': 'application/json',
+                        }
+                        files = {
+                            "image_upload_ready": ("image_upload_ready.png", image_byte_array, 'image/png')
+                        }
+                        response = session_state.backend_caller.post(
+                            f"/browser/upload/upload_mba_product?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}",
+                            headers=headers, data={"upload_request": upload_request.json()}, files=files
+                        )
+                        if response.status_code == 200:
+                            upload_response: UploadMBAResponse = UploadMBAResponse.parse_obj(response.json())
+                            warnings = upload_response.warnings
+                            errors = upload_response.errors
+                            if len(warnings) == 0 and len(errors) == 0:
+                                session_state.status.product_uploaded = True
+                        else:
+                            warnings, errors = [],[]
+                    except NoSuchElementException as e:
+                        st.error("Something went wrong during upload")
+                        display_full_page_screenshot(session_state.browser.driver)
+                        raise e
 
-            for warning in warnings:
-                st.warning(f"MBA Warning: {warning}")
-            for error in errors:
-                st.error(f"MBA Error: {error}")
-        if len(errors) == 0 and st.button("Publish to MBA"):
-            try:
-                publish_to_mba(session_state.browser.driver, searchable=True)
-            except Exception as e:
-                st.error("Something went wrong during publishing")
-                display_full_page_screenshot(session_state.browser.driver)
-            time.sleep(1)
-            session_state.browser.driver.find_element(By.CLASS_NAME, "btn-close").click()
-            st.balloons()
+                for warning in warnings:
+                    st.warning(f"MBA Warning: {warning}")
+                for error in errors:
+                    st.error(f"MBA Error: {error}")
+            if len(errors) == 0 and session_state.status.product_uploaded and st.button("Publish to MBA"):
+                response = session_state.backend_caller.get(
+                    f"/browser/upload/publish_mba_product?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}&searchable=false"
+                )
+                if response.status_code == 200:
+                    st.balloons()
+                else:
+                    st.error("Something went wrong during publishing")
 
 
 def display_admin_views(session_state: SessionState):
     """Display some options for the admin"""
     if  st.experimental_user.email in st.secrets.admin.emails or st.session_state["mba_email"] in st.secrets.admin.emails:
         st.subheader("Admin View")
+        st.warning("Note: This is only visible to admins")
+
+        url = st.text_input("Url")
+        if st.button("Browse url"):
+            response = session_state.backend_caller.get(
+                f"/browser/browse?url={url}&session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}")
+
+        if st.button("Show Browser Screenshot (API)"):
+            response = session_state.backend_caller.get(
+                f"/status/browser_screenshot?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}")
+            browser_screenshot_pil = conversion.bytes2pil(response.content)
+            st.image(browser_screenshot_pil)
+
+        if st.button("Show Browser Settings (API)"):
+            response = session_state.backend_caller.get(
+                f"/status/browser_settings?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}")
+            st.text(response.json())
+
         if session_state.browser:
-            if st.button("Show Browser Screenshot"):
+            if st.button("Show Browser Screenshot (Frontend)"):
                 display_full_page_screenshot(session_state.browser.driver)
             st.download_button('Download Browser Source', session_state.browser.driver.page_source, file_name="source.html")
 
@@ -176,19 +229,15 @@ def display_sidebar(session_state: SessionState, tab_crawling, tab_ig, tab_uploa
             if session_state.status.detail_pages_crawled:
                 mba_products_selected = session_state.crawling_data.get_selected_mba_products()
             if mba_products_selected and session_state.status.detail_pages_crawled:
-                sidebar.prompt_generation_input(tab_ig, mba_products_selected)
+                sidebar.prompt_generation_input(tab_ig, session_state.crawling_data)
 
         if session_state.status.detail_pages_crawled:
             sidebar.listing_generation_input(tab_upload)
 
         # MBA Login
         sidebar.mab_login_input(tab_upload)
-        try:
-            if session_state.browser:
-                sidebar.mba_otp_input(session_state)
-        except WebDriverException:
-            # TODO: Find out why this error is thrown
-            pass
+        if session_state.status.mba_login_otp_required:
+            sidebar.mba_otp_input()
 
 
 def main(config: DigiProdGenConfig):
@@ -213,7 +262,7 @@ def main(config: DigiProdGenConfig):
 def start_digiprod_gen(config: TextIOWrapper):
     if st.runtime.exists():
         # The app has been executed with `streamlit run app.py`
-        config_obj = initialise_config(
+        config_obj: DigiProdGenConfig = initialise_config(
             config_file_path=config
         )
         main(config=config_obj)

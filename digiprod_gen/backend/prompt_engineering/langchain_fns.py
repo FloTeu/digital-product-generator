@@ -1,24 +1,13 @@
-import os
 from typing import List
-import streamlit as st
 from langchain.prompts import (
     ChatPromptTemplate,
-    PromptTemplate,
     SystemMessagePromptTemplate,
-    AIMessagePromptTemplate,
     HumanMessagePromptTemplate
 )
 from langchain.prompts.base import BasePromptTemplate
-from langchain.schema import (
-    AIMessage,
-    HumanMessage,
-    SystemMessage
-)
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain
-from digiprod_gen.backend.prompt_engineering import midjourney_prompt_examples
-from digiprod_gen.backend.prompt_engineering.utils import get_midjourney_example_prompts, extract_list_from_output
-
+from digiprod_gen.backend.prompt_engineering.utils import get_midjourney_example_prompts
 
 INSTRUCTOR_USER_NAME = "instructor"
 

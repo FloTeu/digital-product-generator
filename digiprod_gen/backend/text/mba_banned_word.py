@@ -2,7 +2,10 @@ MBA_BANNED_WORDS = [
     "t-shirt",
     "tank top",
     "shirt",
-    "geschenk",
+    "shirts",
+    "tee",
+    "tees",
     "gift",
+    "gifts",
     "long sleeve",
 ]

@@ -1,18 +1,14 @@
-import streamlit as st
 from seleniumwire import webdriver
 #from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from digiprod_gen.backend.data_classes.config import DigiProdGenConfig
-from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
-from digiprod_gen.backend.image.conversion import bytes2pil
 from digiprod_gen.backend.utils import delete_files_in_path
+from digiprod_gen.backend.image.conversion import bytes2pil
 
 class SeleniumBrowser():
     def __init__(self) -> None:
@@ -21,13 +17,17 @@ class SeleniumBrowser():
         self.data_dir_path = None
         self.headless = None
         self.proxy = None
+        self.user_agent = None
+        self.headers = None
 
-    def setup(self, headless=False, data_dir_path=None, proxy=None):
-        self.driver = init_selenium_driver(headless=headless, data_dir_path=data_dir_path, proxy=proxy)
+    def setup(self, headless=False, data_dir_path=None, proxy=None, user_agent=None, headers=None):
+        self.driver = init_selenium_driver(headless=headless, data_dir_path=data_dir_path, proxy=proxy, user_agent=user_agent, headers=headers)
         self.headless = headless
         self.data_dir_path = data_dir_path
         self.is_ready = True
         self.proxy = proxy
+        self.user_agent = user_agent
+        self.headers = headers
 
     def close_driver(self):
         self.driver.close()
@@ -37,7 +37,7 @@ class SeleniumBrowser():
         self.driver.quit()
         self.is_ready = False
 
-    def reset_driver(self, proxy: str | None=None):
+    def reset_driver(self, proxy: str | None=None, user_agent: str | None=None, headers: dict | None=None):
         """ If possible quits the existing selenium driver and starts a new one
             Optionally a new proxy can be provided
         """
@@ -46,12 +46,12 @@ class SeleniumBrowser():
             self.quit_driver()
         except:
             pass
-        self.driver = init_selenium_driver(headless=self.headless, data_dir_path=self.data_dir_path, proxy=proxy or self.proxy)
+        self.driver = init_selenium_driver(headless=self.headless, data_dir_path=self.data_dir_path, proxy=proxy or self.proxy, user_agent=user_agent or self.user_agent, headers=headers or self.headers)
         if proxy:
             self.proxy = proxy
         self.is_ready = True
 
-def init_selenium_driver(headless=True, data_dir_path=None, proxy: str=None) -> WebDriver:
+def init_selenium_driver(headless=True, data_dir_path=None, proxy: str=None, user_agent: str | None = None, headers: dict | None=None) -> WebDriver:
     """Instantiate a WebDriver object (in this case, using Chrome)"""
     options = Options() #either firefox or chrome options
     options.add_argument('--disable-gpu')
@@ -65,25 +65,51 @@ def init_selenium_driver(headless=True, data_dir_path=None, proxy: str=None) -> 
     options.add_argument("--window-size=1920x1080")
     options.add_argument("--disable-features=VizDisplayCompositor")
     options.add_argument("−−lang=en") # language english
+    if user_agent:
+        options.add_argument(f"--user-agent={user_agent}")
+
     seleniumwire_options = {}
     if proxy:
         #options.add_argument(f'--proxy-server={proxy}')
         seleniumwire_options = {
             'proxy': {
                 'http': proxy,
+                #'https': proxy,
                 'verify_ssl': False,
+                'no_proxy': 'localhost,127.0.0.1'
             },
         }
     if data_dir_path:
         options.add_argument(f'--user-data-dir={data_dir_path}')
     if headless:
         options.add_argument('--headless')
-    return webdriver.Chrome(options=options, seleniumwire_options=seleniumwire_options)
-    #return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver = webdriver.Chrome(options=options, seleniumwire_options=seleniumwire_options)
 
-def show_web_element_png(element: WebElement):
-    image_pil = bytes2pil(element.screenshot_as_png)
-    image_pil.show()
+    # def request_interceptor(request):
+    #     for header_key, header_value in headers.items():
+    #         if header_key == "user-agent":
+    #             # Delete previous header
+    #             try:
+    #                 del request.headers[header_key]
+    #             except Exception:
+    #                 pass
+    #             # Set new custom header
+    #             request.headers[header_key] = header_value
+    #
+    # driver.request_interceptor = request_interceptor
+
+    allowed_headers_to_change = ['user-agent', 'upgrade-insecure-requests', 'accept', 'sec-ch-ua', 'sec-ch-ua-mobile',
+                                'sec-ch-ua-platform', 'sec-fetch-site', 'sec-fetch-mod', 'sec-fetch-user', 'accept-language'] #, ], 'accept-encoding']
+    print("allowed_headers_to_change", allowed_headers_to_change)
+    # ['upgrade-insecure-requests', 'user-agent', 'accept', 'sec-ch-ua', 'sec-ch-ua-mobile', 'sec-ch-ua-platform',
+    #  'sec-fetch-site', 'sec-fetch-mod', 'sec-fetch-user', 'accept-encoding', 'accept-language']
+
+    new_headers = {k: v for k, v in headers.items() if k in allowed_headers_to_change}
+    driver.header_overrides = new_headers
+
+    return driver
+
+    #return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 
 def hover_over_element(driver: WebDriver, element_to_hover):
@@ -136,3 +162,20 @@ def get_full_page_screenshot(driver: WebDriver) -> bytes:
     screenshot_as_png = driver.find_element(By.TAG_NAME, 'body').screenshot_as_png
     driver.set_window_size(original_size['width'], original_size['height'])
     return screenshot_as_png
+
+def has_element_with_class(element: WebElement, class_name):
+    elements = element.find_elements(By.CLASS_NAME, class_name)
+    return len(elements) > 0
+
+def get_element_html(element: WebElement) -> str:
+    return element.get_attribute("outerHTML")
+
+def show_web_element_png(element: WebElement):
+    image_pil = bytes2pil(element.screenshot_as_png)
+    image_pil.show()
+
+def html2file(driver: WebDriver, file_name: str = "browser.html"):
+    """Stores current html of browser to html file"""
+    html = driver.page_source
+    with open(file_name, "w") as fp:
+        fp.write(html)

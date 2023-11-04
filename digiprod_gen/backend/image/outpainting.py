@@ -1,7 +1,7 @@
 from typing import Tuple
 from PIL import Image
 
-from digiprod_gen.backend.image.conversion import pil2bytes_io, bytes2pil
+from digiprod_gen.backend.image.conversion import pil2bytes_io
 from digiprod_gen.backend.image.common import replicate_generate, OutputFormat
 
 

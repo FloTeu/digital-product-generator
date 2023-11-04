@@ -1,9 +1,8 @@
-from dataclasses import dataclass, field
 from enum import Enum
-import hashlib
-from typing import List, Optional, Union
-from PIL import Image
-from digiprod_gen.backend.data_classes.common import EnumBase
+from typing import List, Optional
+from digiprod_gen.backend.models.common import EnumBase
+from pydantic import BaseModel, Field
+
 
 class MBAMarketplaceDomain(str, EnumBase):
     COM="com"
@@ -66,43 +65,32 @@ class MBAProductTextType(str, Enum):
     BULLET="bullet"
 
 
-@dataclass
-class CrawlingMBARequest():
-    search_term: str
+class MBAProduct(BaseModel):
     marketplace: MBAMarketplaceDomain
-    product_category: MBAProductCategory
-    headers: Optional[dict]
-    proxy: Optional[str]
-    mba_overview_url: Optional[str]
-
-    def get_hash_str(self):
-        """Unique hash string which takes all relevant request attributes into account"""
-        return hashlib.md5(f'{self.marketplace}{self.search_term}{self.product_category}'.encode()).hexdigest()
-
-
-@dataclass
-class MBAProduct():
     asin: str
     title: str
-    brand: Optional[str]
+    brand: Optional[str] = Field(None)
     image_url: str
     product_url: str
-    price: Optional[float]
-    description: Optional[str]
-    image_pil: Optional[Image.Image]
-    image_prompt: Optional[str]
-    image_text_caption: Optional[str]
-    bullets: List[str] = field(default_factory=list)
+    price: Optional[float] = Field(None)
+    description: Optional[str] = Field(None)
+    bullets: List[str] = Field(default_factory=list)
+    image_prompt: Optional[str] = Field(None)
+    image_text_caption: Optional[str] = Field(None)
+    # TODO: Move to another data class
+    # image_pil: Optional[Image.Image]
 
-    def get_image_design_crop(self):
-        if not self.image_pil:
-            raise ValueError("Pillow image not yet set")
-        width, height = self.image_pil.size
-        # Setting the points for cropped image
-        left = width / 5
-        top = height / 5
-        right = 4 * (width / 5)
-        bottom = 4 * (height / 5)
-        # Cropped image of above dimension
-        # (It will not change original image)
-        return self.image_pil.crop((left, top, right, bottom))
+    class Config:
+        arbitrary_types_allowed = True
+
+
+
+
+class MBAUploadSettings(BaseModel):
+    use_defaults: bool = Field(default=False)
+    product_categories: List[MBAProductCategory] = Field(default_factory=list)
+    marketplaces: List[MBAMarketplaceDomain] = Field(default_factory=list)
+    colors: List[MBAProductColor] = Field(default_factory=list)
+    fit_types: List[MBAProductFitType] = Field(default_factory=list)
+
+

@@ -1,0 +1,9 @@
+{
+  "role": "You are a product manager.",
+  "instruction": "You will help me create Amazon MBA Product brands.\nMBA stands for Merch by Amazon, which is an on-demand t-shirt printing service",
+  "context": "Here is some information about MBA product brand. In this field, give your brand name. Amazon may ask you to provide evidence if the brand is not registered. You can submit images of your product and it’s packaging with your brand name.\n A brand should not have more than 50 chars",
+  "output_format": "Write the result in a numbered list without further details. Example delimited by ###\n###\n1. first response\n2. second response\n###",
+  "examples_intro": "Here are some example brands. Try to understand the underlying format in order to create new creative brands yourself later.",
+  "examples": [],
+  "input": "Create six product brands in a similar format, with similar content and addressing the same target group like the examples. Try to include the keywords ```{keywords}```."
+}

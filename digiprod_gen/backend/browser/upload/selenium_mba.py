@@ -1,31 +1,26 @@
 import os
 import time
+import uuid
 
-import streamlit as st
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
-#from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException, StaleElementReferenceException
 
-from digiprod_gen.backend.browser.selenium_fns import hover_over_element, wait_until_element_exists, scroll_to_top_left, SeleniumBrowser, get_full_page_screenshot
-from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProductFitType, MBAProductCategory, MBAProductColor
-from digiprod_gen.backend.data_classes.session import SessionState
-from digiprod_gen.backend.io.io_fns import save_img_to_memory
+from digiprod_gen.backend.browser.selenium_fns import hover_over_element, wait_until_element_exists, SeleniumBrowser
+from digiprod_gen.backend.browser import selenium_fns
+from digiprod_gen.backend.models.mba import MBAMarketplaceDomain, MBAProductFitType, MBAProductCategory, MBAProductColor
 from digiprod_gen.backend.transform.transform_fns import mba_product_category2html_row_name
-from digiprod_gen.backend.image import conversion
 from PIL import Image
 from typing import List
 
-from digiprod_gen.frontend.session import read_session, start_browser
-
 
 def login_mba(driver: WebDriver, email: str, password: str):
-    """Fill mba login form and simulate submit button click"""
+    """Fill utils login form and simulate submit button click"""
     # Fill in the form fields
-    print("Try to provide mba email and password")
+    print("Try to provide utils email and password")
     username_input = driver.find_element(By.ID, "ap_email")
     password_input = driver.find_element(By.ID, "ap_password")
     username_input.send_keys(email)
@@ -35,11 +30,8 @@ def login_mba(driver: WebDriver, email: str, password: str):
     submit_button = driver.find_element(By.CSS_SELECTOR, "input[type='submit']")
     submit_button.click()
 
-#2FA
-#second_factor_code = st.sidebar.number_input("2FA Code:")
-
 def authenticate_mba_with_opt_code(driver: WebDriver, second_factor_code: str):
-    """Fill mba second factor authentification form and simulate submit button click"""
+    """Fill utils second factor authentification form and simulate submit button click"""
     otp_code = driver.find_element(By.NAME, "otpCode")
     remember_device = driver.find_element(By.NAME, "rememberDevice")
     otp_code.send_keys(second_factor_code)
@@ -60,8 +52,9 @@ def wait_until_dashboard_is_ready(driver: WebDriver, max_time_wait: int = 3):
     except TimeoutException:
         print("Loading took too much time!")
 
-def open_dashboard(driver):
+def open_dashboard(driver, max_time_wait: int = 3):
     driver.get("https://merch.amazon.com/dashboard")
+    wait_until_dashboard_is_ready(driver, max_time_wait=max_time_wait)
 
 def open_create_new(driver):
     # find the link element by its text content
@@ -70,7 +63,7 @@ def open_create_new(driver):
 def select_products_and_marketplaces(driver, products: List[MBAProductCategory], marketplaces: List[MBAMarketplaceDomain]):
     """Selects desired products and target marketplaces in MBA upload/create menu"""
     # TODO: Pillow product is not selected at the moment
-    # open selecton menu
+    # open selection menu
     try:
         select_products_button = driver.find_element(By.ID, "select-marketplace-button")
     except Exception as e:
@@ -209,10 +202,9 @@ def select_colors(driver: WebDriver, product_categories: List[MBAProductCategory
     iterate_over_product_cards(driver, product_categories=product_categories, editor_change_fn=select_colors_in_product_editor, colors=colors, web_driver=driver)
 
 
-def upload_image(browser: SeleniumBrowser, image_pil: Image, file_name: str):
+def upload_image(browser: SeleniumBrowser, image_pil: Image):
     driver = browser.driver
-    file_name_cleaned = ''.join(e for e in file_name if e.isalnum())
-    temp_file_path = f"{browser.data_dir_path}/{file_name_cleaned}.png"
+    temp_file_path = f"{browser.data_dir_path}/{uuid.uuid4().hex}.png"
     image_pil.save(temp_file_path, format='png')
     # # store image to temp memory
     # temp_file_path = save_img_to_memory(image_pil)
@@ -225,8 +217,8 @@ def upload_image(browser: SeleniumBrowser, image_pil: Image, file_name: str):
     # delete file again
     os.remove(temp_file_path)
 
-def insert_listing_text(driver, title: str, brand: str, bullet_1: str, bullet_2: str, description: str):
-    """Inserts all mba listings i.e. Text, Brand, bullets and description"""
+def insert_listing_text(driver, title: str, brand: str, bullet_1: str | None = None, bullet_2: str | None = None, description: str | None = None):
+    """Inserts all utils listings i.e. Text, Brand, bullets and description"""
     # Get input objects
     title_input = driver.find_element(By.ID, "designCreator-productEditor-title")
     brand_input = driver.find_element(By.ID, "designCreator-productEditor-brandName")
@@ -244,8 +236,10 @@ def insert_listing_text(driver, title: str, brand: str, bullet_1: str, bullet_2:
     # fill data
     title_input.send_keys(title)
     brand_input.send_keys(brand)
-    bullet_one_input.send_keys(bullet_1)
-    bullet_two_input.send_keys(bullet_2)
+    if bullet_1:
+        bullet_one_input.send_keys(bullet_1)
+    if bullet_2:
+        bullet_two_input.send_keys(bullet_2)
     if description:
         description_input.send_keys(description)
 
@@ -260,40 +254,19 @@ def publish_to_mba(driver, searchable=True):
     publish_submit_button.click()
 
 def change_language_to_en(driver: WebDriver, language_url="/switch-locale?language=en_US"):
-    try:
-        globe_icon = wait_until_element_exists(driver, "//*[contains(@class, 'globe-icon')]")
-        globe_icon.click()
-    except Exception:
-        st.exception(ValueError("Languagse not changable"))
-        screenshot_bytes = get_full_page_screenshot(driver)
-        screenshot_pil = conversion.bytes2pil(screenshot_bytes)
-        st.image(screenshot_pil)
+    globe_icon = wait_until_element_exists(driver, "//*[contains(@class, 'globe-icon')]")
+    globe_icon.click()
     driver.find_element(By.XPATH, f"//a[@href='{language_url}']").click()
 
-def login_to_mba(tab_upload):
-    session_state: SessionState = st.session_state["session_state"]
-    start_browser(session_state)
-    driver = session_state.browser.driver
+def remove_uploaded_image(driver: WebDriver, xpath: str):
+    try:
+        delete_image_i_tag = driver.find_element(By.XPATH, xpath)
+        # Element must be in focus in order to be clickable
+        selenium_fns.focus_element(driver, delete_image_i_tag)
+        selenium_fns.scroll_page(driver, -300)
+        selenium_fns.scroll_to_top_left(driver)
+        delete_image_i_tag.click()
 
-    with tab_upload, st.spinner('Login to MBA...'):
-        # TODO: This might need to be changed as it was copied by browser url directly
-        driver.get("https://merch.amazon.com/dashboard")
-        if not session_state.status.mba_login_successfull:
-            login_mba(driver, read_session("mba_email"), read_session("mba_password"))
-    if "captcha" in driver.page_source.lower():
-        st.exception(ValueError("Captcha required"))
-    if "your password is incorrect" in driver.page_source.lower():
-        st.exception(ValueError("Password is incorrect"))
-    elif "verification" not in driver.page_source.lower() and "otp" not in driver.page_source.lower():
-        driver.get("https://merch.amazon.com/dashboard")
-        # check if the current url contains "https://merch.amazon.com/dashboard"
-        wait_until_dashboard_is_ready(driver)
-        if "merch.amazon.com/dashboard" in driver.current_url:
-            change_language_to_en(driver)
-            session_state.status.mba_login_successfull = True
-        # else:
-        #     st.exception(ValueError("Dashboard is not accessible"))
-        #     login_mba(driver, read_session("mba_email"), read_session("mba_password"))
-        #     screenshot_bytes = get_full_page_screenshot(session_state.browser.driver)
-        #     screenshot_pil = conversion.bytes2pil(screenshot_bytes)
-        #     st.image(screenshot_pil)
+    except (NoSuchElementException, ElementClickInterceptedException) as e:
+        print("Exception", str(e))
+        pass

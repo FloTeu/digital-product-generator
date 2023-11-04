@@ -1,22 +1,27 @@
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
 import time
-from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest
+from digiprod_gen.backend.models.request import CrawlingMBARequest
 from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists
 
 from selenium.webdriver.chrome.webdriver import WebDriver
 
 
 def search_overview_page(request: CrawlingMBARequest, driver: WebDriver):
+    """Executes an overview search on utils marketplace"""
     driver.get(request.mba_overview_url)
 
 
 def click_ignore_cookies(driver: WebDriver):
-    # Click reject all cookies link
+    """ Click reject all cookies link"""
     driver.find_element("id", "sp-cc-rejectall-link").click()
 
+def click_accept_cookies(driver: WebDriver):
+    """ Click reject all cookies link"""
+    driver.find_element("id", "sp-cc-accept").click()
 
 def change_postcode(driver, postcode):
+    """Changes customer postcode address in order to show the deliverable products"""
     driver.find_element(By.ID, "nav-global-location-popover-link").click()
     time.sleep(1.5)
     try:
@@ -41,26 +46,3 @@ def change_postcode(driver, postcode):
     if len(submit_buttons) == 0:
         submit_buttons = popover_footer.find_elements(By.XPATH, ".//button")
     submit_buttons[0].click()
-
-
-def search_overview_and_change_postcode(request: CrawlingMBARequest, driver, postcode=None):
-    """ Searches mba overview page and change postcode in order to see correct products"""
-    search_overview_page(request, driver)
-    # If selenium is running with headless mode the first request sometimes fails
-    if "something went wrong" in driver.title.lower():
-        print("something went wrong during overview crawling. Try again..")
-        search_overview_page(request, driver)
-
-    try:
-        click_ignore_cookies(driver)
-    except:
-        pass
-    if postcode:
-        print("Try to change postcode")
-        try:
-            change_postcode(driver, postcode)
-        except (NoSuchElementException, ElementNotInteractableException):
-            print("Could not change postcode")
-            pass
-        wait_until_element_exists(driver, "//*[contains(@class, 'sg-col-inne')]")
-        #time.sleep(3)  # wait until page is refreshed with new products

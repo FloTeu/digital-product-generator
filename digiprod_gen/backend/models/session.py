@@ -2,21 +2,22 @@ import streamlit as st
 
 from PIL.Image import Image
 from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser
-from digiprod_gen.backend.data_classes.mba import MBAProduct, MBAProductCategory, MBAMarketplaceDomain, MBAProductColor, MBAProductFitType
-
+from digiprod_gen.backend.models.mba import MBAProduct, MBAUploadSettings
+from digiprod_gen.frontend.backend_caller import BackendCaller
 
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Dict
 from operator import itemgetter
 
-from digiprod_gen.backend.data_classes.mba import CrawlingMBARequest
-from digiprod_gen.backend.data_classes.config import DigiProdGenConfig, DigiProdGenMBAMarketplaceConfig
+from digiprod_gen.backend.models.request import CrawlingMBARequest
+from digiprod_gen.backend.models.config import DigiProdGenConfig, DigiProdGenMBAMarketplaceConfig
 
 
 @dataclass
 class CrawlingData:
-    mba_products: List[MBAProduct] = field(default_factory=list)  # crawled mba products
+    mba_products: List[MBAProduct] = field(default_factory=list)  # crawled utils products
     selected_designs: List[int] = field(default_factory=list) # user selected products for prompt generation
+    mba_product_images: Dict[str, Image] = field(default_factory=dict) # key is mba product id/asin, value is the image
 
     def get_selected_mba_products(self) -> List[MBAProduct]:
         """
@@ -30,6 +31,23 @@ class CrawlingData:
             return [self.mba_products[selected_designs_i[0]]]
         else:
             return list(itemgetter(*selected_designs_i)(self.mba_products))
+
+    def get_mba_product_image(self, id: str) -> Image | None:
+        return self.mba_product_images.get(id, None)
+
+    def get_image_design_crop(self, id: str):
+        image_pil = self.get_mba_product_image(id)
+        if not image_pil:
+            raise ValueError("Pillow image not yet set")
+        width, height = image_pil.size
+        # Setting the points for cropped image
+        left = width / 5
+        top = height / 5
+        right = 4 * (width / 5)
+        bottom = 4 * (height / 5)
+        # Cropped image of above dimension
+        # (It will not change original image)
+        return image_pil.crop((left, top, right, bottom))
 
 @dataclass
 class ImageGenData:
@@ -52,19 +70,6 @@ class ImageGenData:
         return self.image_pil_upload_ready
 
 
-
-
-
-@dataclass
-class MBAUploadSettings:
-    use_defaults: bool = field(default=False)
-    product_categories: List[MBAProductCategory] = field(default_factory=list)
-    marketplaces: List[MBAMarketplaceDomain] = field(default_factory=list)
-    colors: List[MBAProductColor] = field(default_factory=list)
-    fit_types: List[MBAProductFitType] = field(default_factory=list)
-
-
-
 @dataclass
 class MBAUploadData:
     predicted_brands: List[str] = field(default_factory=list)
@@ -85,13 +90,14 @@ class DigiProdGenStatus:
     prompts_generated: bool = False
     image_upload_ready: bool = False
     listing_generated: bool = False
-    mba_login_successfull: bool = False
+    mba_login_otp_required: bool = False
+    mba_login_successful: bool = False
     product_uploaded: bool = False
 
     def refresh(self):
         """
         Refreshes all status, after the data source has changed
-        mba auth status can stay, since its independent of the input data
+        utils auth status can stay, since its independent of the input data
         """
         self.overview_page_crawled = False
         self.detail_pages_crawled = False
@@ -124,8 +130,10 @@ class SessionState:
     upload_data: MBAUploadData
     status: DigiProdGenStatus
     config: DigiProdGenConfig
+    backend_caller: BackendCaller
     views: DigitProdGenViews
     session_id: str
 
-    def get_marketplace_config(self) -> DigiProdGenMBAMarketplaceConfig:
-        return self.config.mba.get_marketplace_config(self.crawling_request.marketplace)
+    def get_marketplace_config(self, marketplace: str | None = None) -> DigiProdGenMBAMarketplaceConfig:
+        marketplace = marketplace or self.crawling_request.marketplace
+        return self.config.mba.get_marketplace_config(marketplace)

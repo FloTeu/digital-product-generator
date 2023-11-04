@@ -1,6 +1,6 @@
 from PIL import Image
 from digiprod_gen.backend.image.common import replicate_generate, OutputFormat
-from digiprod_gen.backend.data_classes.common import ImageGenerationSDXLLoraUrl
+from digiprod_gen.backend.models.common import ImageGenerationSDXLLoraUrl
 
 
 def generate_with_deepfloyd_if(prompt: str) -> Image:

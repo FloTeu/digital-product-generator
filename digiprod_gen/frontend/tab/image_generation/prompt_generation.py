@@ -4,25 +4,25 @@ import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 from langchain.chat_models import ChatOpenAI
 
-from digiprod_gen.backend.generative_ai.text.text_gen_fns import get_midjourney_prompt_gen, mba_products2llm_prompt_gen_input
+from digiprod_gen.backend.text.text_gen_fns import mba_products2llm_prompt_gen_input
+from digiprod_gen.backend.models.session import SessionState
 from digiprod_gen.backend.prompt_engineering.utils import extract_list_from_output
-from digiprod_gen.backend.data_classes.common import MBAMidjourneyOutputModel
 from digiprod_gen.frontend.session import read_session
-from digiprod_gen.backend.data_classes.session import SessionState
-
+from llm_prompting_gen.generators import PromptEngineeringGenerator
 
 def prompt_generation(st_tab_ig: DeltaGenerator):
     session_state: SessionState = read_session("session_state")
     mba_products_selected = session_state.crawling_data.get_selected_mba_products()
     llm = ChatOpenAI(temperature=0.7)
-    midjourney_prompt_gen = get_midjourney_prompt_gen(llm)
+    midjourney_prompt_gen = PromptEngineeringGenerator.from_json("templates/stable_diffusion_prompt_gen.json", llm)
 
     with st_tab_ig, st.spinner('Prompt generation...'):
         # prompt generation
         ts_start = time.time()
         llm_prompt_gen_input = mba_products2llm_prompt_gen_input(mba_products_selected)
-        llm_output: MBAMidjourneyOutputModel = midjourney_prompt_gen.generate(text=llm_prompt_gen_input)
-        predicted_prompts = llm_output.image_prompts
+        llm_output: str = midjourney_prompt_gen.generate(text=llm_prompt_gen_input)
+
+        predicted_prompts = extract_list_from_output(llm_output)
         print("mid_gen time elapsed %.2f seconds" % (time.time() - ts_start))
         session_state.image_gen_data.image_gen_prompts = predicted_prompts
         # ts_start = time.time()

@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import List
 
 from pydantic import BaseModel, validator, Field
-from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain
+from digiprod_gen.backend.models.mba import MBAMarketplaceDomain
 
 class DigiProdGenBrowserConfig(BaseModel):
     selenium_data_dir_path: Path
@@ -14,15 +14,20 @@ class DigiProdGenBrowserConfig(BaseModel):
         return data_dir_path
 
 class DigiProdGenMBAMarketplaceConfig(BaseModel):
-    marketplace: MBAMarketplaceDomain = Field(description="mba marketplace domain")
+    marketplace: MBAMarketplaceDomain = Field(description="utils marketplace domain")
     postcode: str = Field(description="Valid example postcode of the main country in which the marketplace operates")
-    proxy: str | None = Field(description="Crawling proxy which should be used to get better response by mba server")
-    proxy_port: int | None = Field(description="Port on which the proxy can be accessed")
+    proxy: str | None = Field(None, description="Crawling proxy which should be used to get better response by utils server")
+    proxy_port: int | None = Field(None, description="Port on which the proxy can be accessed")
+    proxy_socks: str | None = Field(None, description="Optional SOCKS to hide ip address")
+
 
     def get_proxy_with_secrets(self, user_name, password) -> str | None:
         """If proxy exists, return proxy url with secrets. Otherwise None"""
-        if self.proxy:
+        if self.proxy and "perfect-privacy.com" in self.proxy:
             return f"http://{user_name}:{password}@{self.proxy}:{self.proxy_port}"
+        elif self.proxy:
+            http_or_socks = self.proxy_socks or "http://"
+            return f"{http_or_socks}://{self.proxy}:{self.proxy_port}"
         return None
 
 class DigiProdGenMBAConfig(BaseModel):
@@ -44,7 +49,14 @@ class DigiProdGenImageGenBrConfig(BaseModel):
 class DigiProdGenImageGenConfig(BaseModel):
     background_removal: DigiProdGenImageGenBrConfig
 
+class BackendConfig(BaseModel):
+    host: str = Field(default="localhost", description="Address where backend is deployed or localhost.")
+    port: int | None = Field(None)
+    debug: bool = Field(default=False, description="If true, backend api code is executed via TestClient.")
+
+
 class DigiProdGenConfig(BaseModel):
+    backend: BackendConfig
     mba: DigiProdGenMBAConfig
     browser: DigiProdGenBrowserConfig
     view: DigiProdGenViewConfig

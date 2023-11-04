@@ -1,10 +1,8 @@
-import requests
 import streamlit as st
-import replicate
 
 from PIL import Image
-from digiprod_gen.backend.data_classes.session import ImageGenData
-from digiprod_gen.backend.data_classes.common import ImageGenerationModel
+from digiprod_gen.backend.models.session import ImageGenData
+from digiprod_gen.backend.models.common import ImageGenerationModel
 from digiprod_gen.backend.image import generation
 
 def update_session_selected_prompt(session_image_gen_data: ImageGenData, image_gen_prompt=None):

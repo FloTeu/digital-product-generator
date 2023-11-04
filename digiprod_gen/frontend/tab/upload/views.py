@@ -4,8 +4,9 @@ from typing import List, Tuple
 from digiprod_gen.backend.image import conversion as img_conversion
 from digiprod_gen.backend.image.utils import hex_to_rgba
 from digiprod_gen.backend.utils.helper import Timer
-from digiprod_gen.backend.data_classes.session import MBAUploadData, SessionState, MBAUploadSettings, ImageGenData, DigiProdGenStatus
-from digiprod_gen.backend.data_classes.mba import MBAMarketplaceDomain, MBAProductCategory, MBAProductColor, MBAProductFitType
+from digiprod_gen.backend.models.session import MBAUploadData, SessionState, ImageGenData, DigiProdGenStatus
+from digiprod_gen.backend.models.mba import MBAMarketplaceDomain, MBAProductCategory, MBAProductColor, \
+    MBAProductFitType, MBAUploadSettings
 from collections import deque
 from PIL import Image, ImageOps
 from enum import Enum
@@ -41,10 +42,6 @@ def display_upload_ready_image(img_pil: Image, background_color: Tuple[int,int,i
     resize_tuple = (int(new_size[0]/10), int(new_size[1]/10))
     st.image(image_to_show.resize(resize_tuple))
 
-    # update session image
-    session_state: SessionState = st.session_state["session_state"]
-    session_state.image_gen_data.image_pil_upload_ready = image_pil_upload_ready
-
 def display_data_for_upload(image_pil: Image,
                             title: str | None,
                             brand: str | None,
@@ -58,9 +55,10 @@ def display_data_for_upload(image_pil: Image,
     with Timer("display_upload_ready_image"), col1:
         color_hex = st.color_picker('Pick a background color', '#000000')
         rgba_tuple = hex_to_rgba(color_hex)
-        print(rgba_tuple)
-        display_upload_ready_image(image_pil, rgba_tuple)
-
+        try:
+            display_upload_ready_image(image_pil, rgba_tuple)
+        except:
+            st.warning("Could not display image")
     session_state: SessionState = st.session_state["session_state"]
     mba_upload_data: MBAUploadData = session_state.upload_data
 

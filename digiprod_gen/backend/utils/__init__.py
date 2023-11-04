@@ -1,1 +1,1 @@
-from .utils import *
+from digiprod_gen.backend.utils.utils import *
