@@ -69,14 +69,14 @@ class MBAProduct(BaseModel):
     marketplace: MBAMarketplaceDomain
     asin: str
     title: str
-    brand: Optional[str]
+    brand: Optional[str] = Field(None)
     image_url: str
     product_url: str
-    price: Optional[float]
-    description: Optional[str]
+    price: Optional[float] = Field(None)
+    description: Optional[str] = Field(None)
     bullets: List[str] = Field(default_factory=list)
-    image_prompt: Optional[str]
-    image_text_caption: Optional[str]
+    image_prompt: Optional[str] = Field(None)
+    image_text_caption: Optional[str] = Field(None)
     # TODO: Move to another data class
     # image_pil: Optional[Image.Image]
 

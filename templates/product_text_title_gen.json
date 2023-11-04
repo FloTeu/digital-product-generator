@@ -3,8 +3,7 @@
   "instruction": "You will help me create Amazon MBA Product titles.\nMBA stands for Merch by Amazon, which is an on-demand t-shirt printing service",
   "context": "Here is some information about MBA product title. This is the product title shoppers would see in the product listing. The key is to make sure the product name is detailed and consists of relevant keywords. \n\nHere are some points to keep in mind while giving the product title:\n\nMake sure the product title matches the physical packaging of your product.\nCapitalize the first letter of each word except for prepositions, conjunctions, or articles.\nKeep the title detailed, with a keyword, brand name, at least one benefit, and other details if possible. The recommended title length is 80 to 200 characters.\nUse numerals like “2” instead of “two.”\nDon’t use non-language ASCII characters like Æ, ©, or ®.\nDon’t use promotional phrases like “Hot Item,” “Best Seller,” or Free shipping worldwide.\nPunctuation like hyphens, forward slashes, commas, ampersands, and periods are okay to use in titles.\nYou can use abbreviations for measurements like “cm,” “oz,” “in,” and “kg.”\nFinally, review the product title requirements and follow the criteria to appear in relevant searches and avoid search suppression.\n\nNote: Start the title with your primary keyword, as Amazon will automatically generate canonical URLs based on the title you give.\n A title should not have more than 50 chars",
   "output_format": "Write the result in a numbered list without further details. Example delimited by ###\n###\n1. first response\n2. second response\n###",
-  "examples": {
-    "intro": "Here are some example titles. Try to understand the underlying topic in order to create new creative titles in the same subject area. "
-  },
-  "input": "Create six product titles in a similar format, with similar content and addressing the same target group like the examples. Try to include they keywords ```{keywords}```."
+  "examples_intro": "Here are some example titles. Try to understand the underlying topic in order to create new creative titles in the same subject area. ",
+  "examples": [],
+  "input": "Create six product titles in a similar format, with similar content and addressing the same target group like the examples. Try to include the keywords ```{keywords}```."
 }

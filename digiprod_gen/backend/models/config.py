@@ -16,9 +16,9 @@ class DigiProdGenBrowserConfig(BaseModel):
 class DigiProdGenMBAMarketplaceConfig(BaseModel):
     marketplace: MBAMarketplaceDomain = Field(description="utils marketplace domain")
     postcode: str = Field(description="Valid example postcode of the main country in which the marketplace operates")
-    proxy: str | None = Field(description="Crawling proxy which should be used to get better response by utils server")
-    proxy_port: int | None = Field(description="Port on which the proxy can be accessed")
-    proxy_socks: str | None = Field(description="Optional SOCKS to hide ip address")
+    proxy: str | None = Field(None, description="Crawling proxy which should be used to get better response by utils server")
+    proxy_port: int | None = Field(None, description="Port on which the proxy can be accessed")
+    proxy_socks: str | None = Field(None, description="Optional SOCKS to hide ip address")
 
 
     def get_proxy_with_secrets(self, user_name, password) -> str | None:
@@ -51,7 +51,7 @@ class DigiProdGenImageGenConfig(BaseModel):
 
 class BackendConfig(BaseModel):
     host: str = Field(default="localhost", description="Address where backend is deployed or localhost.")
-    port: int | None
+    port: int | None = Field(None)
     debug: bool = Field(default=False, description="If true, backend api code is executed via TestClient.")
 
 

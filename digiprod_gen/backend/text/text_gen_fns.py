@@ -3,7 +3,6 @@ from typing import List
 from digiprod_gen.backend.models.mba import MBAProduct, MBAProductTextType
 from digiprod_gen.backend.text.mba_banned_word import MBA_BANNED_WORDS
 from llm_prompting_gen.generators import ParsablePromptEngineeringGenerator, PromptEngineeringGenerator
-from llm_prompting_gen.models.prompt_engineering import PEFewShotExample
 
 
 def combine_bullets(product: MBAProduct) -> str:
@@ -30,13 +29,13 @@ def remove_banned_words(example: str):
 def get_product_text_gen(llm, mba_products, mba_product_text_type: MBAProductTextType) -> ParsablePromptEngineeringGenerator:
     if mba_product_text_type == MBAProductTextType.BULLET:
         product_text_gen = PromptEngineeringGenerator.from_json("templates/product_text_bullet_gen.json", llm=llm)
-        product_text_gen.prompt_elements.examples.examples = [remove_banned_words(bullet) for mba_product in mba_products for bullet in mba_product.bullets]
+        product_text_gen.prompt_elements.examples = [remove_banned_words(bullet) for mba_product in mba_products for bullet in mba_product.bullets]
     elif mba_product_text_type == MBAProductTextType.BRAND:
         product_text_gen = PromptEngineeringGenerator.from_json("templates/product_text_brand_gen.json", llm=llm)
-        product_text_gen.prompt_elements.examples.examples = [remove_banned_words(mba_product.brand) for mba_product in mba_products]
+        product_text_gen.prompt_elements.examples = [remove_banned_words(mba_product.brand) for mba_product in mba_products]
     elif mba_product_text_type == MBAProductTextType.TITLE:
         product_text_gen = PromptEngineeringGenerator.from_json("templates/product_text_title_gen.json", llm=llm)
-        product_text_gen.prompt_elements.examples.examples = [remove_banned_words(mba_product.title) for mba_product in mba_products]
+        product_text_gen.prompt_elements.examples = [remove_banned_words(mba_product.title) for mba_product in mba_products]
 
     # Make sure output does not contain the banned words
     product_text_gen.prompt_elements.instruction = f"{product_text_gen.prompt_elements.instruction}\nDo not include any of the following words: {MBA_BANNED_WORDS} in your output."

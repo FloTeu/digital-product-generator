@@ -3,8 +3,7 @@
   "instruction": "You will help me create Amazon MBA Product bullet points.\nMBA stands for Merch by Amazon, which is an on-demand t-shirt printing service",
   "context": "Here is some information about MBA product bullet points. Next, you must add bullet points to the Amazon product listing. These points appear next to the product images and describe your product benefits in detail. You can use relevant keywords in these bullet points to improve your product ranking in the search result. \nHere are some more tips for creating the bullet points:\nStart each bullet points with a capital letter.\nWrite as sentence fragments, and do not use ending punctuation.\nEnsure all the bullet points have a similar length, not too long or short. \nAvoid using promotional content, discounts, and offers in the bullet points\nDon’t use HTML or other coding elements to create fancy symbols or emojis in the bullet points.\n A single bullet should not have more than 246 chars.",
   "output_format": "Write the result in a numbered list without further details. Example delimited by ###\n###\n1. first response\n2. second response\n###",
-  "examples": {
-    "intro": "Here are some example bullets. Try to understand the underlying format in order to create new creative bullets yourself later. "
-  },
-  "input": "Create six product bullet points in a similar format, with similar content and addressing the same target group like the examples. Try to include they keywords ```{keywords}```."
+  "examples_intro": "Here are some example bullets. Try to understand the underlying format in order to create new creative bullets yourself later. ",
+  "examples": [],
+  "input": "Create six product bullet points in a similar format, with similar content and addressing the same target group like the examples. Try to include the keywords ```{keywords}```."
 }
