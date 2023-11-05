@@ -146,7 +146,7 @@ def display_tab_upload_views(session_state: SessionState):
                     st.error(f"MBA Error: {error}")
             if len(errors) == 0 and session_state.status.product_uploaded and st.button("Publish to MBA"):
                 response = session_state.backend_caller.get(
-                    f"/browser/upload/publish_mba_product?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}&searchable=false"
+                    f"/browser/upload/publish_mba_product?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}&searchable=true"
                 )
                 if response.status_code == 200:
                     st.balloons()
