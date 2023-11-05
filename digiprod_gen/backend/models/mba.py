@@ -93,4 +93,5 @@ class MBAUploadSettings(BaseModel):
     colors: List[MBAProductColor] = Field(default_factory=list)
     fit_types: List[MBAProductFitType] = Field(default_factory=list)
 
-
+    class Config:
+        use_enum_values = True

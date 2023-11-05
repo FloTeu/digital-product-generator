@@ -26,7 +26,7 @@ def crawl_mba_overview_and_display():
             session_state.crawling_request.marketplace).postcode
         session_id = session_state.session_id
         response = session_state.backend_caller.post(f"/browser/crawling/mba_overview?session_id={session_id}",
-                                                     json=session_state.crawling_request.dict())
+                                                     json=session_state.crawling_request.model_dump())
 
         #start_browser(session_state)
         # request: CrawlingMBARequest = session_state.crawling_request

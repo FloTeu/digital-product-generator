@@ -1,3 +1,5 @@
+import base64
+import io
 from io import BytesIO
 from PIL import Image
 import numpy as np
@@ -34,6 +36,33 @@ def pil2cv(img_pil):
 
 def np2pil(img_np):
     return Image.fromarray(img_np)
+
+
+def pil2b64_str(img):
+    img_bytes = pil2bytes(img)
+    base64_bytes = base64.b64encode(img_bytes)
+    base64_string = base64_bytes.decode('utf-8')
+    return base64_string
+
+def pil2b64_str(img):
+    img_bytes = pil2bytes(img)
+    base64_bytes = base64.b64encode(img_bytes)
+    base64_string = base64_bytes.decode('utf-8')
+    return base64_string
+
+def b64_str2bytes(b64_str):
+    # str to base64 bytes
+    b64_bytes = b64_str.encode('utf-8')
+    # base64bytes to normal bytes
+    img_bytes = base64.b64decode(b64_bytes)
+    return img_bytes
+
+def bytes2pil(img_bytes):
+    image = Image.open(io.BytesIO(img_bytes))
+    return image
+
+def b64_str2pil(b64_str) -> Image:
+    return bytes2pil(b64_str2bytes(b64_str))
 
 def pilrgba2pilrgb(img_pil: Image) -> Image:
     # Convert the 4-channel image to a 3-channel image (RGB)

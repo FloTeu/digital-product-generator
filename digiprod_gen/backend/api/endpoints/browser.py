@@ -5,7 +5,7 @@ from typing import List, Annotated
 from functools import lru_cache
 
 
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from selenium.common import NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
@@ -144,15 +144,42 @@ async def mba_login_otp(otp_code: str, session_id: str, proxy: str | None = None
     upload_mba_fns.change_language_to_en(browser.driver)
     return True
 
+from digiprod_gen.backend.models.mba import MBAUploadSettings, MBAMarketplaceDomain, MBAProductCategory, MBAProductColor, MBAProductFitType
+
 @router.post("/upload/upload_mba_product")
 async def upload_mba_product(
-                             upload_request: UploadMBARequest,
                              session_id: str,
                              image_upload_ready: UploadFile = File(...),
+                             title: str = Form(...),
+                             brand: str = Form(...),
+                             bullet_1: str | None = Form(None),
+                             bullet_2: str| None = Form(None),
+                             description: str | None = Form(None),
+                             use_defaults: bool = Form(False),
+                             product_categories: List[MBAProductCategory] = Form(...),
+                             marketplaces: List[MBAMarketplaceDomain] = Form(...),
+                             colors: List[MBAProductColor] = Form(...),
+                             fit_types: List[MBAProductFitType] = Form(...),
                              proxy: str | None = None) -> UploadMBAResponse:
     """
     Uploads utils product to utils account (without publishing it)
     """
+
+    upload_request = UploadMBARequest(title=title,
+                                      brand=brand,
+                                      bullet_1=bullet_1,
+                                      bullet_2=bullet_2,
+                                      description=description,
+                                      settings=MBAUploadSettings(
+                                          use_defaults=use_defaults,
+                                          product_categories=product_categories,
+                                          marketplaces=marketplaces,
+                                          colors=colors,
+                                          fit_types=fit_types
+                                        )
+                                      )
+
+    print("Got new upload request")
     browser = init_selenium_browser(session_id, proxy)
     image_delete_xpath = "//*[contains(@class, 'sci-delete-forever')]"
     image_pil_upload_ready = Image.open(image_upload_ready.file)

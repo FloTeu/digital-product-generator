@@ -10,10 +10,11 @@ from digiprod_gen.backend.models.mba import MBAUploadSettings, MBAMarketplaceDom
 class UploadMBARequest(BaseModel):
     title: str
     brand: str
-    bullet_1: str | None = None
-    bullet_2: str | None = None
-    description: str | None = None
+    bullet_1: str | None = Field(None)
+    bullet_2: str | None = Field(None)
+    description: str | None = Field(None)
     settings: MBAUploadSettings = Field(default_factory=MBAUploadSettings)
+
 
     @classmethod
     def __get_validators__(cls):

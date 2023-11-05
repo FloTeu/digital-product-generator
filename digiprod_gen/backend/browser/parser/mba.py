@@ -170,6 +170,7 @@ def is_mba_product(product_element: WebElement) -> bool:
     """product is considered as utils product if it contains a asin id"""
     try:
         asin = overview_product_get_asin(product_element)
+        title = overview_product_get_title(product_element)
         return True
     except:
         return False
