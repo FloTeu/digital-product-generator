@@ -18,7 +18,7 @@ def display_image_generation_prompt(session_image_gen_data: ImageGenData):
 def display_image_generator(session_image_gen_data: ImageGenData) -> Image:
     image_gen_model = st.selectbox(
         'Image Generation Model',
-        (ImageGenerationModel.STABLE_DIFFUSION.value, ImageGenerationModel.STABLE_DIFFUSION_SHIRT.value, ImageGenerationModel.STABLE_DIFFUSION_BARBIE.value, ImageGenerationModel.OPENJOURNEY.value, ImageGenerationModel.DEEPFLOYD_IF.value, ImageGenerationModel.POKEMON.value, ImageGenerationModel.WAIFU_DIFFUSION.value))
+        (ImageGenerationModel.DALLE_3.value, ImageGenerationModel.STABLE_DIFFUSION.value, ImageGenerationModel.STABLE_DIFFUSION_SHIRT.value, ImageGenerationModel.STABLE_DIFFUSION_BARBIE.value, ImageGenerationModel.OPENJOURNEY.value, ImageGenerationModel.DEEPFLOYD_IF.value, ImageGenerationModel.POKEMON.value, ImageGenerationModel.WAIFU_DIFFUSION.value))
     if st.button("Generate Image"):
         with st.spinner('Generating image...'):
             session_image_gen_data.image_pil_generated = text2image(session_image_gen_data.image_gen_prompt_selected, image_gen_model)
@@ -39,6 +39,8 @@ def text2image(text: str, image_gen_model: ImageGenerationModel) -> Image:
         return generation.generate_with_pokemon(text)
     elif image_gen_model == ImageGenerationModel.WAIFU_DIFFUSION:
         return generation.generate_with_waifu(text)
+    elif image_gen_model == ImageGenerationModel.DALLE_3:
+        return generation.generate_with_dalle3(text)
     else:
         raise NotImplementedError
 

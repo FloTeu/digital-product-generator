@@ -1,7 +1,11 @@
+import requests
+import openai
+import os
 from PIL import Image
-from digiprod_gen.backend.image.common import replicate_generate, OutputFormat
+from digiprod_gen.backend.image.common import replicate_generate, OutputFormat, OpenAIImageQuality
 from digiprod_gen.backend.models.common import ImageGenerationSDXLLoraUrl
 
+from io import BytesIO
 
 def generate_with_deepfloyd_if(prompt: str) -> Image:
     model = "andreasjansson/deepfloyd-if:fb84d659df149f4515c351e394d22222a94144aa1403870c36025c8b28846c8d"
@@ -33,3 +37,18 @@ def generate_with_stable_diffusion_xl_barbie(prompt: str) -> Image:
 
 def generate_with_stable_diffusion_xl_shirt(prompt: str) -> Image:
     return generate_with_stable_diffusion_xl_lora(prompt + " in the style of TOK", lora_url=ImageGenerationSDXLLoraUrl.SHIRT)
+
+def generate_with_dalle3(prompt: str, quality: OpenAIImageQuality = OpenAIImageQuality.STANDARD) -> Image:
+    openai.api_key = os.environ.get("OPENAI_API_KEY")
+    response = openai.Image.create(
+        model="dall-e-3",
+        prompt=prompt,
+        size="1024x1024",
+        quality=quality,
+        n=1,
+    )
+
+    image_url = response.data[0].url
+    response = requests.get(image_url)
+
+    return Image.open(BytesIO(response.content))

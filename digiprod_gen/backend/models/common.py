@@ -24,6 +24,7 @@ class BackgroundRemovalModel(str, Enum):
     EASY_REM_BG="2. AI Background Removal"
 
 class ImageGenerationModel(str, Enum):
+    DALLE_3="DALL-E 3"
     DEEPFLOYD_IF="Deepfloyd IF"
     STABLE_DIFFUSION="Stable Diffusion"
     STABLE_DIFFUSION_BARBIE="Stable Diffusion Barbie"

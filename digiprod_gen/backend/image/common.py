@@ -11,6 +11,9 @@ class OutputFormat(Enum):
     STRING="str"
     GENERATOR="generator"
 
+class OpenAIImageQuality(str, Enum):
+    STANDARD="standard"
+    HD="hd"
 
 def replicate_generate(model_version: str, input: dict, output_format: OutputFormat = OutputFormat.STRING) -> Image:
     output = replicate.run(
