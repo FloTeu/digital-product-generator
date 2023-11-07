@@ -12,6 +12,7 @@ class EnumBase(Enum):
 class ImageCaptioningModel(str, Enum):
     BLIP2="Blip 2"
     IMG2PROMPT="Image to Prompt"
+    GPT4="gpt-4-vision-preview"
 
 class UpscalerModel(str, Enum):
     PIL="Simple Resize"

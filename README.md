@@ -73,11 +73,13 @@ docker run -ti -p 8501:8501 -v %cd%:/app --rm digiprod-gen:latest  # cmd.exe
 - [ ] LLM transformation of product description text for image prompt (remove misleading information)
 - [ ] Fix bug youth selection fails
 - [x] Add multi color background for upload tab
-- [] Refactor backed code to REST api
-- [] Clean up pyproject.toml dependencies
+- [ ] Refactor backed code to REST api
+- [ ] Clean up pyproject.toml dependencies
 - [x] Crawling performance optimization: Only change postcode if less than 48 products could be found  
-- [] If login was successful show some checkmark in the sidebar instead of login inputs
-- [] Checkout paper/repo https://idea2img.github.io/
+- [ ] If login was successful show some checkmark in the sidebar instead of login inputs
+- [ ] Checkout paper/repo https://idea2img.github.io/
+- [x] Include GPT-4 for image caption
+- [ ] Include dalle 3 for image genenration
 
 ## License
 
