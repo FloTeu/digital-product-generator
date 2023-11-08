@@ -68,3 +68,7 @@ def pilrgba2pilrgb(img_pil: Image) -> Image:
     # Convert the 4-channel image to a 3-channel image (RGB)
     if img_pil.mode == "RGBA":
         return img_pil.convert("RGB")
+    elif img_pil.mode == "RGB":
+        return img_pil
+    else:
+        raise NotImplementedError(f"Mode is not yet implemented for rgb conversion {img_pil.mode}")

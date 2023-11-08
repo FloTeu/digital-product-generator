@@ -18,7 +18,7 @@ def image2prompt(img_pil: Image) -> str:
     )
     return prompt
 
-def image2prompt_gpt4(img_pil: Image) -> str:
+def image2prompt_gpt4(img_pil: Image) -> str | None:
     b64_str = pil2b64_str(img_pil)
     headers = {
         "Content-Type": "application/json",
@@ -49,7 +49,12 @@ def image2prompt_gpt4(img_pil: Image) -> str:
 
     response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
 
-    return response.json().get("choices")[0].get("message").get("content")
+    try:
+        output = response.json().get("choices")[0].get("message").get("content")
+        return output
+    except Exception:
+        print(f"Could not extract gpt4 output from {response.json()}")
+        return None
 
 def has_text_inprint(img_pil: Image) -> bool:
     model = "andreasjansson/blip-2:4b32258c42e9efd4288bb9910bc532a69727f9acd26aa08e175713a0a857a608"
