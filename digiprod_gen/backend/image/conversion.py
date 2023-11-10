@@ -106,3 +106,16 @@ def pil2pil_png(img_pil: Image) -> Image:
 
     # Reload the image from the new BytesIO object
     return Image.open(png_bytesio)
+
+def ensure_rgba(img_pil: Image) -> Image:
+    """
+    Ensure the given image is in RGBA format
+
+    :param img_pil: Pillow Image object.
+    :return: Image in RGBA format.
+    """
+    if img_pil.mode != 'RGBA':
+        # Convert to 'RGBA'
+        img_pil = img_pil.convert('RGBA')
+
+    return img_pil

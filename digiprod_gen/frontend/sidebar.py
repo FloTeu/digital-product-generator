@@ -41,8 +41,8 @@ def listing_generation_input(tab_ig: DeltaGenerator):
 
 
 def mab_login_input(tab_upload: DeltaGenerator):
+    session_state: SessionState = st.session_state["session_state"]
     def login_to_mba_fn(tab_upload):
-        session_state: SessionState = st.session_state["session_state"]
         response = session_state.backend_caller.get(
             f"/browser/upload/mba_login?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}",
             auth=(read_session("mba_email"), read_session("mba_password")))
@@ -59,9 +59,12 @@ def mab_login_input(tab_upload: DeltaGenerator):
 
 
     st.subheader("5. MBA Upload")
-    st.text_input("MBA Email", value=os.environ.get("mba_user_name", ""), key="mba_email")
-    st.text_input("MBA Password", type="password", value=os.environ.get("mba_password", ""), key="mba_password")
-    st.button("Login", on_click=login_to_mba_fn, args=(tab_upload, ), key="button_mba_login")
+    if session_state.status.mba_login_successful:
+        st.write("Log in: :white_check_mark:")
+    else:
+        st.text_input("MBA Email", value=os.environ.get("mba_user_name", ""), key="mba_email")
+        st.text_input("MBA Password", type="password", value=os.environ.get("mba_password", ""), key="mba_password")
+        st.button("Login", on_click=login_to_mba_fn, args=(tab_upload, ), key="button_mba_login")
 
 def mba_otp_input():
     def login_to_mba_send_otp_fn(otp_code):

@@ -60,7 +60,7 @@ def display_tab_image_gen_views(session_state: SessionState):
            image_pil_upload_ready = display_image_editor(session_state.image_gen_data, session_state.config.image_gen.background_removal)
         # Update session upload ready image
         if image_pil_upload_ready:
-            session_state.image_gen_data.image_pil_upload_ready = conversion.pil2pil_png(image_pil_upload_ready)
+            session_state.image_gen_data.image_pil_upload_ready = conversion.ensure_rgba(conversion.pil2pil_png(image_pil_upload_ready))
 
 @timeit
 def display_tab_upload_views(session_state: SessionState):
@@ -163,7 +163,7 @@ def display_tab_upload_views(session_state: SessionState):
 
 def display_admin_views(session_state: SessionState):
     """Display some options for the admin"""
-    if  st.experimental_user.email in st.secrets.admin.emails or st.session_state["mba_email"] in st.secrets.admin.emails:
+    if  st.experimental_user.email in st.secrets.admin.emails or read_session("mba_email") in st.secrets.admin.emails:
         st.subheader("Admin View")
         st.warning("Note: This is only visible to admins")
 
