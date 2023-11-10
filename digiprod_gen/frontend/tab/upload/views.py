@@ -3,6 +3,7 @@ from typing import List, Tuple
 
 from digiprod_gen.backend.image import conversion as img_conversion
 from digiprod_gen.backend.image.utils import hex_to_rgba
+from digiprod_gen.backend.image.upscale import resize_image_keep_aspect_ratio
 from digiprod_gen.backend.utils.helper import Timer
 from digiprod_gen.backend.models.session import MBAUploadData, SessionState, ImageGenData, DigiProdGenStatus
 from digiprod_gen.backend.models.mba import MBAMarketplaceDomain, MBAProductCategory, MBAProductColor, \
@@ -47,7 +48,7 @@ def display_data_for_upload(image_pil: Image,
                             brand: str | None,
                             bullet_1: str | None,
                             bullet_2: str | None
-                            ):
+                            ) -> Image:
     st.subheader("Upload Overview")
     col1, col2 = st.columns(2)
     col2_1, col2_2 = col2.columns(2)
@@ -55,6 +56,12 @@ def display_data_for_upload(image_pil: Image,
     with Timer("display_upload_ready_image"), col1:
         color_hex = st.color_picker('Pick a background color', '#000000')
         rgba_tuple = hex_to_rgba(color_hex)
+
+        # max_pixels: Defines the maximum number of pixel width for resize feature
+        max_pixels = 6000
+        value = float("%.2f" % (image_pil.size[0] / max_pixels))
+        slider_value = st.slider("Scale image", min_value=0.0, max_value=1.0, value=value, step=0.01)
+        image_pil = resize_image_keep_aspect_ratio(image_pil, int(slider_value * max_pixels))
         try:
             display_upload_ready_image(image_pil, rgba_tuple)
         except:
@@ -84,6 +91,9 @@ def display_data_for_upload(image_pil: Image,
     # cold start
     if mba_upload_data.title == None:
         update_session_upload_listing()
+
+    # Return image which might changes due to resize
+    return image_pil
 
 def update_session_upload_listing(listing_select_change: ListingSelectChange | None = None):
     session_state: SessionState = st.session_state["session_state"]
@@ -147,6 +157,6 @@ def display_image_upload(image_gen_data: ImageGenData, status: DigiProdGenStatus
         image = st.file_uploader("Image:", type=["png", "jpg", "jpeg"], key="image_upload_tab")
         if image:
             image_pil_upload_ready = img_conversion.bytes_io2pil(image)
-            image_gen_data.image_pil_upload_ready = image_pil_upload_ready
+            image_gen_data.image_pil_upload_ready = img_conversion.pil2pil_png(image_pil_upload_ready)
 
 

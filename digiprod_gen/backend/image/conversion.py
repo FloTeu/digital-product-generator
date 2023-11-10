@@ -74,7 +74,7 @@ def pilrgba2pilrgb(img_pil: Image) -> Image:
     else:
         raise NotImplementedError(f"Mode is not yet implemented for rgb conversion {img_pil.mode}")
 
-def pil_png_to_pil_jpeg(img_pil: Image) -> Image:
+def pil_png2pil_jpeg(img_pil: Image) -> Image:
     """
     Convert a PNG image (Pillow Image object) to a format suitable for JPEG and set format to 'JPEG'.
 
@@ -97,3 +97,12 @@ def pil_png_to_pil_jpeg(img_pil: Image) -> Image:
     img_pil.save(byte_io, 'JPEG')
     byte_io.seek(0)
     return Image.open(byte_io)
+
+def pil2pil_png(img_pil: Image) -> Image:
+    # Save the image in a new BytesIO object as PNG
+    png_bytesio = io.BytesIO()
+    img_pil.save(png_bytesio, format='PNG')
+    png_bytesio.seek(0)
+
+    # Reload the image from the new BytesIO object
+    return Image.open(png_bytesio)

@@ -2,7 +2,7 @@ import logging
 
 from PIL import Image
 from digiprod_gen.backend.image.utils import is_jpeg, is_png
-from digiprod_gen.backend.image.conversion import pil_png_to_pil_jpeg
+from digiprod_gen.backend.image.conversion import pil_png2pil_jpeg
 
 def jpeg_compress(img_pil: Image, quality: int=90) -> Image:
     img_pil.save("image-file-compressed.jpeg",
@@ -27,7 +27,7 @@ def compress(img_pil: Image, quality: int=90) -> Image:
     """
     if is_png(img_pil):
         logging.warning("PNG file will be converted to JPEG in order to compress size")
-        img_pil = pil_png_to_pil_jpeg(img_pil)
+        img_pil = pil_png2pil_jpeg(img_pil)
 
     print("Size in mb before compressing", get_approximate_size_in_mb(img_pil), "Format", img_pil.format)
     if is_jpeg(img_pil):

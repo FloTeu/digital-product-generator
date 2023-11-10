@@ -33,3 +33,25 @@ def stability_ai_upscale(img_pil: Image, prompt=None, width=None, client=None) -
     else:
         raise ValueError("Your request activated the API's safety filters and could not be processed."
                     "Please submit a different image and try again.")
+
+def resize_image_keep_aspect_ratio(image: Image, new_width) -> Image:
+    """
+    Resize an image to a new width while maintaining the aspect ratio.
+
+    :param image: Pillow Image object.
+    :param new_width: New width for the resized image.
+    :return: Resized Image object.
+    """
+    original_format = image.format
+
+    # Calculate the new height to maintain aspect ratio
+    width_percent = (new_width / float(image.size[0]))
+    new_height = int((float(image.size[1]) * float(width_percent)))
+
+    # Resize the image
+    resized_image = image.resize((new_width, new_height), resample=Image.LANCZOS)
+
+    # Preserve the original format
+    resized_image.format = original_format
+
+    return resized_image
