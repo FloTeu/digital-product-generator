@@ -77,10 +77,10 @@ def display_tab_upload_views(session_state: SessionState):
 
         if session_state.image_gen_data.image_pil_upload_ready:
             session_state.image_gen_data.image_pil_upload_ready = display_data_for_upload(session_state.image_gen_data.image_pil_upload_ready,
-                                    title=read_session("mba_upload_listing_title") or read_session(ListingSelectChange.TITLE.value),
-                                    brand=read_session("mba_upload_listing_brand") or read_session(ListingSelectChange.BRAND.value),
-                                    bullet_1=read_session("mba_upload_listing_bullet_1") or read_session(ListingSelectChange.BULLET_1.value),
-                                    bullet_2=read_session("mba_upload_listing_bullet_2") or read_session(ListingSelectChange.BULLET_2.value))
+                                    title=read_session("final_title") or read_session(ListingSelectChange.TITLE.value),
+                                    brand=read_session("final_brand") or read_session(ListingSelectChange.BRAND.value),
+                                    bullet_1=read_session("final_bullet1") or read_session(ListingSelectChange.BULLET_1.value),
+                                    bullet_2=read_session("final_bullet2") or read_session(ListingSelectChange.BULLET_2.value))
 
             is_download_visible = st.checkbox("Activate Download Image Button", key="download_final_upload_ready_image")
             if is_download_visible:

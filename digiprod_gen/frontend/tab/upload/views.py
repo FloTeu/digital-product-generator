@@ -76,17 +76,24 @@ def display_data_for_upload(image_pil: Image,
 
     # Column 1
     if title:
-        col2_1.text_area("**Title**", value=title, on_change=update_session_upload_listing, key="mba_upload_listing_title")
+        final_title = col2_1.text_area("**Title**", value=title, on_change=update_session_upload_listing, key="mba_upload_listing_title")
+        st.session_state["final_title"] = final_title
     if bullet_1:
-        col2_1.text_area("**Bullet 1**", value=bullet_1, on_change=update_session_upload_listing, key="mba_upload_listing_bullet_1")
+        final_bullet1 = col2_1.text_area("**Bullet 1**", value=bullet_1, on_change=update_session_upload_listing, key="mba_upload_listing_bullet_1")
+        st.session_state["final_bullet1"] = final_bullet1
     if title and brand:
-        col2_1.text_area("**Description**", value=description, on_change=update_session_upload_listing, disabled=True, key="mba_upload_listing_description")
+        final_description = col2_1.text_area("**Description**", value=description, on_change=update_session_upload_listing, disabled=True, key="mba_upload_listing_description")
+        st.session_state["final_description"] = final_description
+
 
     # Column 2
     if brand:
-        col2_2.text_area("**Brand**", value=brand, on_change=update_session_upload_listing, key="mba_upload_listing_brand")
+        final_brand = col2_2.text_area("**Brand**", value=brand, on_change=update_session_upload_listing, key="mba_upload_listing_brand")
+        st.session_state["final_brand"] = final_brand
     if bullet_2:
-        col2_2.text_area("**Bullet 2**", value=bullet_2, on_change=update_session_upload_listing, key="mba_upload_listing_bullet_2")
+        final_bullet2 = col2_2.text_area("**Bullet 2**", value=bullet_2, on_change=update_session_upload_listing, key="mba_upload_listing_bullet_2")
+        st.session_state["final_bullet2"] = final_bullet2
+
 
     # cold start
     if mba_upload_data.title == None:
@@ -102,10 +109,10 @@ def update_session_upload_listing(listing_select_change: ListingSelectChange | N
     # Update data
     # Either take the select box text or the input text depending on what was updated by user
     try:
-        mba_upload_data.brand = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BRAND else st.session_state["mba_upload_listing_brand"]
-        mba_upload_data.title = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.TITLE else st.session_state["mba_upload_listing_title"]
-        mba_upload_data.bullet_1 = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BULLET_1 else st.session_state["mba_upload_listing_bullet_1"]
-        mba_upload_data.bullet_2 = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BULLET_2 else st.session_state["mba_upload_listing_bullet_2"]
+        mba_upload_data.brand = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BRAND else st.session_state["final_brand"]
+        mba_upload_data.title = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.TITLE else st.session_state["final_title"]
+        mba_upload_data.bullet_1 = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BULLET_1 else st.session_state["final_bullet1"]
+        mba_upload_data.bullet_2 = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BULLET_2 else st.session_state["final_bullet2"]
         mba_upload_data.description = f'{mba_upload_data.title} by "{mba_upload_data.brand}". {mba_upload_data.bullet_1} {mba_upload_data.bullet_2}'
     except KeyError as e:
         # KeyError: 'st.session_state has no key "mba_upload_listing_brand", if session is not filled yet
