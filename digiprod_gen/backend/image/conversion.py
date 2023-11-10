@@ -8,7 +8,11 @@ def bytes2bytes_io(image_bytes: bytes) -> BytesIO:
     return BytesIO(image_bytes)
 
 def bytes2pil(image_bytes: bytes) -> Image:
-    return Image.open(bytes2bytes_io(image_bytes))
+    return bytes_io2pil(bytes2bytes_io(image_bytes))
+
+def bytes_io2pil(img_bytes_io: BytesIO):
+    img_bytes_io.seek(0)  # Ensure you're at the start of the BytesIO object
+    return Image.open(img_bytes_io)
 
 def pil2bytes_io(img_pil: Image, format="PNG") -> BytesIO:
     img_byte_arr = BytesIO()
@@ -57,9 +61,6 @@ def b64_str2bytes(b64_str):
     img_bytes = base64.b64decode(b64_bytes)
     return img_bytes
 
-def bytes2pil(img_bytes):
-    image = Image.open(io.BytesIO(img_bytes))
-    return image
 
 def b64_str2pil(b64_str) -> Image:
     return bytes2pil(b64_str2bytes(b64_str))
@@ -72,3 +73,27 @@ def pilrgba2pilrgb(img_pil: Image) -> Image:
         return img_pil
     else:
         raise NotImplementedError(f"Mode is not yet implemented for rgb conversion {img_pil.mode}")
+
+def pil_png_to_pil_jpeg(img_pil: Image) -> Image:
+    """
+    Convert a PNG image (Pillow Image object) to a format suitable for JPEG and set format to 'JPEG'.
+
+    :param img_pil: Pillow Image object (assumed to be PNG).
+    :return: Pillow Image object with format set to 'JPEG'.
+    """
+    if img_pil.mode in ('RGBA', 'LA') or (
+            img_pil.mode == 'P' and 'transparency' in img_pil.info):
+        # Create a white background
+        background = Image.new('RGB', img_pil.size, (255, 255, 255))
+        # Paste the image on the background, using transparency mask
+        background.paste(img_pil, mask=img_pil.split()[-1])
+        img_pil = background
+    else:
+        # Convert to RGB if not already in that mode
+        img_pil = img_pil.convert('RGB')
+
+    # Save to a BytesIO object and reload to set format to 'JPEG'
+    byte_io = io.BytesIO()
+    img_pil.save(byte_io, 'JPEG')
+    byte_io.seek(0)
+    return Image.open(byte_io)

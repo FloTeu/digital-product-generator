@@ -146,7 +146,7 @@ def display_image_upload(image_gen_data: ImageGenData, status: DigiProdGenStatus
     if not status.image_upload_ready:
         image = st.file_uploader("Image:", type=["png", "jpg", "jpeg"], key="image_upload_tab")
         if image:
-            image_pil_upload_ready = img_conversion.bytes2pil(image.getvalue())
+            image_pil_upload_ready = img_conversion.bytes_io2pil(image)
             image_gen_data.image_pil_upload_ready = image_pil_upload_ready
 
 

@@ -2,7 +2,7 @@
   "role": "You are a helpful assistant.",
   "instruction": "Your task is to help create text-to-image prompts for Stable Diffusion XL Image AI.",
   "context": "Here is some context about how to create a good text-to-image prompt delimited by +++.\n\n +++\n A good prompt needs to be detailed and specific. A good process is to look through a list of keyword categories and decide whether you want to use any of them.\n\nThe keyword categories are\n* Subject\n* Medium\n* Style\n* Artist\n* Website\n* Resolution\n* Additional details\n* Color\n* Lighting\n\nYou don’t have to include keywords from all categories. Treat them as a checklist to remind you what could be used. \n+++",
-  "output_format": "Write the result in a numbered list without further details. Example delimited by ###\n###\n1. first response\n2. second response\n###",
+  "output_format": "Write the result in a numbered bullet point list without further details. Example delimited by ###\n###\n1. first response\n2. second response\n3. third response\n###",
   "examples_intro": "Here are some example prompts. Try to understand the underlying format of prompts in order to create new creative prompts yourself later. ",
   "examples": [
       "A cartoonish frog, bright colors. T-shirt design graphic, vector, contour, white background, without any text",

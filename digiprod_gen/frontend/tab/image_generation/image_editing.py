@@ -1,12 +1,15 @@
+import logging
+
 import streamlit as st
 from PIL import Image
 from typing import Tuple
+from replicate.exceptions import ModelError
 
 from digiprod_gen.backend.image.conversion import pil2bytes_io, bytes2pil, pil2np, pilrgba2pilrgb
 from digiprod_gen.backend.image.background_removal import simple_remove_background, rembg, easy_rem_bg
 from digiprod_gen.backend.image.upscale import pil_upscale, some_upscalers_upscale
 from digiprod_gen.backend.image.outpainting import outpainting_with_paella
-from digiprod_gen.backend.image.compress import jpeg_compress, png_compress
+from digiprod_gen.backend.image.compress import compress
 from digiprod_gen.backend.models.session import ImageGenData
 from digiprod_gen.backend.models.config import DigiProdGenImageGenBrConfig
 from digiprod_gen.backend.models.common import UpscalerModel, BackgroundRemovalModel
@@ -32,8 +35,6 @@ def display_image_editor(session_image_gen_data: ImageGenData, session_br_config
     image_outpainted = display_image_editor_outpainting(col1, col2, image_element, session_image_gen_data)
 
     image_upscaled = display_image_editor_upscaling(col1, col2, image_element, session_image_gen_data, compress_quality=80)
-    #image_upscaled = jpeg_compress(image_upscaled, quality=70)
-    #session_image_gen_data.image_pil_upscaled = image_upscaled
 
     image_pil_br = display_image_editor_background_removal(col1, col2, image_element, session_br_config, session_image_gen_data, compress_quality=100)
 
@@ -48,7 +49,7 @@ def display_image_editor(session_image_gen_data: ImageGenData, session_br_config
     print("is_download_visible", is_download_visible)
     if is_download_visible:
         with st.spinner("Load Download Button"):
-            col1.download_button("Download Image", data=pil2bytes_io(display_image_pil), file_name="export.png", mime='image/png', use_container_width=True)
+            col1.download_button("Download Image", data=pil2bytes_io(display_image_pil), file_name=f"export.{display_image_pil.format}", mime=f'image/{display_image_pil.format}', use_container_width=True)
 
     return image_pil_br or image_upscaled
 
@@ -89,7 +90,7 @@ def display_image_editor_upscaling(col1, col2, image_element, session_image_gen_
             image_to_upscale = session_image_gen_data.image_pil_outpainted or session_image_gen_data.image_pil_generated
             image_upscaled = image_upscaling(image_to_upscale, upscaler=upscaler_method)
             if compress_quality < 100:
-                image_upscaled = jpeg_compress(image_upscaled, quality=compress_quality)
+                image_upscaled = compress(image_upscaled, quality=compress_quality)
             session_image_gen_data.image_pil_upscaled = image_upscaled
     else:
         image_upscaled = session_image_gen_data.image_pil_upscaled
@@ -121,13 +122,24 @@ def display_image_editor_background_removal(col1, col2, image_element, session_b
         (BackgroundRemovalModel.OPEN_CV.value, BackgroundRemovalModel.REM_BG.value, BackgroundRemovalModel.EASY_REM_BG.value))
     if col1.button("Remove Background", key="remove_background_button", use_container_width=True) and image_upscaled and not session_image_gen_data.image_pil_background_removed:
         with image_element, st.spinner("Background Removal..."):
-            image_pil_br: Image = image_background_removal(image_upscaled,
-                                                           br_method=br_method,
-                                                           outer_pixel_range=session_br_config.outer_pixel_range,
-                                                           tolerance=session_br_config.tolerance
-                                                           )
+            try:
+                image_pil_br: Image = image_background_removal(image_upscaled,
+                                                               br_method=br_method,
+                                                               outer_pixel_range=session_br_config.outer_pixel_range,
+                                                               tolerance=session_br_config.tolerance
+                                                               )
+            except ModelError as e:
+                logging.warning(f"Replicate Model could not handle input. Error: {str(e)}. Retry with compressed image...")
+                img_compressed = compress(image_upscaled, quality=20)
+                session_image_gen_data.image_pil_upscaled = img_compressed
+                image_pil_br: Image = image_background_removal(img_compressed,
+                                                               br_method=br_method,
+                                                               outer_pixel_range=session_br_config.outer_pixel_range,
+                                                               tolerance=session_br_config.tolerance
+                                                               )
+
             if compress_quality < 100:
-                image_pil_br = png_compress(image_pil_br, quality=compress_quality)
+                image_pil_br = compress(image_pil_br, quality=compress_quality)
             session_image_gen_data.image_pil_background_removed = image_pil_br
     else:
         image_pil_br = session_image_gen_data.image_pil_background_removed
