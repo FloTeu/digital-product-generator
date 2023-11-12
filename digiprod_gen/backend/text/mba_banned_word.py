@@ -8,4 +8,7 @@ MBA_BANNED_WORDS = [
     "gift",
     "gifts",
     "long sleeve",
+    "pullover",
+    "sweatshirt",
+    "hoodie",
 ]

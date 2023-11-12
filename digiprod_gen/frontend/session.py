@@ -93,6 +93,15 @@ def read_session(keys: str | List[str]) -> Any:
             else:
                 current_session_dict = current_session_dict[key]
 
+def reset_session_data():
+    """
+    Some session data depends on search term/ niche that should be created
+    This data is not up to date, after search term changed.
+    """
+    session_data_to_reset = ["final_title", "final_brand", "final_bullet1", "final_bullet2"]
+    for session_key in session_data_to_reset:
+        if session_key in st.session_state:
+            del st.session_state[session_key]
 
 def update_mba_request():
     session_state: SessionState = st.session_state["session_state"]
@@ -119,3 +128,4 @@ def update_mba_request():
         # refresh status after request has changed
         session_state.status.refresh()
         session_state.crawling_data.selected_designs = []
+    reset_session_data()

@@ -1,6 +1,7 @@
 import os
 import time
 import uuid
+import logging
 
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
@@ -145,8 +146,13 @@ def select_fit_types_in_product_editor(product_editor, fit_types: List[MBAProduc
 
     # TODO: Selecting youth sice does not work sometimes.
     # Click Youth fit type
-    youth_checkbox = product_editor_fit_types.find_element(By.CSS_SELECTOR, '.youth-checkbox input[type="checkbox"]')
-    is_checked = youth_checkbox.get_attribute('checked') == 'true'
+    try:
+        youth_checkbox = product_editor_fit_types.find_element(By.CSS_SELECTOR, '.youth-checkbox input[type="checkbox"]')
+        is_checked = youth_checkbox.get_attribute('checked') == 'true'
+    except Exception:
+        # Can happen if youth size is not available, e.g. for fit type tank top
+        logging.warning("Could not find youth checkbox")
+        return None
     if (is_checked and MBAProductFitType.YOUTH not in fit_types) or (not is_checked and MBAProductFitType.YOUTH in fit_types):
         try:
             youth_checkbox.find_element(By.XPATH, 'preceding-sibling::node()').click()
@@ -206,6 +212,7 @@ def upload_image(browser: SeleniumBrowser, image_pil: Image):
     driver = browser.driver
     temp_file_path = f"{browser.data_dir_path}/{uuid.uuid4().hex}.png"
     image_pil.save(temp_file_path, format='png')
+    time.sleep(1)
     # # store image to temp memory
     # temp_file_path = save_img_to_memory(image_pil)
     # find the image upload input element by its text content
@@ -213,7 +220,7 @@ def upload_image(browser: SeleniumBrowser, image_pil: Image):
     # sen image data
     choose_file.send_keys(temp_file_path)
     # wait until file is uploaded to server
-    time.sleep(2)
+    time.sleep(4)
     # delete file again
     os.remove(temp_file_path)
 

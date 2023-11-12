@@ -78,21 +78,26 @@ def display_data_for_upload(image_pil: Image,
     if title:
         final_title = col2_1.text_area("**Title**", value=title, on_change=update_session_upload_listing, key="mba_upload_listing_title")
         st.session_state["final_title"] = final_title
+        mba_upload_data.title = final_title
     if bullet_1:
         final_bullet1 = col2_1.text_area("**Bullet 1**", value=bullet_1, on_change=update_session_upload_listing, key="mba_upload_listing_bullet_1")
         st.session_state["final_bullet1"] = final_bullet1
+        mba_upload_data.bullet_1 = final_bullet1
     if title and brand:
-        final_description = col2_1.text_area("**Description**", value=description, on_change=update_session_upload_listing, disabled=True, key="mba_upload_listing_description")
-        st.session_state["final_description"] = final_description
+        # Note: Description is automatically updated within update_session_upload_listing
+        col2_1.text_area("**Description**", value=description, on_change=update_session_upload_listing, disabled=True, key="mba_upload_listing_description")
+
 
 
     # Column 2
     if brand:
         final_brand = col2_2.text_area("**Brand**", value=brand, on_change=update_session_upload_listing, key="mba_upload_listing_brand")
         st.session_state["final_brand"] = final_brand
+        mba_upload_data.brand = final_brand
     if bullet_2:
         final_bullet2 = col2_2.text_area("**Bullet 2**", value=bullet_2, on_change=update_session_upload_listing, key="mba_upload_listing_bullet_2")
         st.session_state["final_bullet2"] = final_bullet2
+        mba_upload_data.bullet_2 = final_bullet2
 
 
     # cold start
@@ -103,6 +108,10 @@ def display_data_for_upload(image_pil: Image,
     return image_pil
 
 def update_session_upload_listing(listing_select_change: ListingSelectChange | None = None):
+    """TODO Rethink lisintg update process. Currently to complicated"""
+    print("update_session_upload_listing", listing_select_change)
+    if listing_select_change != None:
+        print(st.session_state[listing_select_change.value])
     session_state: SessionState = st.session_state["session_state"]
     mba_upload_data: MBAUploadData = session_state.upload_data
 
