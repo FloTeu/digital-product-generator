@@ -44,7 +44,12 @@ def display_tab_image_gen_views(session_state: SessionState):
             st.markdown(
                 "Please either generate the image directly or use one of the example Prompts to generate an image with Midjourney. \nYou can upload the image afterwards and proceed.")
 
-            display_image_generation_prompt(session_state.image_gen_data)
+            if session_state.image_gen_data.image_gen_prompts:
+                index_list = [i for i, _ in enumerate(session_state.image_gen_data.image_gen_prompts)]
+            else:
+                index_list = [0]
+            prompt_index = st.selectbox('Select a Prompt', index_list)
+            display_image_generation_prompt(session_state.image_gen_data, selected_prompt_index=prompt_index)
             display_image_generator(session_state.image_gen_data)
         else:
             st.warning('Please click on 3. Prompt Generation')
