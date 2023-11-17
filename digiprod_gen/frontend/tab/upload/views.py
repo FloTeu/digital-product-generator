@@ -110,22 +110,40 @@ def display_data_for_upload(image_pil: Image,
 def update_session_upload_listing(listing_select_change: ListingSelectChange | None = None):
     """TODO Rethink lisintg update process. Currently to complicated"""
     print("update_session_upload_listing", listing_select_change)
-    if listing_select_change != None:
-        print(st.session_state[listing_select_change.value])
     session_state: SessionState = st.session_state["session_state"]
     mba_upload_data: MBAUploadData = session_state.upload_data
+    if listing_select_change == None:
+        mba_upload_data.brand = st.session_state["final_brand"]
+        mba_upload_data.title = st.session_state["final_title"]
+        mba_upload_data.bullet_1 = st.session_state["final_bullet1"]
+        mba_upload_data.bullet_2 = st.session_state["final_bullet2"]
+    else:
+        print(st.session_state[listing_select_change.value])
+        latest_value = st.session_state[listing_select_change.value]
 
-    # Update data
-    # Either take the select box text or the input text depending on what was updated by user
-    try:
-        mba_upload_data.brand = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BRAND else st.session_state["final_brand"]
-        mba_upload_data.title = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.TITLE else st.session_state["final_title"]
-        mba_upload_data.bullet_1 = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BULLET_1 else st.session_state["final_bullet1"]
-        mba_upload_data.bullet_2 = st.session_state[listing_select_change.value] if listing_select_change == ListingSelectChange.BULLET_2 else st.session_state["final_bullet2"]
-        mba_upload_data.description = f'{mba_upload_data.title} by "{mba_upload_data.brand}". {mba_upload_data.bullet_1} {mba_upload_data.bullet_2}'
-    except KeyError as e:
-        # KeyError: 'st.session_state has no key "mba_upload_listing_brand", if session is not filled yet
-        pass
+        # Update data
+        # Either take the select box text or the input text depending on what was updated by user
+        if listing_select_change == ListingSelectChange.BRAND:
+            mba_upload_data.brand = latest_value
+            st.session_state["final_brand"] = latest_value
+
+        elif listing_select_change == ListingSelectChange.TITLE:
+            mba_upload_data.title = latest_value
+            st.session_state["final_title"] = latest_value
+
+        elif listing_select_change == ListingSelectChange.BULLET_1:
+            mba_upload_data.bullet_1 = latest_value
+            st.session_state["final_bullet1"] = latest_value
+
+        elif listing_select_change == ListingSelectChange.BULLET_2:
+            mba_upload_data.bullet_2 = latest_value
+            st.session_state["final_bullet2"] = latest_value
+
+    mba_upload_data.description = f'{mba_upload_data.title} by "{mba_upload_data.brand}". {mba_upload_data.bullet_1} {mba_upload_data.bullet_2}'
+
+
+# TODO: check if this error still appears:
+#       KeyError: 'st.session_state has no key "mba_upload_listing_brand", if session is not filled yet
 
 def display_multiselect(label: str, options: List[str], values: List[str]):
     container = st.container()
