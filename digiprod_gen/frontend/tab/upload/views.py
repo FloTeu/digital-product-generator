@@ -99,7 +99,11 @@ def display_data_for_upload(image_pil: Image,
         st.session_state["final_bullet2"] = final_bullet2
         mba_upload_data.bullet_2 = final_bullet2
 
-
+    # Update descrption with latest changes
+    try:
+        mba_upload_data.description = f'{mba_upload_data.title} by "{mba_upload_data.brand}". {mba_upload_data.bullet_1} {mba_upload_data.bullet_2}'
+    except Exception as e:
+        print("Error during description creation", str(e))
     # cold start
     if mba_upload_data.title == None:
         update_session_upload_listing()
@@ -139,7 +143,6 @@ def update_session_upload_listing(listing_select_change: ListingSelectChange | N
             mba_upload_data.bullet_2 = latest_value
             st.session_state["final_bullet2"] = latest_value
 
-    mba_upload_data.description = f'{mba_upload_data.title} by "{mba_upload_data.brand}". {mba_upload_data.bullet_1} {mba_upload_data.bullet_2}'
 
 
 # TODO: check if this error still appears:
