@@ -10,7 +10,6 @@ from digiprod_gen.backend.utils.decorators import timeit
 from digiprod_gen.backend.utils.helper import Timer
 from digiprod_gen.backend.utils import init_environment, initialise_config
 from digiprod_gen.backend.models.response import UploadMBAResponse
-from digiprod_gen.backend.models.request import UploadMBARequest
 from digiprod_gen.backend.image import conversion
 from digiprod_gen.backend.models.session import SessionState
 from digiprod_gen.backend.models.config import DigiProdGenConfig
@@ -236,7 +235,7 @@ def display_sidebar(session_state: SessionState, tab_crawling, tab_ig, tab_uploa
             if session_state.status.detail_pages_crawled:
                 mba_products_selected = session_state.crawling_data.get_selected_mba_products()
             if mba_products_selected and session_state.status.detail_pages_crawled:
-                sidebar.prompt_generation_input(tab_ig, session_state.crawling_data)
+                sidebar.prompt_generation_input(tab_ig)
 
         if session_state.status.detail_pages_crawled:
             sidebar.listing_generation_input(tab_upload)
