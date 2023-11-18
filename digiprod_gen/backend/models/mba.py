@@ -77,8 +77,6 @@ class MBAProduct(BaseModel):
     bullets: List[str] = Field(default_factory=list)
     image_prompt: Optional[str] = Field(None)
     image_text_caption: Optional[str] = Field(None)
-    # TODO: Move to another data class
-    # image_pil: Optional[Image.Image]
 
     class Config:
         arbitrary_types_allowed = True
