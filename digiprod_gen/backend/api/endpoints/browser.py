@@ -51,7 +51,8 @@ async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> Li
     # browser = SeleniumBrowser()
     # browser.setup()
     browser = init_selenium_browser(session_id, request.proxy)
-    logger.info("Start search utils overview page")
+    browser.ensure_driver_is_alive()
+    logger.info(f"Start search utils overview page. Is ready: {browser.is_ready}")
     mba_crawling.search_overview_page(request, browser.driver)
     # If selenium is running with headless mode the first request sometimes fails
     first_mba_overview_interactions(browser, request, ignore_cookies=False)
@@ -110,6 +111,7 @@ def first_mba_overview_interactions(browser, request, ignore_cookies=True):
 @router.post("/crawling/mba_product")
 async def crawl_mba_product(mba_product: MBAProduct, session_id: str, proxy: str | None = None) -> MBAProduct:
     browser = init_selenium_browser(session_id, proxy)
+    browser.ensure_driver_is_alive()
     browser.driver.get(mba_product.product_url)
     mba_product = mba_parser.extend_mba_product(mba_product, driver=browser.driver)
     return mba_product
@@ -118,6 +120,7 @@ async def crawl_mba_product(mba_product: MBAProduct, session_id: str, proxy: str
 @router.get("/upload/mba_login")
 async def mba_login(credentials: Annotated[HTTPBasicCredentials, Depends(security)], session_id: str, proxy: str | None = None) -> bool:
     browser = init_selenium_browser(session_id, proxy)
+    browser.ensure_driver_is_alive()
     upload_mba_fns.open_dashboard(browser.driver)
     upload_mba_fns.login_mba(browser.driver, credentials.username, credentials.password)
     # make sure page following is loaded
@@ -139,6 +142,7 @@ async def mba_login(credentials: Annotated[HTTPBasicCredentials, Depends(securit
 @router.get("/upload/mba_login_otp")
 async def mba_login_otp(otp_code: str, session_id: str, proxy: str | None = None) -> bool:
     browser = init_selenium_browser(session_id, proxy)
+    browser.ensure_driver_is_alive()
     upload_mba_fns.authenticate_mba_with_opt_code(browser.driver, otp_code)
     upload_mba_fns.wait_until_dashboard_is_ready(browser.driver)
     upload_mba_fns.change_language_to_en(browser.driver)
@@ -181,6 +185,7 @@ async def upload_mba_product(
 
     print("Got new upload request")
     browser = init_selenium_browser(session_id, proxy)
+    browser.ensure_driver_is_alive()
     image_delete_xpath = "//*[contains(@class, 'sci-delete-forever')]"
     image_pil_upload_ready = Image.open(image_upload_ready.file)
     driver = browser.driver
@@ -234,6 +239,7 @@ async def publish_mba_product(session_id: str, proxy: str | None = None, searcha
     If success return True, otherwise False
     """
     browser = init_selenium_browser(session_id, proxy)
+    browser.ensure_driver_is_alive()
     print("Try to publish utils product")
     upload_mba_fns.publish_to_mba(browser.driver, searchable=searchable)
     time.sleep(1)
@@ -244,6 +250,7 @@ async def publish_mba_product(session_id: str, proxy: str | None = None, searcha
 @router.get("/browse")
 async def search_url(url: str, session_id: str, proxy: str | None = None):
     browser = init_selenium_browser(session_id, proxy)
+    browser.ensure_driver_is_alive()
     time.sleep(1)
     if "http" not in url:
         url = "https://" + url

@@ -1,9 +1,12 @@
+import logging
+
 from seleniumwire import webdriver
 #from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -50,6 +53,14 @@ class SeleniumBrowser():
         if proxy:
             self.proxy = proxy
         self.is_ready = True
+
+    def ensure_driver_is_alive(self):
+        """If driver is not alive, reset driver"""
+        if not is_webdriver_alive(self.driver):
+            logging.info("Driver is not alive. Try to reset it...")
+            self.reset_driver()
+            assert is_webdriver_alive(self.driver)
+
 
 def init_selenium_driver(headless=True, data_dir_path=None, proxy: str=None, user_agent: str | None = None, headers: dict | None=None) -> WebDriver:
     """Instantiate a WebDriver object (in this case, using Chrome)"""
@@ -111,6 +122,30 @@ def init_selenium_driver(headless=True, data_dir_path=None, proxy: str=None, use
 
     #return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
+def is_webdriver_alive(driver: WebDriver) -> bool:
+    """
+    Check if the Selenium WebDriver is still operational.
+
+    This function attempts to interact with the WebDriver by retrieving the current URL.
+    If the WebDriver is responsive, the function returns True. If an exception occurs
+    (e.g., WebDriverException), suggesting the WebDriver is no longer operational,
+    the function returns False.
+
+    Parameters:
+    driver (selenium.webdriver): The WebDriver instance to be checked.
+
+    Returns:
+    bool: True if the WebDriver is still responsive, False otherwise.
+    """
+    try:
+        # Attempt to get the current URL
+        driver.current_url
+        return True
+    except WebDriverException:
+        return False
+    except Exception as e:
+        logging.warning(f"Got some undetected exception {e}")
+        return False
 
 def hover_over_element(driver: WebDriver, element_to_hover):
     # Create an instance of ActionChains and pass the driver as a parameter.
