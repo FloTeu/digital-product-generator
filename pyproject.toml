@@ -23,7 +23,6 @@ stability-sdk = "^0.8.4"
 click = "^8.1.7"
 pydantic-yaml = "^1.1.1"
 selenium-wire = "^5.1.0"
-llm-prompting-gen = "^0.1.4"
 pillow = "^10.1.0"
 
 
@@ -32,6 +31,7 @@ fastapi = "0.103.2"
 httpx = "^0.25.0"
 uvicorn = "^0.23.2"
 python-multipart = "^0.0.6"
+llm-prompting-gen = "^0.1.5"
 
 
 [tool.poetry.group.debug.dependencies]
