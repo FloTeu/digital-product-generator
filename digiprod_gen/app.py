@@ -41,7 +41,7 @@ def display_tab_image_gen_views(session_state: SessionState):
 
             st.subheader("Prepare Image for MBA Upload")
             st.markdown(
-                "Please either generate the image directly or use one of the example Prompts to generate an image with Midjourney. \nYou can upload the image afterwards and proceed.")
+                "Please either generate the image directly or use one of the example Prompts to generate an image with SDXL or Dalle-3. \nYou can upload the image afterwards and proceed.")
 
             if session_state.image_gen_data.image_gen_prompts:
                 index_list = [i for i, _ in enumerate(session_state.image_gen_data.image_gen_prompts)]
@@ -49,7 +49,7 @@ def display_tab_image_gen_views(session_state: SessionState):
                 index_list = [0]
             prompt_index = st.selectbox('Select a Prompt', index_list)
             display_image_generation_prompt(session_state.image_gen_data, selected_prompt_index=prompt_index)
-            display_image_generator(session_state.image_gen_data)
+            display_image_generator(session_state)
         else:
             st.warning('Please click on 3. Prompt Generation')
 
