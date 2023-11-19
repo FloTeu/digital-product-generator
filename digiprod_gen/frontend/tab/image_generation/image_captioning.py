@@ -17,16 +17,12 @@ def extend_mba_products_with_caption(backend_caller: BackendCaller, crawling_dat
             crawling_data.mba_product_images[mba_product.asin] = bytes2pil(requests.get(mba_product.image_url, stream=True).content)
 
         if mba_product.image_text_caption == None or mba_product.image_prompt == None:
-            image_byte_array = pil2bytes_io(crawling_data.get_image_design_crop(mba_product.asin))
-            files = {
-                "image_file": ("image_file.png", image_byte_array, 'image/png')
-            }
+            img_pil = crawling_data.get_image_design_crop(mba_product.asin)
             if mba_product.image_text_caption == None:
-                img_pil = crawling_data.get_image_design_crop(mba_product.asin)
                 if has_text_inprint(img_pil):
-                    mba_product.image_text_caption = backend_caller.post(f"/image/caption?extract_text_caption=true", files=files).json()
+                    mba_product.image_text_caption = backend_caller.post(f"/image/caption?extract_text_caption=true", img_pil=img_pil).json()
             if mba_product.image_prompt == None:
                 if image_caption_model:
-                    mba_product.image_prompt = backend_caller.post(f"/image/caption?caption_model={image_caption_model.value}", files=files).json()
+                    mba_product.image_prompt = backend_caller.post(f"/image/caption?caption_model={image_caption_model.value}", img_pil=img_pil).json()
                 else:
                     raise NotImplementedError

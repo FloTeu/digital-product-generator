@@ -153,7 +153,7 @@ from digiprod_gen.backend.models.mba import MBAUploadSettings, MBAMarketplaceDom
 @router.post("/upload/upload_mba_product")
 async def upload_mba_product(
                              session_id: str,
-                             image_upload_ready: UploadFile = File(...),
+                             image_file: UploadFile = File(...),
                              title: str = Form(...),
                              brand: str = Form(...),
                              bullet_1: str | None = Form(None),
@@ -187,7 +187,7 @@ async def upload_mba_product(
     browser = init_selenium_browser(session_id, proxy)
     browser.ensure_driver_is_alive()
     image_delete_xpath = "//*[contains(@class, 'sci-delete-forever')]"
-    image_pil_upload_ready = Image.open(image_upload_ready.file)
+    image_pil_upload_ready = Image.open(image_file.file)
     driver = browser.driver
     upload_mba_fns.open_dashboard(driver)
     upload_mba_fns.open_create_new(driver)

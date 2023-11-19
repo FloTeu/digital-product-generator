@@ -123,11 +123,6 @@ def display_tab_upload_views(session_state: SessionState):
                         if session_state.upload_data.bullet_1 == None and session_state.upload_data.bullet_2 == None:
                             st.error('You not defined your listings yet', icon="🚨")
 
-                        image_byte_array = conversion.pil2bytes_io(session_state.image_gen_data.image_pil_upload_ready, format="PNG")
-                        image_byte_array.seek(0)
-                        files = {
-                            "image_upload_ready": ("image_upload_ready.png", image_byte_array, 'image/png')
-                        }
                         headers = {
                             'accept': 'application/json',
                         }
@@ -136,7 +131,7 @@ def display_tab_upload_views(session_state: SessionState):
                                         "bullet_2": session_state.upload_data.bullet_2, "description": session_state.upload_data.description}
                         response = session_state.backend_caller.post(
                             f"/browser/upload/upload_mba_product?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}",
-                            headers=headers, data=request_data, files=files
+                            headers=headers, data=request_data, img_pil=session_state.image_gen_data.image_pil_upload_ready
                         )
                         if response.status_code == 200:
                             upload_response: UploadMBAResponse = UploadMBAResponse.parse_obj(response.json())
