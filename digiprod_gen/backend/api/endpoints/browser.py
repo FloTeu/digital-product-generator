@@ -5,7 +5,7 @@ from typing import List, Annotated
 from functools import lru_cache
 
 
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form, Query
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from selenium.common import NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
@@ -20,6 +20,7 @@ from digiprod_gen.backend.models.mba import MBAProduct
 from digiprod_gen.backend.models.response import UploadMBAResponse
 from digiprod_gen.backend.utils import delete_files_in_path, is_debug
 from digiprod_gen.backend.models.request import UploadMBARequest, CrawlingMBARequest
+from urllib.parse import quote_plus
 from PIL import Image
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -29,7 +30,7 @@ security = HTTPBasic()
 router = APIRouter()
 
 @lru_cache()
-def init_selenium_browser(session_id, proxy=None) -> SeleniumBrowser:
+def init_selenium_browser(session_id, proxy=None, allow_javascript: bool=False, disable_images: bool=True) -> SeleniumBrowser:
     # New browser is started per session and per proxy
     # get random user agent, each time new browser is created
     headers = get_random_headers()
@@ -40,17 +41,21 @@ def init_selenium_browser(session_id, proxy=None) -> SeleniumBrowser:
     browser.setup(headless=not is_debug(),
                   data_dir_path=data_dir_path,
                   proxy=proxy,
-                  headers=headers
+                  headers=headers,
+                  allow_javascript=allow_javascript,
+                  disable_images=disable_images
                   )
     return browser
+
+def get_cached_browser(session_id: str, proxy: str | None = None, allow_javascript: bool=False, disable_images: bool=False):
+    # get param "+" is encoded to whitespace. Therefore, we need to decode it again (auto decode of %2B via fastapi does not work for unknown reasons)
+    proxy_decoded = proxy.replace(' ', '+') if proxy else None
+    return init_selenium_browser(session_id, proxy_decoded, allow_javascript=allow_javascript, disable_images=disable_images)
 
 @router.post("/crawling/mba_overview")
 async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> List[MBAProduct]:
     """ Searches utils overview page and change postcode in order to see correct products"""
-    #, browser: Annotated[SeleniumBrowser, Depends(init_selenium_browser_working)]
-    # browser = SeleniumBrowser()
-    # browser.setup()
-    browser = init_selenium_browser(session_id, request.proxy)
+    browser = get_cached_browser(session_id, request.proxy, allow_javascript=False, disable_images=True)
     browser.ensure_driver_is_alive()
     logger.info(f"Start search utils overview page. Is ready: {browser.is_ready}")
     mba_crawling.search_overview_page(request, browser.driver)
@@ -107,10 +112,14 @@ def first_mba_overview_interactions(browser, request, ignore_cookies=True):
     except NoSuchElementException:
         pass
 
+@router.get('/')
+async def root(q: str):
+    q = quote_plus(q)
+    return {"message": f"{q}"}
 
 @router.post("/crawling/mba_product")
 async def crawl_mba_product(mba_product: MBAProduct, session_id: str, proxy: str | None = None) -> MBAProduct:
-    browser = init_selenium_browser(session_id, proxy)
+    browser = get_cached_browser(session_id, proxy, allow_javascript=False, disable_images=True)
     browser.ensure_driver_is_alive()
     browser.driver.get(mba_product.product_url)
     mba_product = mba_parser.extend_mba_product(mba_product, driver=browser.driver)
@@ -119,7 +128,7 @@ async def crawl_mba_product(mba_product: MBAProduct, session_id: str, proxy: str
 
 @router.get("/upload/mba_login")
 async def mba_login(credentials: Annotated[HTTPBasicCredentials, Depends(security)], session_id: str, proxy: str | None = None) -> bool:
-    browser = init_selenium_browser(session_id, proxy)
+    browser = get_cached_browser(session_id, proxy, allow_javascript=True, disable_images=False)
     browser.ensure_driver_is_alive()
     upload_mba_fns.open_dashboard(browser.driver)
     upload_mba_fns.login_mba(browser.driver, credentials.username, credentials.password)
@@ -141,7 +150,7 @@ async def mba_login(credentials: Annotated[HTTPBasicCredentials, Depends(securit
 
 @router.get("/upload/mba_login_otp")
 async def mba_login_otp(otp_code: str, session_id: str, proxy: str | None = None) -> bool:
-    browser = init_selenium_browser(session_id, proxy)
+    browser = get_cached_browser(session_id, proxy, allow_javascript=True, disable_images=False)
     browser.ensure_driver_is_alive()
     upload_mba_fns.authenticate_mba_with_opt_code(browser.driver, otp_code)
     upload_mba_fns.wait_until_dashboard_is_ready(browser.driver)
@@ -168,7 +177,6 @@ async def upload_mba_product(
     """
     Uploads utils product to utils account (without publishing it)
     """
-
     upload_request = UploadMBARequest(title=title,
                                       brand=brand,
                                       bullet_1=bullet_1,
@@ -184,7 +192,7 @@ async def upload_mba_product(
                                       )
 
     print("Got new upload request")
-    browser = init_selenium_browser(session_id, proxy)
+    browser = get_cached_browser(session_id, proxy, allow_javascript=True, disable_images=False)
     browser.ensure_driver_is_alive()
     image_delete_xpath = "//*[contains(@class, 'sci-delete-forever')]"
     image_pil_upload_ready = Image.open(image_file.file)
@@ -238,7 +246,7 @@ async def publish_mba_product(session_id: str, proxy: str | None = None, searcha
     Publishes utils product to marketplace.
     If success return True, otherwise False
     """
-    browser = init_selenium_browser(session_id, proxy)
+    browser = get_cached_browser(session_id, proxy, allow_javascript=True, disable_images=False)
     browser.ensure_driver_is_alive()
     print("Try to publish utils product")
     upload_mba_fns.publish_to_mba(browser.driver, searchable=searchable)
@@ -249,7 +257,7 @@ async def publish_mba_product(session_id: str, proxy: str | None = None, searcha
 
 @router.get("/browse")
 async def search_url(url: str, session_id: str, proxy: str | None = None):
-    browser = init_selenium_browser(session_id, proxy)
+    browser = get_cached_browser(session_id, proxy, allow_javascript=True, disable_images=False)
     browser.ensure_driver_is_alive()
     time.sleep(1)
     if "http" not in url:

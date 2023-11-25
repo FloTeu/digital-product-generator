@@ -13,6 +13,19 @@ class MBAMarketplaceDomain(str, EnumBase):
     ES="es"
     JP="co.jp"
 
+    def get_webscrapingapi_country_code(self):
+        """Get corresponding country code of webscrapingapi.com"""
+        if self == "com":
+            return "us"
+        elif self == "co.uk":
+            return "uk"
+        elif self == "co.jp":
+            return "jp"
+        elif self in ["de", "fr", "es", "it"]:
+            return self.value
+        else:
+            raise NotImplementedError
+
 
 class MBAProductCategory(str, EnumBase):
     SHIRT="Shirt"
