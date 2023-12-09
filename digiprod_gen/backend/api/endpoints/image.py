@@ -3,8 +3,10 @@ import io
 from PIL import Image
 from fastapi import APIRouter, UploadFile, File
 from digiprod_gen.backend.image.caption import image2visual_caption, image2prompt_gpt4, image2prompt, image2text_caption
-from digiprod_gen.backend.models.common import ImageCaptioningModel, ImageGenerationModel
-from digiprod_gen.backend.image import generation
+from digiprod_gen.backend.models.common import ImageCaptioningModel, ImageGenerationModel, UpscalerModel, BackgroundRemovalModel
+from digiprod_gen.backend.image.upscale import pil_upscale, some_upscalers_upscale
+from digiprod_gen.backend.image.background_removal import simple_remove_background, rembg, easy_rem_bg
+from digiprod_gen.backend.image import generation, conversion
 from fastapi.responses import StreamingResponse
 
 
@@ -37,6 +39,8 @@ async def get_image_caption(caption_model: ImageCaptioningModel = ImageCaptionin
             return image2prompt(img_pil)
         elif caption_model == ImageCaptioningModel.GPT4:
             return image2prompt_gpt4(img_pil)
+        else:
+            raise NotImplementedError
 
 
 @router.get("/generation")
@@ -66,9 +70,61 @@ async def get_text_to_image(prompt: str,
         raise NotImplementedError
 
     # Save the Pillow image to a BytesIO object
-    img_byte_arr = io.BytesIO()
-    img_pil.save(img_byte_arr, format='JPEG')  # Specify the format as needed
+    img_byte_arr = conversion.pil2bytes_io(img_pil, format="JPEG")
     img_byte_arr.seek(0)  # Move to the start of the BytesIO object
 
     # Create a StreamingResponse, sending the image from the BytesIO object
     return StreamingResponse(img_byte_arr, media_type="image/jpeg")
+
+
+@router.post("/upscaling")
+async def get_image_upscaled(upscaler: UpscalerModel, image_file: UploadFile = File(...)) -> StreamingResponse:
+    """
+    Takes an image and scales it up to 4xxx pixel width and height
+    """
+    img_pil = conversion.pilrgba2pilrgb(await get_image(image_file))
+    if upscaler == UpscalerModel.PIL:
+        image_pil_upscaled = pil_upscale(img_pil, (4500, 4500))
+        # increase resolution after simple upscale
+        # image_pil_upscaled = real_esrgan_resolution(image_pil_upscaled)
+    elif upscaler == UpscalerModel.SOME_UPSCALER:
+        # Convert 4 channels to 3 channels
+        image_pil_upscaled = some_upscalers_upscale(img_pil)
+    else:
+        raise NotImplementedError
+
+    # Save the Pillow image to a BytesIO object
+    img_byte_arr = conversion.pil2bytes_io(image_pil_upscaled, format="JPEG")
+    img_byte_arr.seek(0)  # Move to the start of the BytesIO object
+
+    # Create a StreamingResponse, sending the image from the BytesIO object
+    return StreamingResponse(img_byte_arr, media_type="image/jpeg")
+
+@router.post("/background_removal")
+async def get_image_background_removed(br_method: BackgroundRemovalModel,
+                                       outer_pixel_range: int = 30,
+                                       tolerance: int = 100,
+                                       image_file: UploadFile = File(...)) -> StreamingResponse:
+    """
+    Takes an image and removes the background
+    """
+    img_pil = await get_image(image_file)
+    assert img_pil.mode == "RGB"
+
+    if br_method == BackgroundRemovalModel.OPEN_CV:
+        image_pil_br = simple_remove_background(img_pil, outer_pixel_range=outer_pixel_range, tolerance=tolerance)
+    elif br_method == BackgroundRemovalModel.REM_BG:
+        image_pil_br = rembg(img_pil)
+    elif br_method == BackgroundRemovalModel.EASY_REM_BG:
+        image_pil_br = easy_rem_bg(img_pil)
+    else:
+        raise NotImplementedError
+
+    # After background is removed the pillow image should have a alpha channel
+    assert image_pil_br.mode == "RGBA"
+    # Save the Pillow image to a BytesIO object
+    img_byte_arr = conversion.pil2bytes_io(image_pil_br, format="PNG")
+    img_byte_arr.seek(0)  # Move to the start of the BytesIO object
+
+    # Create a StreamingResponse, sending the image from the BytesIO object
+    return StreamingResponse(img_byte_arr, media_type="image/png")

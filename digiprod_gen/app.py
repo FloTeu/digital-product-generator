@@ -61,7 +61,7 @@ def display_tab_image_gen_views(session_state: SessionState):
     set_image_pil_generated_by_user(session_state.image_gen_data)
     if session_state.image_gen_data.image_pil_generated:
         with Timer("display_image_editor"):
-           image_pil_upload_ready = display_image_editor(session_state.image_gen_data, session_state.config.image_gen.background_removal)
+           image_pil_upload_ready = display_image_editor(session_state.image_gen_data, session_state.config.image_gen.background_removal, session_state.backend_caller)
         # Update session upload ready image
         if image_pil_upload_ready:
             session_state.image_gen_data.image_pil_upload_ready = conversion.ensure_rgba(conversion.pil2pil_png(image_pil_upload_ready))

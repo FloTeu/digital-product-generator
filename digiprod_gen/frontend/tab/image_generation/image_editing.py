@@ -10,7 +10,7 @@ from digiprod_gen.backend.image.background_removal import simple_remove_backgrou
 from digiprod_gen.backend.image.upscale import pil_upscale, some_upscalers_upscale
 from digiprod_gen.backend.image.outpainting import outpainting_with_paella
 from digiprod_gen.backend.image.compress import compress
-from digiprod_gen.backend.models.session import ImageGenData
+from digiprod_gen.backend.models.session import ImageGenData, BackendCaller
 from digiprod_gen.backend.models.config import DigiProdGenImageGenBrConfig
 from digiprod_gen.backend.models.common import UpscalerModel, BackgroundRemovalModel
 
@@ -21,7 +21,7 @@ def set_image_pil_generated_by_user(session_image_gen_data: ImageGenData):
         session_image_gen_data.image_pil_generated = bytes2pil(image.getvalue())
 
 
-def display_image_editor(session_image_gen_data: ImageGenData, session_br_config=DigiProdGenImageGenBrConfig) -> Image:
+def display_image_editor(session_image_gen_data: ImageGenData, session_br_config: DigiProdGenImageGenBrConfig, backend_caller: BackendCaller) -> Image:
     """ Image Editor view contains:
         * Upscaling
         * Baclground removal
@@ -34,9 +34,9 @@ def display_image_editor(session_image_gen_data: ImageGenData, session_br_config
 
     image_outpainted = display_image_editor_outpainting(col1, col2, image_element, session_image_gen_data)
 
-    image_upscaled = display_image_editor_upscaling(col1, col2, image_element, session_image_gen_data, compress_quality=80)
+    image_upscaled = display_image_editor_upscaling(col1, col2, image_element, session_image_gen_data, backend_caller=backend_caller, compress_quality=80)
 
-    image_pil_br = display_image_editor_background_removal(col1, col2, image_element, session_br_config, session_image_gen_data, compress_quality=100)
+    image_pil_br = display_image_editor_background_removal(col1, col2, image_element, session_br_config, session_image_gen_data, backend_caller=backend_caller, compress_quality=100)
 
     # display image with order br > up scaled > unchanged
     display_image_pil = image_pil_br or image_upscaled or image_outpainted or session_image_gen_data.image_pil_generated
@@ -81,7 +81,7 @@ def display_image_editor_outpainting(col1, col2, image_element, session_image_ge
     return image_outpainted
 
 
-def display_image_editor_upscaling(col1, col2, image_element, session_image_gen_data: ImageGenData, compress_quality: int=100):
+def display_image_editor_upscaling(col1, col2, image_element, session_image_gen_data: ImageGenData, backend_caller: BackendCaller, compress_quality: int=100):
     upscaler_method = col1.selectbox(
         'Up Scaling Method',
         (UpscalerModel.PIL.value, UpscalerModel.SOME_UPSCALER.value))
@@ -89,7 +89,9 @@ def display_image_editor_upscaling(col1, col2, image_element, session_image_gen_
                    use_container_width=True) and session_image_gen_data.image_pil_generated and not session_image_gen_data.image_pil_upscaled:
         with image_element, st.spinner("Upscaling..."):
             image_to_upscale = session_image_gen_data.image_pil_outpainted or session_image_gen_data.image_pil_generated
-            image_upscaled = image_upscaling(image_to_upscale, upscaler=upscaler_method)
+            response = backend_caller.post(
+                f"/image/upscaling?upscaler={upscaler_method}", img_pil=image_to_upscale)
+            image_upscaled = bytes2pil(response.content)
             if compress_quality < 100:
                 image_upscaled = compress(image_upscaled, quality=compress_quality)
             session_image_gen_data.image_pil_upscaled = image_upscaled
@@ -116,7 +118,7 @@ def display_image_editor_upscaling(col1, col2, image_element, session_image_gen_
 
 
 def display_image_editor_background_removal(col1, col2, image_element, session_br_config: DigiProdGenImageGenBrConfig,
-                                            session_image_gen_data: ImageGenData, compress_quality: int = 100):
+                                            session_image_gen_data: ImageGenData, backend_caller: BackendCaller, compress_quality: int = 100):
     image_upscaled = session_image_gen_data.image_pil_upscaled
     br_method = col1.selectbox(
         'Background Removal Method',
@@ -124,20 +126,16 @@ def display_image_editor_background_removal(col1, col2, image_element, session_b
     if col1.button("Remove Background", key="remove_background_button", use_container_width=True) and image_upscaled and not session_image_gen_data.image_pil_background_removed:
         with image_element, st.spinner("Background Removal..."):
             try:
-                image_pil_br: Image = image_background_removal(image_upscaled,
-                                                               br_method=br_method,
-                                                               outer_pixel_range=session_br_config.outer_pixel_range,
-                                                               tolerance=session_br_config.tolerance
-                                                               )
+                response = backend_caller.post(
+                    f"/image/background_removal?br_method={br_method}&outer_pixel_range={session_br_config.outer_pixel_range}&tolerance={session_br_config.tolerance}", img_pil=image_upscaled)
+                image_pil_br = bytes2pil(response.content)
             except ModelError as e:
                 logging.warning(f"Replicate Model could not handle input. Error: {str(e)}. Retry with compressed image...")
                 img_compressed = compress(image_upscaled, quality=20)
                 session_image_gen_data.image_pil_upscaled = img_compressed
-                image_pil_br: Image = image_background_removal(img_compressed,
-                                                               br_method=br_method,
-                                                               outer_pixel_range=session_br_config.outer_pixel_range,
-                                                               tolerance=session_br_config.tolerance
-                                                               )
+                response = backend_caller.post(
+                    f"/image/background_removal?br_method={br_method}&outer_pixel_range={session_br_config.outer_pixel_range}&tolerance={session_br_config.tolerance}", img_pil=img_compressed)
+                image_pil_br = bytes2pil(response.content)
 
             if compress_quality < 100:
                 image_pil_br = compress(image_pil_br, quality=compress_quality)
@@ -164,6 +162,7 @@ def display_image_editor_background_removal(col1, col2, image_element, session_b
     return image_pil_br
 
 def image_upscaling(image_pil: Image, upscaler: UpscalerModel = UpscalerModel.SOME_UPSCALER) -> Image:
+
     if upscaler == UpscalerModel.PIL:
         image_pil_upscaled = pil_upscale(pilrgba2pilrgb(image_pil), (4500, 4500))
         # increase resolution after simple upscale
