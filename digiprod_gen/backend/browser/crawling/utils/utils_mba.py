@@ -1,5 +1,4 @@
 import random
-import numpy as np
 from typing import List
 
 from digiprod_gen.backend.browser.crawling.utils.common import get_headers_list
@@ -12,6 +11,7 @@ from digiprod_gen.backend.models.mba import MBAProductCategory, MBAMarketplaceDo
 
 def get_mba_overview_urls(marketplace: MBAMarketplaceDomain, product_category: MBAProductCategory, search_term: str, start_page=0, number_pages=1) -> List[str]:
     """Returns a List of urls of utils overview pages"""
+    import numpy as np
     urls_mba = []
     url_mba = url_creator.main([search_term, marketplace.value, product_category.value, "best_seller"])
 

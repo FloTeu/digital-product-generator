@@ -2,7 +2,6 @@ import base64
 import io
 from io import BytesIO
 from PIL import Image
-import numpy as np
 
 def bytes2bytes_io(image_bytes: bytes) -> BytesIO:
     return BytesIO(image_bytes)
@@ -23,6 +22,7 @@ def pil2bytes(img_pil: Image) -> bytes:
     return pil2bytes_io(img_pil).getvalue()
 
 def pil2np(img_pil: Image):
+    import numpy as np
     return np.array(img_pil)
 
 def cv2pil(img_cv):
