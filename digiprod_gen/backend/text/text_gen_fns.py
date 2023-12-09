@@ -45,13 +45,13 @@ def get_product_text_gen(llm, mba_products, mba_product_text_type: MBAProductTex
     return product_text_gen
 
 
-def remove_banned_words_from_list(text_suggestions: List[str], banned_words):
+def remove_banned_words_from_list(text_suggestions: List[str], banned_words) -> List[str]:
     result = []
     for text_suggestion in text_suggestions:
         # Split the string into words
         words = text_suggestion.split()
         # Remove banned words
-        words = [word for word in words if word.lower() not in banned_words]
+        words = [word for word in words if word.lower().strip(".").strip(",").strip("!").strip("?") not in banned_words]
         # Join the words back into a string
         modified_string = ' '.join(words)
         result.append(modified_string)

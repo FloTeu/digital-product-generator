@@ -13,7 +13,7 @@ def prompt_generation(st_tab_ig: DeltaGenerator):
         # prompt generation
         ts_start = time.time()
         json_data = json.dumps([item.dict() for item in mba_products_selected])
-        session_state.image_gen_data.image_gen_prompts = session_state.backend_caller.post(f"/text/prompt_gen?temperature=0.7",
+        session_state.image_gen_data.image_gen_prompts = session_state.backend_caller.post(f"/text/gen/prompts?temperature=0.7",
                                                              data=json_data).json()
         print("mid_gen time elapsed %.2f seconds" % (time.time() - ts_start))
 

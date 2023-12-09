@@ -1,5 +1,6 @@
 MBA_BANNED_WORDS = [
     "t-shirt",
+    "t-shirts",
     "tank top",
     "shirt",
     "shirts",

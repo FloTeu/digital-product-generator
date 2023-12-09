@@ -1,11 +1,10 @@
 import hashlib
 import json
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel, Field
 
-from digiprod_gen.backend.models.mba import MBAUploadSettings, MBAMarketplaceDomain, MBAProductCategory
-
+from digiprod_gen.backend.models.mba import MBAUploadSettings, MBAMarketplaceDomain, MBAProductCategory, MBAProduct, MBAProductTextType
 
 class UploadMBARequest(BaseModel):
     title: str
@@ -42,3 +41,10 @@ class CrawlingMBARequest(BaseModel):
 
 class KeywordExtractionRequest(BaseModel):
     text: str
+    remove_banned_words: bool = True
+
+class ListingGenRequest(BaseModel):
+    mba_products: List[MBAProduct]
+    keywords: str
+    type: MBAProductTextType
+    remove_banned_words: bool = True
