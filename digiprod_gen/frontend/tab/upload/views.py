@@ -117,10 +117,10 @@ def update_session_upload_listing(listing_select_change: ListingSelectChange | N
     session_state: SessionState = st.session_state["session_state"]
     mba_upload_data: MBAUploadData = session_state.upload_data
     if listing_select_change == None:
-        mba_upload_data.brand = st.session_state["final_brand"]
-        mba_upload_data.title = st.session_state["final_title"]
-        mba_upload_data.bullet_1 = st.session_state["final_bullet1"]
-        mba_upload_data.bullet_2 = st.session_state["final_bullet2"]
+        mba_upload_data.brand = st.session_state["final_brand"] if "final_brand" in st.session_state else None
+        mba_upload_data.title = st.session_state["final_title"] if "final_title" in st.session_state else None
+        mba_upload_data.bullet_1 = st.session_state["final_bullet1"] if "final_bullet1" in st.session_state else None
+        mba_upload_data.bullet_2 = st.session_state["final_bullet2"] if "final_bullet2" in st.session_state else None
     else:
         print(st.session_state[listing_select_change.value])
         latest_value = st.session_state[listing_select_change.value]

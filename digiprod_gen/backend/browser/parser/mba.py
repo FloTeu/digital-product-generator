@@ -140,8 +140,9 @@ def product_get_price(element: WebElement | WebDriver):
 
 def product_get_bullets(element: WebDriver) -> List[str]:
     # get parent of first element with class "product-facts-title" and extract all li elements
-    if "feature-bullets" in element.page_source:
-        li_elements = element.find_elements(By.XPATH, "//*[contains(@id, 'feature-bullets')][1]//li")
+    li_elements = element.find_elements(By.XPATH, "//*[contains(@id, 'feature-bullets')][1]//li")
+    if "feature-bullets" in element.page_source and len(li_elements) > 0:
+        pass
     elif "product-facts-title" in element.page_source:
         li_elements = element.find_elements(By.XPATH, "//*[contains(@class, 'product-facts-title')][1]/parent::*//li")
     else:
