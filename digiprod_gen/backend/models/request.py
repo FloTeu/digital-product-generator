@@ -44,7 +44,7 @@ class KeywordExtractionRequest(BaseModel):
     remove_banned_words: bool = True
 
 class ListingGenRequest(BaseModel):
-    mba_products: List[MBAProduct]
+    examples: List[str]
     keywords: str
     type: MBAProductTextType
     remove_banned_words: bool = True

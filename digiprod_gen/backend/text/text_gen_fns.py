@@ -26,24 +26,6 @@ def remove_banned_words(example: str):
         example = ' '.join(result_words)
     return example
 
-def get_product_text_gen(llm, mba_products, mba_product_text_type: MBAProductTextType) -> ParsablePromptEngineeringGenerator:
-    if mba_product_text_type == MBAProductTextType.BULLET:
-        product_text_gen = PromptEngineeringGenerator.from_json("templates/product_text_bullet_gen.json", llm=llm)
-        product_text_gen.prompt_elements.examples = [remove_banned_words(bullet) for mba_product in mba_products for bullet in mba_product.bullets]
-    elif mba_product_text_type == MBAProductTextType.BRAND:
-        product_text_gen = PromptEngineeringGenerator.from_json("templates/product_text_brand_gen.json", llm=llm)
-        product_text_gen.prompt_elements.examples = [remove_banned_words(mba_product.brand) for mba_product in mba_products]
-    elif mba_product_text_type == MBAProductTextType.TITLE:
-        product_text_gen = PromptEngineeringGenerator.from_json("templates/product_text_title_gen.json", llm=llm)
-        product_text_gen.prompt_elements.examples = [remove_banned_words(mba_product.title) for mba_product in mba_products]
-
-    # Make sure output does not contain the banned words
-    product_text_gen.prompt_elements.instruction = f"{product_text_gen.prompt_elements.instruction}\nDo not include any of the following words: {MBA_BANNED_WORDS} in your output."
-
-    # # Input similar to few shot examples
-    # product_text_gen.prompt_elements.input = f"Create six product {mba_product_text_type} texts in the format described above"
-    return product_text_gen
-
 
 def remove_banned_words_from_list(text_suggestions: List[str], banned_words) -> List[str]:
     result = []

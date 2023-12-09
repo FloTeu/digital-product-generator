@@ -6,7 +6,7 @@ from llm_prompting_gen.generators import PromptEngineeringGenerator, ParsablePro
 from digiprod_gen.backend.prompt_engineering.utils import extract_list_from_output
 from digiprod_gen.backend.models.mba import MBAProduct, MBAProductTextType
 from digiprod_gen.backend.models.request import KeywordExtractionRequest, ListingGenRequest
-from digiprod_gen.backend.text.text_gen_fns import mba_products2llm_prompt_gen_input, get_product_text_gen, remove_banned_words_from_list
+from digiprod_gen.backend.text.text_gen_fns import mba_products2llm_prompt_gen_input, remove_banned_words_from_list
 from digiprod_gen.backend.text.mba_banned_word import MBA_BANNED_WORDS
 
 router = APIRouter()
@@ -48,7 +48,20 @@ async def gen_listings(lg_request: ListingGenRequest,
     As input a text a list of mba_products is required.
     """
     llm = ChatOpenAI(temperature=temperature)
-    product_listing_gen: ParsablePromptEngineeringGenerator = get_product_text_gen(llm, lg_request.mba_products, lg_request.type)
+    if lg_request.type == MBAProductTextType.BULLET:
+        product_listing_gen = PromptEngineeringGenerator.from_json("templates/product_text_bullet_gen.json", llm=llm)
+        product_listing_gen.prompt_elements.examples = lg_request.examples
+    elif lg_request.type == MBAProductTextType.BRAND:
+        product_listing_gen = PromptEngineeringGenerator.from_json("templates/product_text_brand_gen.json", llm=llm)
+        product_listing_gen.prompt_elements.examples = lg_request.examples
+    elif lg_request.type == MBAProductTextType.TITLE:
+        product_listing_gen = PromptEngineeringGenerator.from_json("templates/product_text_title_gen.json", llm=llm)
+        product_listing_gen.prompt_elements.examples = lg_request.examples
+
+    # Make sure output does not contain the banned words
+    if lg_request.remove_banned_words:
+        product_listing_gen.prompt_elements.instruction = f"{product_listing_gen.prompt_elements.instruction}\nDo not include any of the following words: {MBA_BANNED_WORDS} in your output."
+
     predicted_listings: List[str] = extract_list_from_output(
         product_listing_gen.generate(keywords=lg_request.keywords))
     if lg_request.remove_banned_words:
