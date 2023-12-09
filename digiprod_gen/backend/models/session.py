@@ -35,7 +35,7 @@ class CrawlingData:
     def get_mba_product_image(self, id: str) -> Image | None:
         return self.mba_product_images.get(id, None)
 
-    def get_image_design_crop(self, id: str):
+    def get_image_design_crop(self, id: str) -> Image:
         image_pil = self.get_mba_product_image(id)
         if not image_pil:
             raise ValueError("Pillow image not yet set")

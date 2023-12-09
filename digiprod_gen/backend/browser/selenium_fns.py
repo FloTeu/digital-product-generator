@@ -22,15 +22,22 @@ class SeleniumBrowser():
         self.proxy = None
         self.user_agent = None
         self.headers = None
+        self.allow_javascript = None
+        self.disable_images = None
 
-    def setup(self, headless=False, data_dir_path=None, proxy=None, user_agent=None, headers=None):
-        self.driver = init_selenium_driver(headless=headless, data_dir_path=data_dir_path, proxy=proxy, user_agent=user_agent, headers=headers)
+    def setup(self, headless=False, data_dir_path=None, proxy=None, user_agent=None, headers=None, allow_javascript=None, disable_images=None):
+        # get default bool if None provided
+        allow_javascript = False if allow_javascript is None else allow_javascript
+        disable_images = True if disable_images is None else disable_images
+        self.driver = init_selenium_driver(headless=headless, data_dir_path=data_dir_path, proxy=proxy, user_agent=user_agent, headers=headers, allow_javascript=allow_javascript, disable_images=disable_images)
         self.headless = headless
         self.data_dir_path = data_dir_path
         self.is_ready = True
         self.proxy = proxy
         self.user_agent = user_agent
         self.headers = headers
+        self.allow_javascript = allow_javascript
+        self.disable_images = disable_images
 
     def close_driver(self):
         self.driver.close()
@@ -40,7 +47,7 @@ class SeleniumBrowser():
         self.driver.quit()
         self.is_ready = False
 
-    def reset_driver(self, proxy: str | None=None, user_agent: str | None=None, headers: dict | None=None):
+    def reset_driver(self, proxy: str | None=None, user_agent: str | None=None, headers: dict | None=None, allow_javascript: bool | None = None, disable_images: bool | None = None):
         """ If possible quits the existing selenium driver and starts a new one
             Optionally a new proxy can be provided
         """
@@ -49,9 +56,15 @@ class SeleniumBrowser():
             self.quit_driver()
         except:
             pass
-        self.driver = init_selenium_driver(headless=self.headless, data_dir_path=self.data_dir_path, proxy=proxy or self.proxy, user_agent=user_agent or self.user_agent, headers=headers or self.headers)
+        allow_javascript = allow_javascript if allow_javascript != None else self.allow_javascript
+        disable_images = disable_images if disable_images != None else self.disable_images
+        self.driver = init_selenium_driver(headless=self.headless, data_dir_path=self.data_dir_path, proxy=proxy or self.proxy, user_agent=user_agent or self.user_agent, headers=headers or self.headers, allow_javascript=allow_javascript, disable_images=disable_images)
         if proxy:
             self.proxy = proxy
+        if allow_javascript != None:
+            self.allow_javascript = allow_javascript
+        if disable_images != None:
+            self.disable_images = disable_images
         self.is_ready = True
 
     def ensure_driver_is_alive(self):
@@ -62,9 +75,33 @@ class SeleniumBrowser():
             assert is_webdriver_alive(self.driver)
 
 
-def init_selenium_driver(headless=True, data_dir_path=None, proxy: str=None, user_agent: str | None = None, headers: dict | None=None) -> WebDriver:
+def init_selenium_driver(headless=True, data_dir_path=None, proxy: str=None, user_agent: str | None = None, headers: dict | None=None, allow_javascript: bool = False, disable_images: bool = True) -> WebDriver:
     """Instantiate a WebDriver object (in this case, using Chrome)"""
     options = Options() #either firefox or chrome options
+
+    # Performance increase by disable images and stylesheets
+    # From https://stackoverflow.com/questions/49031428/how-to-disable-css-in-python-selenium-using-chromedriver-using-chromeoptions
+    prefs = {'profile.default_content_setting_values': {'plugins': 2, 'popups': 2, 'geolocation': 2,
+                                                        'notifications': 2, 'auto_select_certificate': 2,
+                                                        'fullscreen': 2,
+                                                        'mouselock': 2, 'mixed_script': 2, 'media_stream': 2,
+                                                        'media_stream_mic': 2, 'media_stream_camera': 2,
+                                                        'protocol_handlers': 2,
+                                                        'ppapi_broker': 2, 'automatic_downloads': 2, 'midi_sysex': 2,
+                                                        'push_messaging': 2, 'ssl_cert_decisions': 2,
+                                                        'metro_switch_to_desktop': 2,
+                                                        'protected_media_identifier': 2, 'app_banner': 2,
+                                                        'site_engagement': 2,
+                                                        'durable_storage': 2}}
+    if not allow_javascript:
+        prefs['profile.default_content_setting_values']['javascript'] = 2
+    if disable_images:
+        prefs['profile.default_content_setting_values']['images'] = 2
+    options.add_experimental_option('prefs', prefs)
+    options.add_argument("disable-infobars")
+    options.add_argument("--disable-extensions")
+    # options.add_argument('--blink-settings=imagesEnabled=false')
+
     options.add_argument('--disable-gpu')
     # sandbox may cause error on environments like Docker containers
     options.add_argument('--no-sandbox')

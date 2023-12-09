@@ -10,7 +10,6 @@ from digiprod_gen.backend.utils.decorators import timeit
 from digiprod_gen.backend.utils.helper import Timer
 from digiprod_gen.backend.utils import init_environment, initialise_config
 from digiprod_gen.backend.models.response import UploadMBAResponse
-from digiprod_gen.backend.models.request import UploadMBARequest
 from digiprod_gen.backend.image import conversion
 from digiprod_gen.backend.models.session import SessionState
 from digiprod_gen.backend.models.config import DigiProdGenConfig
@@ -42,7 +41,7 @@ def display_tab_image_gen_views(session_state: SessionState):
 
             st.subheader("Prepare Image for MBA Upload")
             st.markdown(
-                "Please either generate the image directly or use one of the example Prompts to generate an image with Midjourney. \nYou can upload the image afterwards and proceed.")
+                "Please either generate the image directly or use one of the example Prompts to generate an image with SDXL or Dalle-3. \nYou can upload the image afterwards and proceed.")
 
             if session_state.image_gen_data.image_gen_prompts:
                 index_list = [i for i, _ in enumerate(session_state.image_gen_data.image_gen_prompts)]
@@ -50,7 +49,7 @@ def display_tab_image_gen_views(session_state: SessionState):
                 index_list = [0]
             prompt_index = st.selectbox('Select a Prompt', index_list)
             display_image_generation_prompt(session_state.image_gen_data, selected_prompt_index=prompt_index)
-            display_image_generator(session_state.image_gen_data)
+            display_image_generator(session_state)
         else:
             st.warning('Please click on 3. Prompt Generation')
 
@@ -62,7 +61,7 @@ def display_tab_image_gen_views(session_state: SessionState):
     set_image_pil_generated_by_user(session_state.image_gen_data)
     if session_state.image_gen_data.image_pil_generated:
         with Timer("display_image_editor"):
-           image_pil_upload_ready = display_image_editor(session_state.image_gen_data, session_state.config.image_gen.background_removal)
+           image_pil_upload_ready = display_image_editor(session_state.image_gen_data, session_state.config.image_gen.background_removal, session_state.backend_caller)
         # Update session upload ready image
         if image_pil_upload_ready:
             session_state.image_gen_data.image_pil_upload_ready = conversion.ensure_rgba(conversion.pil2pil_png(image_pil_upload_ready))
@@ -124,11 +123,6 @@ def display_tab_upload_views(session_state: SessionState):
                         if session_state.upload_data.bullet_1 == None and session_state.upload_data.bullet_2 == None:
                             st.error('You not defined your listings yet', icon="🚨")
 
-                        image_byte_array = conversion.pil2bytes_io(session_state.image_gen_data.image_pil_upload_ready, format="PNG")
-                        image_byte_array.seek(0)
-                        files = {
-                            "image_upload_ready": ("image_upload_ready.png", image_byte_array, 'image/png')
-                        }
                         headers = {
                             'accept': 'application/json',
                         }
@@ -137,7 +131,7 @@ def display_tab_upload_views(session_state: SessionState):
                                         "bullet_2": session_state.upload_data.bullet_2, "description": session_state.upload_data.description}
                         response = session_state.backend_caller.post(
                             f"/browser/upload/upload_mba_product?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}",
-                            headers=headers, data=request_data, files=files
+                            headers=headers, data=request_data, img_pil=session_state.image_gen_data.image_pil_upload_ready
                         )
                         if response.status_code == 200:
                             upload_response: UploadMBAResponse = UploadMBAResponse.parse_obj(response.json())
@@ -236,7 +230,7 @@ def display_sidebar(session_state: SessionState, tab_crawling, tab_ig, tab_uploa
             if session_state.status.detail_pages_crawled:
                 mba_products_selected = session_state.crawling_data.get_selected_mba_products()
             if mba_products_selected and session_state.status.detail_pages_crawled:
-                sidebar.prompt_generation_input(tab_ig, session_state.crawling_data)
+                sidebar.prompt_generation_input(tab_ig)
 
         if session_state.status.detail_pages_crawled:
             sidebar.listing_generation_input(tab_upload)

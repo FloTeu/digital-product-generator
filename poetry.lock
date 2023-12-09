@@ -1368,14 +1368,14 @@ requests = ">=2,<3"
 
 [[package]]
 name = "llm-prompting-gen"
-version = "0.1.4"
+version = "0.1.5"
 description = ""
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "llm_prompting_gen-0.1.4-py3-none-any.whl", hash = "sha256:ebcb3b247c929eb2d04602f1b851affca9598954e14408f66558fb2aff169596"},
-    {file = "llm_prompting_gen-0.1.4.tar.gz", hash = "sha256:221e98327525606ac287f3e1fc7870f0ea469b9c6c3fe6d3b25fbda8456c3a14"},
+    {file = "llm_prompting_gen-0.1.5-py3-none-any.whl", hash = "sha256:daeac18412136ec9b1f0b201a97c9784d37f6766ce3592aec125420b3e3b7df8"},
+    {file = "llm_prompting_gen-0.1.5.tar.gz", hash = "sha256:fe945db2b60bbe541b43fab6c26870b28899995fd1a48e655e7769ad15a20b69"},
 ]
 
 [package.dependencies]
@@ -4013,4 +4013,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "db8f231e29bc5136740df5f2be16798cafb2f2eb968aaeabae2502e183741d90"
+content-hash = "9b703e097d633b41668dc363b9b0e9a648c4485e58ba50958e2446ff10fa6a02"

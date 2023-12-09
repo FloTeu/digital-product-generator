@@ -13,6 +13,19 @@ class MBAMarketplaceDomain(str, EnumBase):
     ES="es"
     JP="co.jp"
 
+    def get_webscrapingapi_country_code(self):
+        """Get corresponding country code of webscrapingapi.com"""
+        if self == "com":
+            return "us"
+        elif self == "co.uk":
+            return "uk"
+        elif self == "co.jp":
+            return "jp"
+        elif self in ["de", "fr", "es", "it"]:
+            return self.value
+        else:
+            raise NotImplementedError
+
 
 class MBAProductCategory(str, EnumBase):
     SHIRT="Shirt"
@@ -77,8 +90,6 @@ class MBAProduct(BaseModel):
     bullets: List[str] = Field(default_factory=list)
     image_prompt: Optional[str] = Field(None)
     image_text_caption: Optional[str] = Field(None)
-    # TODO: Move to another data class
-    # image_pil: Optional[Image.Image]
 
     class Config:
         arbitrary_types_allowed = True

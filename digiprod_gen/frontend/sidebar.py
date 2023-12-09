@@ -10,7 +10,7 @@ from digiprod_gen.frontend.tab.crawling.tab_crawling import crawl_mba_overview_a
 from digiprod_gen.frontend.tab.image_generation.selected_products import crawl_details_update_overview_page
 from digiprod_gen.frontend.tab.image_generation.prompt_generation import prompt_generation
 from digiprod_gen.frontend.tab.upload.listing_generation import listing_generation
-from digiprod_gen.backend.image.caption import extend_mba_products_with_caption
+from digiprod_gen.frontend.tab.image_generation.image_captioning import extend_mba_products_with_caption
 from digiprod_gen.frontend.session import read_session
 from digiprod_gen.backend.utils.utils import booleanize
 
@@ -29,10 +29,11 @@ def crawling_mba_details_input(mba_products, tab_ig: DeltaGenerator):
     st.multiselect("Select Designs for prompt generation:", [i+1 for i in range(len(mba_products))], key='selected_designs', on_change=crawl_mba_overview_and_display)
     st.button("Start Crawling Details", on_click=crawl_details_update_overview_page, args=(tab_ig, ), key="button_crawl_detail")
 
-def prompt_generation_input(tab_ig: DeltaGenerator, crawling_data: CrawlingData):
+def prompt_generation_input(tab_ig: DeltaGenerator):
+    session_state: SessionState = st.session_state["session_state"]
     st.subheader("3. Prompt Generation")
     st.button("Run AI Image Captioning", on_click=extend_mba_products_with_caption,
-                      args=(crawling_data,), key="button_image_captioning")
+                      args=(session_state.backend_caller, session_state.crawling_data,), key="button_image_captioning")
     st.button("Start Prompt Generation", on_click=prompt_generation, args=(tab_ig, ), key="button_prompt_generation")
 
 def listing_generation_input(tab_ig: DeltaGenerator):
