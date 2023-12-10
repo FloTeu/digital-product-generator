@@ -26,6 +26,7 @@ def display_image_generator(session_state: SessionState) -> Image:
             response = backend_caller.get(f"/image/generation?prompt={session_image_gen_data.image_gen_prompt_selected}&image_gen_model={image_gen_model}")
             session_image_gen_data.image_pil_generated = conversion.bytes2pil(response.content)
             session_image_gen_data.reset_image_data()
+            session_state.status.product_uploaded = False
 
 # def text2image(text: str, image_gen_model: ImageGenerationModel) -> Image:
 #     if image_gen_model == ImageGenerationModel.DEEPFLOYD_IF:

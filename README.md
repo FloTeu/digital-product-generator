@@ -76,11 +76,12 @@ docker run -ti -p 8501:8501 -v %cd%:/app --rm digiprod-gen:latest  # cmd.exe
 - [ ] Refactor backed code to REST api
 - [ ] Clean up pyproject.toml dependencies
 - [x] Crawling performance optimization: Only change postcode if less than 48 products could be found  
-- [ ] If login was successful show some checkmark in the sidebar instead of login inputs
+- [x] If login was successful show some checkmark in the sidebar instead of login inputs
 - [ ] Checkout paper/repo https://idea2img.github.io/
 - [x] Include GPT-4 for image caption
 - [x] Include dalle 3 for image genenration
 - [x] Show if char limit of mba is exceeded
+- [ ] Fix change prompt bug 
 
 ## License
 
