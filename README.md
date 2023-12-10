@@ -80,6 +80,7 @@ docker run -ti -p 8501:8501 -v %cd%:/app --rm digiprod-gen:latest  # cmd.exe
 - [ ] Checkout paper/repo https://idea2img.github.io/
 - [x] Include GPT-4 for image caption
 - [x] Include dalle 3 for image genenration
+- [x] Show if char limit of mba is exceeded
 
 ## License
 

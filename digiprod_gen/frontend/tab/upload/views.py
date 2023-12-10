@@ -43,6 +43,12 @@ def display_upload_ready_image(img_pil: Image, background_color: Tuple[int,int,i
     resize_tuple = (int(new_size[0]/10), int(new_size[1]/10))
     st.image(image_to_show.resize(resize_tuple))
 
+def display_char_max_notice(n_chars: int, max_n_chars: int, st_element):
+    if n_chars > max_n_chars:
+        st_element.write(f":red[Chars: {n_chars} (max {max_n_chars})]")
+    else:
+        st_element.write(f"Chars: {n_chars} (max {max_n_chars})")
+
 def display_data_for_upload(image_pil: Image,
                             title: str | None,
                             brand: str | None,
@@ -77,10 +83,12 @@ def display_data_for_upload(image_pil: Image,
     # Column 1
     if title:
         final_title = col2_1.text_area("**Title**", value=title, on_change=update_session_upload_listing, key="mba_upload_listing_title")
+        display_char_max_notice(len(final_title), 60, col2_1)
         st.session_state["final_title"] = final_title
         mba_upload_data.title = final_title
     if bullet_1:
         final_bullet1 = col2_1.text_area("**Bullet 1**", value=bullet_1, on_change=update_session_upload_listing, key="mba_upload_listing_bullet_1")
+        display_char_max_notice(len(final_bullet1), 256, col2_1)
         st.session_state["final_bullet1"] = final_bullet1
         mba_upload_data.bullet_1 = final_bullet1
     if title and brand:
@@ -92,10 +100,12 @@ def display_data_for_upload(image_pil: Image,
     # Column 2
     if brand:
         final_brand = col2_2.text_area("**Brand**", value=brand, on_change=update_session_upload_listing, key="mba_upload_listing_brand")
+        display_char_max_notice(len(final_brand), 50, col2_2)
         st.session_state["final_brand"] = final_brand
         mba_upload_data.brand = final_brand
     if bullet_2:
         final_bullet2 = col2_2.text_area("**Bullet 2**", value=bullet_2, on_change=update_session_upload_listing, key="mba_upload_listing_bullet_2")
+        display_char_max_notice(len(final_bullet2), 256, col2_2)
         st.session_state["final_bullet2"] = final_bullet2
         mba_upload_data.bullet_2 = final_bullet2
 
