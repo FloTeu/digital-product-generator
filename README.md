@@ -81,7 +81,7 @@ docker run -ti -p 8501:8501 -v %cd%:/app --rm digiprod-gen:latest  # cmd.exe
 - [x] Include GPT-4 for image caption
 - [x] Include dalle 3 for image genenration
 - [x] Show if char limit of mba is exceeded
-- [ ] Fix change prompt bug 
+- [x] Fix change prompt bug 
 
 ## License
 

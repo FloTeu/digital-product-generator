@@ -5,7 +5,9 @@ from digiprod_gen.backend.models.session import ImageGenData, SessionState
 from digiprod_gen.backend.models.common import ImageGenerationModel
 from digiprod_gen.backend.image import generation, conversion
 
-def update_session_selected_prompt(session_image_gen_data: ImageGenData, image_gen_prompt=None):
+def update_session_selected_prompt(session_image_gen_data: ImageGenData, image_gen_prompt=None, selected_prompt_change=False):
+    if selected_prompt_change:
+        image_gen_prompt = image_gen_prompt or session_image_gen_data.image_gen_prompts[st.session_state["selected_prompt_index"]]
     session_image_gen_data.image_gen_prompt_selected = image_gen_prompt if image_gen_prompt else st.session_state["image_gen_prompt"]
 
 def display_image_generation_prompt(session_image_gen_data: ImageGenData, selected_prompt_index: int = 0):

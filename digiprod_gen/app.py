@@ -20,7 +20,7 @@ from digiprod_gen.frontend.tab.image_generation.selected_products import display
 from digiprod_gen.frontend.tab.image_generation.image_editing import set_image_pil_generated_by_user, \
     display_image_editor
 from digiprod_gen.frontend.tab.image_generation.image_generation import display_image_generator, \
-    display_image_generation_prompt
+    display_image_generation_prompt, update_session_selected_prompt
 from digiprod_gen.frontend.tab.upload.views import (display_listing_selection, display_data_for_upload,
                                                     ListingSelectChange,
                                                     display_image_upload, display_marketplace_selector,
@@ -47,7 +47,7 @@ def display_tab_image_gen_views(session_state: SessionState):
                 index_list = [i for i, _ in enumerate(session_state.image_gen_data.image_gen_prompts)]
             else:
                 index_list = [0]
-            prompt_index = st.selectbox('Select a Prompt', index_list)
+            prompt_index = st.selectbox('Select a Prompt', index_list, on_change=update_session_selected_prompt, args=(session_state.image_gen_data,None,True,), key="selected_prompt_index")
             display_image_generation_prompt(session_state.image_gen_data, selected_prompt_index=prompt_index)
             display_image_generator(session_state)
         else:

@@ -1,8 +1,8 @@
 import io
 from typing import Tuple
 from PIL import Image
-from digiprod_gen.backend.image.conversion import pil2bytes_io
-from digiprod_gen.backend.image.common import replicate_generate
+from digiprod_gen.backend.image.conversion import pil2bytes_io, pil2b64_str
+from digiprod_gen.backend.image.common import replicate_generate, OutputFormat
 from digiprod_gen.backend.image.stabilityai import get_upscaling_client
 import stability_sdk.interfaces.gooseai.generation.generation_pb2 as generation
 
@@ -17,6 +17,13 @@ def some_upscalers_upscale(img_pil: Image) -> Image:
     model = "daanelson/some-upscalers:3078c9717f1b83d4fa86890b769f047695daff189028b96dcf517747853a48b0"
     return replicate_generate(model, {"image": pil2bytes_io(img_pil)})
 
+def gfpgan_upscale(img_pil: Image, scale=16) -> Image:
+    model = "alexgenovese/upscaler:ba0132791dea9f3a80b18a9c04e96bdddbc6265e55cb79c61857365f9d172fd8"
+    return replicate_generate(model, {"image_url": f"data:image/jpeg;base64,{pil2b64_str(img_pil)}", "scale": scale})
+
+def high_resolution_controlnet_upscale(img_pil: Image, prompt: str) -> Image:
+    model = "batouresearch/high-resolution-controlnet-tile:f878e9d044980c8eddb3e449f685945910d86bb55135e45fa065a00a8a519f09"
+    return replicate_generate(model, {"image": pil2bytes_io(img_pil), "prompt": prompt, "resolution": 4096, "negative_prompt": "Longbody, lowres, extra digit, fewer digits, cropped, worst quality, low quality, mutant"}, output_format=OutputFormat.GENERATOR)
 
 def stability_ai_upscale(img_pil: Image, prompt=None, width=None, client=None) -> Image:
     client = client or get_upscaling_client("stable-diffusion-x4-latent-upscaler")

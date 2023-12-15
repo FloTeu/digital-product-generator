@@ -16,7 +16,9 @@ class ImageCaptioningModel(str, Enum):
 
 class UpscalerModel(str, Enum):
     PIL="Simple Resize"
+    GFPGAN="GFPGAN"
     SOME_UPSCALER="AI Upscaler"
+    HIGH_RESOLUTION_CONTROLNET="High Resolution Controlnet"
 
 class BackgroundRemovalModel(str, Enum):
     OPEN_CV="Simple Background Removal"

@@ -4,7 +4,7 @@ from PIL import Image
 from fastapi import APIRouter, UploadFile, File
 from digiprod_gen.backend.image.caption import image2visual_caption, image2prompt_gpt4, image2prompt, image2text_caption
 from digiprod_gen.backend.models.common import ImageCaptioningModel, ImageGenerationModel, UpscalerModel, BackgroundRemovalModel
-from digiprod_gen.backend.image.upscale import pil_upscale, some_upscalers_upscale
+from digiprod_gen.backend.image.upscale import pil_upscale, some_upscalers_upscale, gfpgan_upscale, high_resolution_controlnet_upscale
 from digiprod_gen.backend.image.background_removal import simple_remove_background, rembg, easy_rem_bg
 from digiprod_gen.backend.image import generation, conversion
 from fastapi.responses import StreamingResponse
@@ -78,7 +78,7 @@ async def get_text_to_image(prompt: str,
 
 
 @router.post("/upscaling")
-async def get_image_upscaled(upscaler: UpscalerModel, image_file: UploadFile = File(...)) -> StreamingResponse:
+async def get_image_upscaled(upscaler: UpscalerModel, prompt: str="", image_file: UploadFile = File(...)) -> StreamingResponse:
     """
     Takes an image and scales it up to 4xxx pixel width and height
     """
@@ -87,6 +87,10 @@ async def get_image_upscaled(upscaler: UpscalerModel, image_file: UploadFile = F
         image_pil_upscaled = pil_upscale(img_pil, (4500, 4500))
         # increase resolution after simple upscale
         # image_pil_upscaled = real_esrgan_resolution(image_pil_upscaled)
+    elif upscaler == UpscalerModel.GFPGAN:
+        image_pil_upscaled = gfpgan_upscale(img_pil, scale=int((4096 / img_pil.size[0]) * 2))
+    elif upscaler == UpscalerModel.HIGH_RESOLUTION_CONTROLNET:
+        image_pil_upscaled = high_resolution_controlnet_upscale(img_pil, prompt=prompt)
     elif upscaler == UpscalerModel.SOME_UPSCALER:
         # Convert 4 channels to 3 channels
         image_pil_upscaled = some_upscalers_upscale(img_pil)

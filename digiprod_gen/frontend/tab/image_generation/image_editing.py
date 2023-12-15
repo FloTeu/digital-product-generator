@@ -80,13 +80,13 @@ def display_image_editor(session_image_gen_data: ImageGenData, session_br_config
 def display_image_editor_upscaling(col1, col2, image_element, session_image_gen_data: ImageGenData, backend_caller: BackendCaller, compress_quality: int=100):
     upscaler_method = col1.selectbox(
         'Up Scaling Method',
-        (UpscalerModel.PIL.value, UpscalerModel.SOME_UPSCALER.value))
+        (UpscalerModel.PIL.value, UpscalerModel.GFPGAN.value, UpscalerModel.SOME_UPSCALER.value, UpscalerModel.HIGH_RESOLUTION_CONTROLNET.value))
     if col1.button("Upscale", key="upscaling_button",
                    use_container_width=True) and session_image_gen_data.image_pil_generated and not session_image_gen_data.image_pil_upscaled:
         with image_element, st.spinner("Upscaling..."):
             image_to_upscale = session_image_gen_data.image_pil_outpainted or session_image_gen_data.image_pil_generated
             response = backend_caller.post(
-                f"/image/upscaling?upscaler={upscaler_method}", img_pil=image_to_upscale)
+                f"/image/upscaling?upscaler={upscaler_method}&prompt={session_image_gen_data.image_gen_prompt_selected}", img_pil=image_to_upscale)
             image_upscaled = bytes2pil(response.content)
             if compress_quality < 100:
                 image_upscaled = compress(image_upscaled, quality=compress_quality)
