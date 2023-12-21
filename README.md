@@ -59,7 +59,7 @@ docker run -ti -p 8501:8501 -v %cd%:/app --rm digiprod-gen:latest  # cmd.exe
 
 ## Open TODOs:
 
-- [ ] Add loading bar for image generation
+- [x] Add loading bar for image generation
 - [ ] Remove python time wait with wait_until_element_exists()
 - [ ] Place loading bar on right place
 - [ ] Add session views (with st.empty) for all major frontend views
@@ -73,7 +73,7 @@ docker run -ti -p 8501:8501 -v %cd%:/app --rm digiprod-gen:latest  # cmd.exe
 - [ ] LLM transformation of product description text for image prompt (remove misleading information)
 - [ ] Fix bug youth selection fails
 - [x] Add multi color background for upload tab
-- [ ] Refactor backed code to REST api
+- [x] Refactor backed code to REST api
 - [ ] Clean up pyproject.toml dependencies
 - [x] Crawling performance optimization: Only change postcode if less than 48 products could be found  
 - [x] If login was successful show some checkmark in the sidebar instead of login inputs
