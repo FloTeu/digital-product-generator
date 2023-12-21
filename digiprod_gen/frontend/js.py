@@ -3,7 +3,7 @@ from functools import cache
 
 
 @cache
-def get_screen_width(st_session_id: str) -> int | None:
+def get_screen_width(session_id: str) -> int | None:
     """
     Return screen width by javascript call
     st_session_id is provided to ensure screen width is detected once per user (because of cache)

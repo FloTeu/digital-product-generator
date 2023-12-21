@@ -26,7 +26,7 @@ def crawling_mba_overview_input():
 
 def crawling_mba_details_input(mba_products, tab_ig: DeltaGenerator):
     st.subheader("2. Crawling MBA Product Pages")
-    st.multiselect("Select Designs for prompt generation:", [i+1 for i in range(len(mba_products))], key='selected_designs', on_change=crawl_mba_overview_and_display)
+    st.multiselect("Select Designs for prompt generation:", [i+1 for i in range(len(mba_products))], key='selected_designs')
     st.button("Start Crawling Details", on_click=crawl_details_update_overview_page, args=(tab_ig, ), key="button_crawl_detail")
 
 def prompt_generation_input(tab_ig: DeltaGenerator):

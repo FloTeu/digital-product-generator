@@ -1,5 +1,5 @@
-from streamlit.runtime.scriptrunner import add_script_run_ctx
 from digiprod_gen.frontend.js import get_screen_width
+from digiprod_gen.frontend.session import get_session_id
 
 
 def is_mobile() -> bool:
@@ -11,6 +11,3 @@ def is_mobile() -> bool:
     return width < 600
 
 
-def get_session_id() -> str:
-    # get session id from the current script runner thread
-    return add_script_run_ctx().streamlit_script_run_ctx.session_id

@@ -20,7 +20,6 @@ def crawl_mba_overview_and_display():
     if session_state.crawling_request == None:
         update_mba_request()
 
-
     mba_products = session_state.crawling_data.mba_products
     if not mba_products or not session_state.status.overview_page_crawled:
         session_state.crawling_request.postcode = session_state.config.mba.get_marketplace_config(
@@ -30,17 +29,16 @@ def crawl_mba_overview_and_display():
                                                      json=session_state.crawling_request.model_dump())
         #start_browser(session_state)
         # request: CrawlingMBARequest = session_state.crawling_request
-        # TODO: Why do we need the view container here, if we not display anything?
-        overview_designs_view = session_state.views.overview_designs
-        with overview_designs_view:
-            if response.status_code != 200:
-                return None
-            #crawl_mba_overview2mba_products(session_state)
-            mba_products_parsed: List[MBAProduct] = [MBAProduct.parse_obj(mba_p) for mba_p in response.json()]
-            # Save to session
-            session_state.crawling_data.mba_products = mba_products_parsed
-            # Update status
-            session_state.status.overview_page_crawled = True
+        if response.status_code != 200:
+            return None
+        #crawl_mba_overview2mba_products(session_state)
+        mba_products_parsed: List[MBAProduct] = [MBAProduct.parse_obj(mba_p) for mba_p in response.json()]
+        # Save to session
+        session_state.crawling_data.mba_products = mba_products_parsed
+        # Update status
+        session_state.status.overview_page_crawled = True
+
+
 
 #
 # def crawl_mba_overview2mba_products(session_state: SessionState):
