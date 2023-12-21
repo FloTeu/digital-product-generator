@@ -204,6 +204,7 @@ def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload)
 
         with overview_designs_view.container():
             if session_state.status.overview_page_crawled:
+                pass
                 display_mba_overview_products(session_state.crawling_data, session_state.crawling_request, shirts_per_row=session_state.config.view.cards_per_row)
 
     with tab_ig:
