@@ -9,6 +9,7 @@ from digiprod_gen.backend.image.compress import compress
 from digiprod_gen.backend.models.session import ImageGenData, BackendCaller
 from digiprod_gen.backend.models.config import DigiProdGenImageGenBrConfig
 from digiprod_gen.backend.models.common import UpscalerModel, BackgroundRemovalModel
+from digiprod_gen.frontend.utils import is_mobile
 
 
 def set_image_pil_generated_by_user(session_image_gen_data: ImageGenData):
@@ -96,19 +97,23 @@ def display_image_editor_upscaling(col1, col2, image_element, session_image_gen_
 
     # User interaction to remove image editing again
     if image_upscaled:
-        col2.markdown("#")
-        col2.markdown("###")
-        col2.markdown("###")
+        if is_mobile():
+            col2.write("Remove Upscaling")
+        else:
+            col2.markdown("#")
+            col2.markdown("###")
+            col2.markdown("###")
         button_placeholder = col2.empty()
         if button_placeholder.button(":x:", key="remove_image_editing_upscaling_button"):
             image_upscaled = None
             session_image_gen_data.image_pil_upscaled = None
             button_placeholder.empty()
     else:
-        col2.markdown("#")
-        col2.markdown("###")
-        col2.markdown("###")
-        display_button_placeholder(col2)
+        if not is_mobile():
+            col2.markdown("#")
+            col2.markdown("###")
+            col2.markdown("###")
+            display_button_placeholder(col2)
 
     return image_upscaled
 
@@ -141,19 +146,23 @@ def display_image_editor_background_removal(col1, col2, image_element, session_b
 
     # User interaction to remove image editing again
     if image_pil_br:
-        col2.markdown("#")
-        col2.markdown("###")
-        col2.markdown("###")
+        if is_mobile():
+            col2.write("Remove Background Removal")
+        else:
+            col2.markdown("#")
+            col2.markdown("###")
+            col2.markdown("###")
         button_placeholder = col2.empty()
         if button_placeholder.button(":x:", key="remove_image_editing_br_button"):
             image_pil_br = None
             session_image_gen_data.image_pil_background_removed = None
             button_placeholder.empty()
     else:
-        col2.markdown("#")
-        col2.markdown("###")
-        col2.markdown("###")
-        display_button_placeholder(col2)
+        if not is_mobile():
+            col2.markdown("#")
+            col2.markdown("###")
+            col2.markdown("###")
+            display_button_placeholder(col2)
 
     return image_pil_br
 
