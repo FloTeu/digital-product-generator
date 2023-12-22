@@ -16,7 +16,7 @@ openai = "0.27.8"
 click = "^8.1.7"
 pydantic-yaml = "^1.1.1"
 pillow = "^10.1.0"
-streamlit-js-eval = "0.1.5"
+streamlit-js-eval = "^0.1.5"
 
 
 [tool.poetry.group.backend.dependencies]
