@@ -32,6 +32,8 @@ replicate = "^0.22.0"
 selenium-wire = "^5.1.0"
 stability-sdk = "^0.8.5"
 pillow = "^10.2.0"
+pydantic = "^2.5.3"
+langchainhub = "^0.1.14"
 
 
 [tool.poetry.group.debug.dependencies]

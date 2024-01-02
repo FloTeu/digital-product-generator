@@ -10,7 +10,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from selenium.common import NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
 
-from digiprod_gen.backend.api.common import  CONFIG
+from digiprod_gen.backend.api.common import CONFIG
 from digiprod_gen.backend.browser.crawling import mba as mba_crawling
 from digiprod_gen.backend.browser.parser import mba as mba_parser
 from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists, SeleniumBrowser
