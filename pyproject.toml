@@ -9,17 +9,17 @@ packages = [{include = "digiprod_gen"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 streamlit = "^1.25.0"
+streamlit-js-eval = "^0.1.5"
 requests = "^2.31.0"
-accelerate = "^0.21.0"
-bitsandbytes = "^0.40.2"
-openai = "0.27.8"
 click = "^8.1.7"
 pydantic-yaml = "^1.1.1"
 pillow = "^10.1.0"
-streamlit-js-eval = "^0.1.5"
 
 
 [tool.poetry.group.backend.dependencies]
+openai = "0.27.8"
+accelerate = "^0.21.0"
+bitsandbytes = "^0.40.2"
 fastapi = "0.103.2"
 httpx = "^0.25.0"
 uvicorn = "^0.23.2"
@@ -31,6 +31,7 @@ seleniumbase = "^4.22.0"
 replicate = "^0.22.0"
 selenium-wire = "^5.1.0"
 stability-sdk = "^0.8.5"
+pillow = "^10.2.0"
 
 
 [tool.poetry.group.debug.dependencies]
