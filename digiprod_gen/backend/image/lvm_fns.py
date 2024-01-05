@@ -5,10 +5,11 @@ from PIL import Image
 from digiprod_gen.backend.image.conversion import pil2b64_str
 
 
-def get_gpt4_vision_payload(img_pil: Image, text: str) -> dict:
+def get_gpt4_vision_payload(img_pil: Image, text: str, temperature=0.7) -> dict:
     b64_str = pil2b64_str(img_pil)
     return {
         "model": "gpt-4-vision-preview",
+        "temperature": temperature,
         "messages": [
           {
             "role": "user",
@@ -29,12 +30,12 @@ def get_gpt4_vision_payload(img_pil: Image, text: str) -> dict:
         "max_tokens": 300
     }
 
-def get_gpt4_vision_response(img_pil: Image, prompt: str) -> str | None:
+def get_gpt4_vision_response(img_pil: Image, prompt: str, temperature: int = 0.7) -> str | None:
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}"
     }
-    payload = get_gpt4_vision_payload(img_pil, prompt)
+    payload = get_gpt4_vision_payload(img_pil, prompt, temperature=temperature)
     response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
 
     try:

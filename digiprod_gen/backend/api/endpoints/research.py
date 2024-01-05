@@ -54,7 +54,7 @@ async def post_select_mba_products_by_image(request: SelectProductRequest) -> Li
     img_pil = conversion.b64_str2pil(request.img_b64_str)
     pe_msg = PromptEngineeringMessages.from_json("templates/research_product_selection.json")
     prompt = pe_msg.messages["instruction"].format().content
-    lvm_suggestion = get_gpt4_vision_response(img_pil, prompt)
+    lvm_suggestion = get_gpt4_vision_response(img_pil, prompt, temperature=0.0)
 
     llm = ChatOpenAI(temperature=0.0)
     class Asins(BaseModel):

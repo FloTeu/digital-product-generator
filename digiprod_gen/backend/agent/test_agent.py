@@ -50,7 +50,7 @@ if __name__ == "__main__":
     agent = create_openai_functions_agent(llm, tools, prompt)
     #agent = create_openai_tools_agent(llm, tools, prompt)
     # Create an agent executor by passing in the agent and tools
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
 
 
     # llm = OpenAI(model_name="gpt-4-1106-preview", temperature=0)
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     search_term = "Unicorn"
     prompt = f"""
     Create a mba request with search term '{search_term}' and crawl a list of mba_products.
-    Select a subsample of 20 mba_products that you have received. Print selected subsample at the end.
+    Select a subsample of all (48 if possible) mba_products that you have received. Print selected subsample at the end.
     """
     #
     agent_executor.invoke({"input": prompt})
