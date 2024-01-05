@@ -51,5 +51,5 @@ class ListingGenRequest(BaseModel):
 
 
 class SelectProductRequest(BaseModel):
-    id2asin: Dict[str, str]
+    id2asin: Dict[int, str]
     img_b64_str: str

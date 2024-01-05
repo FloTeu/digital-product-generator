@@ -1,5 +1,5 @@
 import click
-
+import json
 import streamlit as st
 import streamlit.web.bootstrap as st_bootstrap
 
@@ -193,17 +193,17 @@ def display_admin_views(session_state: SessionState):
             import imgkit
 
             if session_state.crawling_data.mba_products:
-                id2asin_dict = {id: prod.asin for id, prod in enumerate(session_state.crawling_data.mba_products)}
-                products_html = mba_products_overview_html_str(session_state.crawling_data.mba_products, columns=8)
-                img_bytes = imgkit.from_string(products_html, False, options={
-                    'zoom': 4,
-                    'quality': 100
-                })
-                img_pil = bytes2pil(img_bytes)
-                body = {"img_b64_str": pil2b64_str(img_pil), "id2asin": id2asin_dict}
-                session_state.backend_caller.post("/research/select_products", json=body)
-                img_pil.save("fig1.png")
-                st.image(img_pil)
+                from pydantic import BaseModel
+                from digiprod_gen.backend.models.mba import MBAProduct
+                from typing import List
+
+                class MBAProductsRequest(BaseModel):
+                    mba_products: List[MBAProduct]
+
+                request_body = MBAProductsRequest(mba_products=session_state.crawling_data.mba_products)
+                session_state.backend_caller.post("/research/select_products",
+                                                  data=request_body.model_dump_json())
+
 
 def display_full_page_screenshot(driver):
     screenshot_bytes = get_full_page_screenshot(driver)
