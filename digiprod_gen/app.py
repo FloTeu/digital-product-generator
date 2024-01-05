@@ -162,7 +162,7 @@ def display_tab_upload_views(session_state: SessionState):
 
 def display_admin_views(session_state: SessionState):
     """Display some options for the admin"""
-    if  st.experimental_user.email in st.secrets.admin.emails or read_session("mba_email") in st.secrets.admin.emails:
+    if st.experimental_user.email in st.secrets.admin.emails or read_session("mba_email") in st.secrets.admin.emails:
         st.subheader("Admin View")
         st.warning("Note: This is only visible to admins")
 
@@ -187,6 +187,23 @@ def display_admin_views(session_state: SessionState):
                 display_full_page_screenshot(session_state.browser.driver)
             st.download_button('Download Browser Source', session_state.browser.driver.page_source, file_name="source.html")
 
+        if st.button("Send Select Products Request"):
+            from digiprod_gen.backend.image.conversion import bytes2pil, pil2b64_str
+            from digiprod_gen.frontend.tab.crawling.views import mba_products_overview_html_str
+            import imgkit
+
+            if session_state.crawling_data.mba_products:
+                id2asin_dict = {id: prod.asin for id, prod in enumerate(session_state.crawling_data.mba_products)}
+                products_html = mba_products_overview_html_str(session_state.crawling_data.mba_products, columns=8)
+                img_bytes = imgkit.from_string(products_html, False, options={
+                    'zoom': 4,
+                    'quality': 100
+                })
+                img_pil = bytes2pil(img_bytes)
+                body = {"img_b64_str": pil2b64_str(img_pil), "id2asin": id2asin_dict}
+                session_state.backend_caller.post("/research/select_products", json=body)
+                img_pil.save("fig1.png")
+                st.image(img_pil)
 
 def display_full_page_screenshot(driver):
     screenshot_bytes = get_full_page_screenshot(driver)

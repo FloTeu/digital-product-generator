@@ -3,7 +3,8 @@ import replicate
 import requests
 
 from PIL import Image
-from digiprod_gen.backend.image.conversion import pil2bytes_io, pil2b64_str
+from digiprod_gen.backend.image.conversion import pil2bytes_io
+from digiprod_gen.backend.image.lvm_fns import get_gpt4_vision_response
 from digiprod_gen.backend.utils import booleanize
 
 
@@ -15,44 +16,10 @@ def image2prompt(img_pil: Image) -> str:
     )
     return prompt
 
-def get_gpt4_vision_payload(img_pil: Image, text: str) -> dict:
-    b64_str = pil2b64_str(img_pil)
-    return {
-        "model": "gpt-4-vision-preview",
-        "messages": [
-          {
-            "role": "user",
-            "content": [
-              {
-                "type": "text",
-                "text": text
-              },
-              {
-                "type": "image_url",
-                "image_url": {
-                  "url": f"data:image/jpeg;base64,{b64_str}"
-                }
-              }
-            ]
-          }
-        ],
-        "max_tokens": 300
-    }
 
 def image2prompt_gpt4(img_pil: Image) -> str | None:
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}"
-    }
-    payload = get_gpt4_vision_payload(img_pil, "Write only a text-to-image prompt which is able to generate a similar image")
-    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-
-    try:
-        output = response.json().get("choices")[0].get("message").get("content")
-        return output
-    except Exception:
-        print(f"Could not extract gpt4 output from {response.json()}")
-        return None
+    prompt = "Write only a text-to-image prompt which is able to generate a similar image"
+    return get_gpt4_vision_response(img_pil, prompt)
 
 def has_text_inprint(img_pil: Image) -> bool:
     model = "andreasjansson/blip-2:4b32258c42e9efd4288bb9910bc532a69727f9acd26aa08e175713a0a857a608"

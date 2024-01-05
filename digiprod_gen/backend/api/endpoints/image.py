@@ -1,7 +1,6 @@
-import io
-
-from PIL import Image
 from fastapi import APIRouter, UploadFile, File
+
+from digiprod_gen.backend.api.common import get_image
 from digiprod_gen.backend.image.caption import image2visual_caption, image2prompt_gpt4, image2prompt, image2text_caption
 from digiprod_gen.backend.models.common import ImageCaptioningModel, ImageGenerationModel, UpscalerModel, BackgroundRemovalModel
 from digiprod_gen.backend.image.upscale import pil_upscale, some_upscalers_upscale, gfpgan_upscale, high_resolution_controlnet_upscale
@@ -12,14 +11,6 @@ from fastapi.responses import StreamingResponse
 
 router = APIRouter()
 
-async def get_image(image_file: UploadFile) -> Image:
-    contents = await image_file.read()
-
-    # Convert to a BytesIO object
-    image_stream = io.BytesIO(contents)
-
-    # Open the image as a Pillow Image
-    return Image.open(image_stream)
 
 @router.post("/caption")
 async def get_image_caption(caption_model: ImageCaptioningModel = ImageCaptioningModel.GPT4,

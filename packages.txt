@@ -1,3 +1,4 @@
 chromium
 chromium-driver
 openssl
+wkhtmltopdf
