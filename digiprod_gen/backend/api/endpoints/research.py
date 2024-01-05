@@ -3,10 +3,11 @@ import logging
 from typing import List
 
 from fastapi import APIRouter
+from pydantic import BaseModel, Field
 
 from digiprod_gen.backend.image.lvm_fns import get_gpt4_vision_response
 from llm_prompting_gen.models.prompt_engineering import PromptEngineeringMessages
-from llm_prompting_gen.generators import PromptEngineeringGenerator
+from llm_prompting_gen.generators import PromptEngineeringGenerator, ParsablePromptEngineeringGenerator
 from langchain.chat_models import ChatOpenAI
 from digiprod_gen.backend.image import conversion
 from digiprod_gen.backend.models.request import SelectProductRequest, MBAProductsRequest
@@ -56,7 +57,9 @@ async def post_select_mba_products_by_image(request: SelectProductRequest) -> Li
     lvm_suggestion = get_gpt4_vision_response(img_pil, prompt)
 
     llm = ChatOpenAI(temperature=0.0)
-    pe_gen = PromptEngineeringGenerator.from_json("templates/research_asin_translater.json", llm=llm)
-    asins = pe_gen.generate(ai_answer=lvm_suggestion, id2asin_dict=request.id2asin).split(",")
-    return asins
+    class Asins(BaseModel):
+        asins: List[str] = Field(description="List of asins")
+    pe_gen = ParsablePromptEngineeringGenerator.from_json("templates/research_asin_translater.json", llm=llm, pydantic_cls=Asins)
+    asins = pe_gen.generate(ai_answer=lvm_suggestion, id2asin_dict=request.id2asin)
+    return asins.asins
 

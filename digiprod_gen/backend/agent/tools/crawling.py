@@ -58,9 +58,11 @@ def crawl_mba(search_term: str,
 
 
 @tool("selectMBAProductsTool", args_schema=MBAProductsRequest)
-def select_products(mba_products: List[MBAProduct],
-            backend_caller: BackendCaller = None) -> Dict[str, List[str]]:
-    """use to select a subsample of mba products for further product generation"""
+def select_products(mba_products: List[MBAProduct]) -> Dict[str, List[str]]:
+    """
+    Takes all crawled mba products and creates chooses the best suitable products
+    for further processing via AI technology.
+    """
     #TODO: handle both cases i.e success and failure
 
     request = MBAProductsRequest(mba_products=mba_products)

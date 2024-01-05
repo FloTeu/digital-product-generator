@@ -33,7 +33,7 @@ class MBAProduct(BaseModel):
     image_text_caption: Optional[str] = Field(None)
 
 class MBAProductsRequest(BaseModel):
-    mba_products: List[MBAProduct]
+    mba_products: List[MBAProduct] = Field(description="All crawled mba_products")
 
 
 

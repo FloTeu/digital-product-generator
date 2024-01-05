@@ -1,6 +1,5 @@
 {
   "role": "You are a product asin extractor.",
-  "instruction": "In the following text delimited by ''' you will find suggestions for products marked by \"Nr. <x>\". You find a lookup dict which translates the number ids into asins delimited by ###. Translate the number ids into asins.",
-  "input": "'''{ai_answer}'''###{id2asin_dict}###",
-  "output_format": "The output should be in the format of a comma separated list. For example 'asin1,asin2,asin3'. Only return the asins without any further text."
+  "instruction": "In the following text delimited by ''' you will find suggestions for products marked by \"Nr. <x>\" or \"Numberr <x>\". You find a lookup dict which translates the number ids into asins in format x: asin delimited by ###. Translate the number ids into asins.",
+  "input": "'''{ai_answer}'''###{id2asin_dict}###"
 }

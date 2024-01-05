@@ -1,5 +1,6 @@
 import os
 import streamlit as st
+import logging
 from functools import partial
 from langchain.llms import OpenAI
 from langchain.agents import initialize_agent, AgentType
@@ -11,6 +12,11 @@ from digiprod_gen.backend.agent.tools.crawling import crawl_mba, select_products
 from digiprod_gen.backend.agent.models.api import CrawlingMBARequest
 from digiprod_gen.backend.api.common import CONFIG
 from digiprod_gen.frontend.backend_caller import BackendCaller
+
+logger = logging.getLogger('selenium.webdriver.remote.remote_connection')
+logger.setLevel(logging.WARNING)  # or any variant from ERROR, CRITICAL or NOTSET
+logger = logging.getLogger('seleniumwire')
+logger.setLevel(logging.ERROR)  # Run selenium wire at ERROR level
 
 def init_environment():
     os.environ["OPENAI_API_KEY"] = st.secrets["api_token"]["open_ai"]
@@ -54,8 +60,13 @@ if __name__ == "__main__":
     #     agent=AgentType.OPENAI_MULTI_FUNCTIONS,
     #     verbose=True
     # )
-
-    agent_executor.invoke({"input": "Create a mba request with search term 'Unicorn' and crawl some mba products with the response you receive from the function named 'getMbaRequestTool'. Select a subsample by using one of your tools. Print selected subsample at the end."})
+    search_term = "Unicorn"
+    prompt = f"""
+    Create a mba request with search term '{search_term}' and crawl a list of mba_products.
+    Select a subsample of 20 mba_products that you have received. Print selected subsample at the end.
+    """
+    #
+    agent_executor.invoke({"input": prompt})
 
     #print(agent.agent.llm_chain.prompt.template)
     #print(agent_executor.run("Crawl some mba products and select 4 which you find suitable."))
