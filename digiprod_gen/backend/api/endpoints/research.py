@@ -1,18 +1,15 @@
-import base64
 import sys
 import logging
 from typing import List
 
 from fastapi import APIRouter
-from pydantic import BaseModel
 
 from digiprod_gen.backend.image.lvm_fns import get_gpt4_vision_response
 from llm_prompting_gen.models.prompt_engineering import PromptEngineeringMessages
 from llm_prompting_gen.generators import PromptEngineeringGenerator
 from langchain.chat_models import ChatOpenAI
 from digiprod_gen.backend.image import conversion
-from digiprod_gen.backend.models.request import SelectProductRequest
-from digiprod_gen.backend.models.mba import MBAProduct
+from digiprod_gen.backend.models.request import SelectProductRequest, MBAProductsRequest
 from digiprod_gen.frontend.tab.crawling.views import mba_products_overview_html_str
 import imgkit
 
@@ -21,9 +18,6 @@ logger = logging.getLogger("BackendAPI")
 
 router = APIRouter()
 
-
-class MBAProductsRequest(BaseModel):
-    mba_products: List[MBAProduct]
 
 @router.post("/select_products")
 async def post_select_mba_products(request: MBAProductsRequest) -> List[str]:

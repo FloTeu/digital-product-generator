@@ -7,7 +7,7 @@ from langchain.tools.render import format_tool_to_openai_function
 from langchain.tools import StructuredTool
 
 from digiprod_gen.backend.agent.tools.product import select_mba_products, print_select_mba_products
-from digiprod_gen.backend.agent.tools.crawling import crawl_mba
+from digiprod_gen.backend.agent.tools.crawling import crawl_mba, select_products
 from digiprod_gen.backend.agent.models.api import CrawlingMBARequest
 from digiprod_gen.backend.api.common import CONFIG
 from digiprod_gen.frontend.backend_caller import BackendCaller
@@ -25,7 +25,7 @@ def init_environment():
 #                                               args_schema=CrawlingMBARequest)
 
 tools = [
-    select_mba_products,
+    select_products,
     print_select_mba_products,
     crawl_mba
 ]

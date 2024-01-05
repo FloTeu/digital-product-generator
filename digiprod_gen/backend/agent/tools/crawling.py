@@ -3,7 +3,7 @@ from typing import Optional, Dict, List
 import streamlit as st
 from langchain_core.tools import tool
 
-from digiprod_gen.backend.agent.models.api import CrawlingMBARequest
+from digiprod_gen.backend.agent.models.api import CrawlingMBARequest, MBAProductsRequest
 from digiprod_gen.backend.api.common import CONFIG
 from digiprod_gen.backend.browser.crawling.utils.utils_mba import get_random_headers
 from digiprod_gen.backend.models.mba import MBAMarketplaceDomain, MBAProductCategory, MBAProduct
@@ -56,3 +56,15 @@ def crawl_mba(search_term: str,
                                                  json=crawling_request.dict())
     return {"response": response.json()}
 
+
+@tool("selectMBAProductsTool", args_schema=MBAProductsRequest)
+def select_products(mba_products: List[MBAProduct],
+            backend_caller: BackendCaller = None) -> Dict[str, List[str]]:
+    """use to select a subsample of mba products for further product generation"""
+    #TODO: handle both cases i.e success and failure
+
+    request = MBAProductsRequest(mba_products=mba_products)
+    backend_caller = BackendCaller(CONFIG.backend)
+    response = backend_caller.post(f"/research/select_products",
+                                                 json=request.dict())
+    return {"response": response.json()}
