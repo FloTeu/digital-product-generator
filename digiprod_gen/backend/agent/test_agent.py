@@ -7,7 +7,13 @@ from langchain.agents import initialize_agent, AgentType
 from langchain.tools.render import format_tool_to_openai_function
 from langchain.tools import StructuredTool
 
-from digiprod_gen.backend.agent.tools.product import select_random_mba_products, print_select_mba_products, select_mba_products
+from digiprod_gen.backend.agent.tools.product import (
+    select_random_mba_products,
+    print_select_mba_products,
+    select_mba_products,
+    generate_image,
+    get_prompt_suggestions,
+    enrich_mba_products_with_image_caption)
 from digiprod_gen.backend.agent.tools.crawling import crawl_overview_mba, crawl_products_detail_mba
 from digiprod_gen.backend.agent.models.api import CrawlingMBARequest
 from digiprod_gen.backend.api.common import CONFIG
@@ -32,6 +38,9 @@ def init_environment():
 
 tools = [
     #select_mba_products,
+    generate_image,
+    get_prompt_suggestions,
+    enrich_mba_products_with_image_caption,
     select_random_mba_products,
     print_select_mba_products,
     crawl_overview_mba,
@@ -65,8 +74,11 @@ if __name__ == "__main__":
     search_term = "Unicorn"
     prompt = f"""
     Create a mba request with search term '{search_term}' and crawl a list of mba_products.
-    Select a subsample of all (48 if possible) mba_products that you have received.
+    Select a subsample of 2 products of all (48 if possible) mba_products that you have received.
     Crawl detail information of your subsample.
+    Enrich the subsample with image captions.
+    Get some prompt suggestions choose the one which you find mos suitable to create an image which sells well as print on demand product.
+    Take your chosen prompt and create and image.
     Print selected subsample at the end.
     """
     #

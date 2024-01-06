@@ -59,11 +59,24 @@ def crawl_overview_mba(search_term: str,
     return {"response": response.json()}
 
 
-@tool("crawlProductMBATool", args_schema=CrawlMBAProductsDetailRequest)
+@tool("crawlProductsMBATool", args_schema=CrawlMBAProductsDetailRequest)
 def crawl_products_detail_mba(mba_products: List[MBAProduct],
             marketplace: MBAMarketplaceDomain = MBAMarketplaceDomain.COM
             ) -> Dict[str, List[MBAProduct]]:
     """use to crawl amazon mba product detail pages and receive list of enriched mba products"""
+
+    def crawl_product_mba(mba_product: MBAProduct,
+                          marketplace: MBAMarketplaceDomain = MBAMarketplaceDomain.COM
+                          ) -> MBAProduct:
+        """use to crawl amazon mba and receive enriched mba product"""
+        proxy = CONFIG.mba.get_marketplace_config(marketplace).get_proxy_with_secrets(
+            st.secrets.proxy_perfect_privacy.user_name,
+            st.secrets.proxy_perfect_privacy.password)
+        backend_caller = BackendCaller(CONFIG.backend)
+        response = backend_caller.post(f"/browser/crawling/mba_product?session_id={SESSION_ID}&proxy={proxy}",
+                                       json=mba_product.dict())
+        return response.json()
+
     final_mba_products = []
     for mba_product in mba_products:
         try:
@@ -72,16 +85,6 @@ def crawl_products_detail_mba(mba_products: List[MBAProduct],
             return {"response": "Failure"}
     return {"response": final_mba_products}
 
-def crawl_product_mba(mba_product: MBAProduct,
-                              marketplace: MBAMarketplaceDomain = MBAMarketplaceDomain.COM
-                              ) -> Dict[str, List[MBAProduct]]:
-    """use to crawl amazon mba and receive enriched mba product"""
-    proxy = CONFIG.mba.get_marketplace_config(marketplace).get_proxy_with_secrets(
-        st.secrets.proxy_perfect_privacy.user_name,
-        st.secrets.proxy_perfect_privacy.password)
-    backend_caller = BackendCaller(CONFIG.backend)
-    response = backend_caller.post(f"/browser/crawling/mba_product?session_id={SESSION_ID}&proxy={proxy}",
-                                                 json=mba_product.dict())
-    return response.json()
+
 
 

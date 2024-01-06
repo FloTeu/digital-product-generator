@@ -3,6 +3,7 @@ import streamlit as st
 from PIL.Image import Image
 from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser
 from digiprod_gen.backend.models.mba import MBAProduct, MBAUploadSettings
+from digiprod_gen.backend.image.crop import get_mba_design_crop
 from digiprod_gen.frontend.backend_caller import BackendCaller
 
 from dataclasses import dataclass, field
@@ -39,15 +40,7 @@ class CrawlingData:
         image_pil = self.get_mba_product_image(id)
         if not image_pil:
             raise ValueError("Pillow image not yet set")
-        width, height = image_pil.size
-        # Setting the points for cropped image
-        left = width / 5
-        top = height / 5
-        right = 4 * (width / 5)
-        bottom = 4 * (height / 5)
-        # Cropped image of above dimension
-        # (It will not change original image)
-        return image_pil.crop((left, top, right, bottom))
+        return get_mba_design_crop(image_pil)
 
 @dataclass
 class ImageGenData:
