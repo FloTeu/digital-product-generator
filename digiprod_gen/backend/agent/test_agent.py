@@ -7,8 +7,8 @@ from langchain.agents import initialize_agent, AgentType
 from langchain.tools.render import format_tool_to_openai_function
 from langchain.tools import StructuredTool
 
-from digiprod_gen.backend.agent.tools.product import select_mba_products, print_select_mba_products
-from digiprod_gen.backend.agent.tools.crawling import crawl_mba, select_products
+from digiprod_gen.backend.agent.tools.product import select_random_mba_products, print_select_mba_products, select_mba_products
+from digiprod_gen.backend.agent.tools.crawling import crawl_overview_mba, crawl_products_detail_mba
 from digiprod_gen.backend.agent.models.api import CrawlingMBARequest
 from digiprod_gen.backend.api.common import CONFIG
 from digiprod_gen.frontend.backend_caller import BackendCaller
@@ -31,9 +31,11 @@ def init_environment():
 #                                               args_schema=CrawlingMBARequest)
 
 tools = [
-    select_products,
+    #select_mba_products,
+    select_random_mba_products,
     print_select_mba_products,
-    crawl_mba
+    crawl_overview_mba,
+    crawl_products_detail_mba
 ]
 
 if __name__ == "__main__":
@@ -63,7 +65,9 @@ if __name__ == "__main__":
     search_term = "Unicorn"
     prompt = f"""
     Create a mba request with search term '{search_term}' and crawl a list of mba_products.
-    Select a subsample of all (48 if possible) mba_products that you have received. Print selected subsample at the end.
+    Select a subsample of all (48 if possible) mba_products that you have received.
+    Crawl detail information of your subsample.
+    Print selected subsample at the end.
     """
     #
     agent_executor.invoke({"input": prompt})

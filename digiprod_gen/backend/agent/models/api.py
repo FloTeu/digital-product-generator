@@ -33,7 +33,11 @@ class MBAProduct(BaseModel):
     image_text_caption: Optional[str] = Field(None)
 
 class MBAProductsRequest(BaseModel):
-    mba_products: List[MBAProduct] = Field(description="All crawled mba_products")
+    mba_products: List[MBAProduct] = Field(description="A list of mba_products")
 
+
+class CrawlMBAProductsDetailRequest(BaseModel):
+    mba_products: List[MBAProduct] = Field(description="Single mba_product, which should be crawled for detail information")
+    marketplace: MBAMarketplaceDomain
 
 
