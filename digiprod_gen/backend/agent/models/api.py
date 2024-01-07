@@ -1,7 +1,7 @@
 from typing import Optional, List
 from pydantic.v1 import BaseModel, Field
 from digiprod_gen.backend.models.mba import MBAMarketplaceDomain, MBAProductCategory
-from digiprod_gen.backend.transform.transform_fns import request2mba_overview_url
+from digiprod_gen.backend.etl.transform_fns import request2mba_overview_url
 #from digiprod_gen.backend.models.mba import MBAProduct
 
 

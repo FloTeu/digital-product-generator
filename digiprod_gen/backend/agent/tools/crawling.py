@@ -7,7 +7,9 @@ from digiprod_gen.backend.agent.models.api import CrawlingMBARequest, CrawlMBAPr
 from digiprod_gen.backend.api.common import CONFIG
 from digiprod_gen.backend.browser.crawling.utils.utils_mba import get_random_headers
 from digiprod_gen.backend.models.mba import MBAMarketplaceDomain, MBAProductCategory, MBAProduct
-from digiprod_gen.backend.transform.transform_fns import request2mba_overview_url
+from digiprod_gen.backend.etl.transform_fns import request2mba_overview_url
+from digiprod_gen.backend.agent.memory import global_memory_container
+from digiprod_gen.backend.agent.models.memory import MemoryId, MemoryAddResponse
 from digiprod_gen.frontend.backend_caller import BackendCaller
 
 SESSION_ID: str = "AiAgent"
@@ -31,7 +33,7 @@ SESSION_ID: str = "AiAgent"
 def crawl_overview_mba(search_term: str,
                        marketplace: MBAMarketplaceDomain = MBAMarketplaceDomain.COM,
                        product_category: MBAProductCategory = MBAProductCategory.SHIRT,
-                       backend_caller: BackendCaller = None) -> Dict[str, List[MBAProduct]]:
+                       ) -> Dict[str, List[MBAProduct]]:
     """use to crawl amazon mba and receive mba products"""
     #Crawls mba overview page and returns a list of MBAProduct
 
@@ -56,15 +58,17 @@ def crawl_overview_mba(search_term: str,
                                                  json=crawling_request.dict())
     except Exception as e:
         return {"response": "Failure"}
-    return {"response": response.json()}
+    global_memory_container[MemoryId.MBA_PRODUCTS] = [MBAProduct(**product_dict)
+                                                      for product_dict in response.json()]
+    return {"response": MemoryAddResponse(uuid=MemoryId.MBA_PRODUCTS)}
 
 
-@tool("crawlProductsMBATool", args_schema=CrawlMBAProductsDetailRequest)
-def crawl_products_detail_mba(mba_products: List[MBAProduct],
+@tool("crawlProductsMBATool")
+def crawl_products_detail_mba(
             marketplace: MBAMarketplaceDomain = MBAMarketplaceDomain.COM
             ) -> Dict[str, List[MBAProduct]]:
     """use to crawl amazon mba product detail pages and receive list of enriched mba products"""
-
+    mba_products = global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS]
     def crawl_product_mba(mba_product: MBAProduct,
                           marketplace: MBAMarketplaceDomain = MBAMarketplaceDomain.COM
                           ) -> MBAProduct:
@@ -83,8 +87,9 @@ def crawl_products_detail_mba(mba_products: List[MBAProduct],
             final_mba_products.append(crawl_product_mba(MBAProduct(**mba_product), marketplace))
         except Exception as e:
             return {"response": "Failure"}
-    return {"response": final_mba_products}
 
+    global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS] = final_mba_products
+    return {"response": MemoryAddResponse(uuid=MemoryId.SELECTED_MBA_PRODUCTS)}
 
 
 

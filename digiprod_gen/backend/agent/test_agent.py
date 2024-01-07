@@ -13,8 +13,10 @@ from digiprod_gen.backend.agent.tools.product import (
     select_mba_products,
     generate_image,
     get_prompt_suggestions,
+    evaluate_image,
     enrich_mba_products_with_image_caption)
 from digiprod_gen.backend.agent.tools.crawling import crawl_overview_mba, crawl_products_detail_mba
+from digiprod_gen.backend.agent.tools.upload import export_upload_data
 from digiprod_gen.backend.agent.models.api import CrawlingMBARequest
 from digiprod_gen.backend.api.common import CONFIG
 from digiprod_gen.frontend.backend_caller import BackendCaller
@@ -39,12 +41,14 @@ def init_environment():
 tools = [
     #select_mba_products,
     generate_image,
+    evaluate_image,
     get_prompt_suggestions,
     enrich_mba_products_with_image_caption,
     select_random_mba_products,
     print_select_mba_products,
     crawl_overview_mba,
-    crawl_products_detail_mba
+    crawl_products_detail_mba,
+    export_upload_data
 ]
 
 if __name__ == "__main__":
@@ -55,8 +59,8 @@ if __name__ == "__main__":
     from langchain_community.chat_models import ChatOpenAI
     # Get the prompt to use - you can modify this!
     prompt: object = hub.pull("hwchase17/openai-tools-agent")
-    #llm = ChatOpenAI(model="gpt-3.5-turbo-1106", temperature=0)
-    llm = ChatOpenAI(model="gpt-4-1106-preview", temperature=0)
+    llm = ChatOpenAI(model="gpt-3.5-turbo-1106", temperature=0)
+    #llm = ChatOpenAI(model="gpt-4-1106-preview", temperature=0)
     # Construct the OpenAI Tools agent
     agent = create_openai_functions_agent(llm, tools, prompt)
     #agent = create_openai_tools_agent(llm, tools, prompt)
@@ -71,16 +75,19 @@ if __name__ == "__main__":
     #     agent=AgentType.OPENAI_MULTI_FUNCTIONS,
     #     verbose=True
     # )
-    search_term = "Unicorn"
+    search_term = "Unicorn metal blegh"
     prompt = f"""
     Create a mba request with search term '{search_term}' and crawl a list of mba_products.
-    Select a subsample of 2 products of all (48 if possible) mba_products that you have received.
+    Select a subsample of 2 products of the mba_products that you have received previously.
     Crawl detail information of your subsample.
     Enrich the subsample with image captions.
-    Get some prompt suggestions choose the one which you find mos suitable to create an image which sells well as print on demand product.
-    Take your chosen prompt and create and image.
-    Print selected subsample at the end.
+    Get some prompt suggestions choose the one which you find most suitable to create an image which sells well as print on demand product.
+    Take your chosen prompt and create an image.
+    Assess whether the image is suitable for a print-on-demand design and, depending on the answer, recreate the image or consider a different prompt.
+    You can also slightly edit the prompt based on the feedback you got.
+    Export the final generated mba product.
     """
+    #prompt="""Crawl and select 2 mba_products with the search_term 'Unicorn metal'. Generate a image with the prompt 'Unicorn metal black background' and export the final generated mba product"""
     #
     agent_executor.invoke({"input": prompt})
 

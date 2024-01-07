@@ -11,7 +11,7 @@ from digiprod_gen.backend.models.session import SessionState, ImageGenData, Craw
 from digiprod_gen.backend.models.config import DigiProdGenConfig
 from digiprod_gen.frontend.backend_caller import BackendCaller
 from digiprod_gen.backend.utils import is_debug, delete_files_in_path
-from digiprod_gen.backend.transform.transform_fns import request2mba_overview_url
+from digiprod_gen.backend.etl.transform_fns import request2mba_overview_url
 
 
 def creat_session_state(config: DigiProdGenConfig) -> SessionState:

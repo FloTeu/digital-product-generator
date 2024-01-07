@@ -1,6 +1,8 @@
 import streamlit as st
 
 from PIL.Image import Image
+from pydantic import BaseModel
+
 from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser
 from digiprod_gen.backend.models.mba import MBAProduct, MBAUploadSettings
 from digiprod_gen.backend.image.crop import get_mba_design_crop
@@ -130,3 +132,13 @@ class SessionState:
     def get_marketplace_config(self, marketplace: str | None = None) -> DigiProdGenMBAMarketplaceConfig:
         marketplace = marketplace or self.crawling_request.marketplace
         return self.config.mba.get_marketplace_config(marketplace)
+
+
+class ProcessingData(BaseModel):
+    search_term: str
+    selected_asins: List[str]
+    title_suggestions: List[str]
+    brand_suggestions: List[str]
+    bullet_suggestions: List[str]
+    prompt_suggestions: List[str]
+    prompt: str

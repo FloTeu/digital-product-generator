@@ -1,4 +1,6 @@
 from fastapi import APIRouter, UploadFile, File
+from fastapi.responses import StreamingResponse
+from langchain.chat_models import ChatOpenAI
 
 from digiprod_gen.backend.api.common import get_image
 from digiprod_gen.backend.image.caption import image2visual_caption, image2prompt_gpt4, image2prompt, image2text_caption
@@ -6,7 +8,10 @@ from digiprod_gen.backend.models.common import ImageCaptioningModel, ImageGenera
 from digiprod_gen.backend.image.upscale import pil_upscale, some_upscalers_upscale, gfpgan_upscale, high_resolution_controlnet_upscale
 from digiprod_gen.backend.image.background_removal import simple_remove_background, rembg, easy_rem_bg
 from digiprod_gen.backend.image import generation, conversion
-from fastapi.responses import StreamingResponse
+from digiprod_gen.backend.models.response import ImageCheckResponse
+from digiprod_gen.backend.image.lvm_fns import get_gpt4_vision_response
+from llm_prompting_gen.models.prompt_engineering import PromptEngineeringMessages
+from llm_prompting_gen.generators import PromptEngineeringGenerator, ParsablePromptEngineeringGenerator
 
 
 router = APIRouter()
@@ -123,3 +128,28 @@ async def get_image_background_removed(br_method: BackgroundRemovalModel,
 
     # Create a StreamingResponse, sending the image from the BytesIO object
     return StreamingResponse(img_byte_arr, media_type="image/png")
+
+@router.post("/check")
+async def get_image_check(
+                          prompt: str,
+                          check_model: ImageCaptioningModel = ImageCaptioningModel.GPT4,
+                          image_file: UploadFile = File(...)) -> ImageCheckResponse:
+    """
+    Takes an image and creates a highly detailed image caption
+    containing the helpful information to create a image prompt.
+    """
+    img_pil = await get_image(image_file)
+    lvm_suggestion = ""
+    if check_model == ImageCaptioningModel.GPT4:
+        pe_msg = PromptEngineeringMessages.from_json("templates/product_image_check.json")
+        lvm_prompt = pe_msg.messages["instruction"].format(prompt=prompt).content
+        lvm_suggestion = get_gpt4_vision_response(img_pil, lvm_prompt, temperature=0.0)
+    else:
+        raise NotImplementedError
+
+
+    llm = ChatOpenAI(temperature=0.0)
+    pe_gen = ParsablePromptEngineeringGenerator.from_json("templates/product_image_check_postprocessing.json", llm=llm, pydantic_cls=ImageCheckResponse)
+    response: ImageCheckResponse = pe_gen.generate(ai_answer=lvm_suggestion)
+    return response
+

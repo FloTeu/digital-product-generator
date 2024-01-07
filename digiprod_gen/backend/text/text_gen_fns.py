@@ -15,6 +15,8 @@ def mba_products2llm_prompt_gen_input(mba_products: List[MBAProduct]) -> str:
         # Either take image captioning or (with less prio) combine product bullets
         if mba_product.image_text_caption and mba_product.image_prompt:
             llm_prompt_gen_input += f"Product {i+1} Description: {mba_product.image_prompt} Text Caption: {mba_product.image_text_caption}\n"
+        elif mba_product.image_prompt:
+            llm_prompt_gen_input += f"Product {i+1} Description: {mba_product.image_prompt}"
         else:
             llm_prompt_gen_input += combine_bullets(mba_product)
     return llm_prompt_gen_input.strip()
