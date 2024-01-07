@@ -6,7 +6,7 @@ from llm_prompting_gen.generators import PromptEngineeringGenerator, ParsablePro
 from digiprod_gen.backend.prompt_engineering.utils import extract_list_from_output
 from digiprod_gen.backend.models.mba import MBAProduct, MBAProductTextType
 from digiprod_gen.backend.models.request import KeywordExtractionRequest, ListingGenRequest
-from digiprod_gen.backend.text.text_gen_fns import mba_products2llm_prompt_gen_input, remove_banned_words_from_list
+from digiprod_gen.backend.text.text_gen_fns import mba_products2llm_prompt_gen_input, remove_banned_words_from_list, remove_banned_words
 from digiprod_gen.backend.text.mba_banned_word import MBA_BANNED_WORDS
 
 router = APIRouter()
@@ -48,6 +48,10 @@ async def gen_listings(lg_request: ListingGenRequest,
     As input a text a list of mba_products is required.
     """
     llm = ChatOpenAI(temperature=temperature)
+
+    if lg_request.remove_banned_words:
+        lg_request.examples = [remove_banned_words(example) for example in lg_request.examples]
+
     if lg_request.type == MBAProductTextType.BULLET:
         product_listing_gen = PromptEngineeringGenerator.from_json("templates/product_text_bullet_gen.json", llm=llm)
         product_listing_gen.prompt_elements.examples = lg_request.examples

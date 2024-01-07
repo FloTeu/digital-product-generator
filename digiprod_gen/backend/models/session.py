@@ -84,6 +84,7 @@ class DigiProdGenStatus:
     detail_pages_crawled: bool = False
     prompts_generated: bool = False
     image_upload_ready: bool = False
+    keywords_extracted: bool = False
     listing_generated: bool = False
     mba_login_otp_required: bool = False
     mba_login_successful: bool = False
@@ -135,6 +136,7 @@ class SessionState:
 
 
 class ProcessingData(BaseModel):
+    """Data container for optional export"""
     search_term: str
     selected_asins: List[str]
     title_suggestions: List[str]

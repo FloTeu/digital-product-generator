@@ -7,7 +7,6 @@ from digiprod_gen.backend.image.conversion import pil2bytes_io
 from digiprod_gen.backend.image.lvm_fns import get_gpt4_vision_response
 from digiprod_gen.backend.utils import booleanize
 
-
 def image2prompt(img_pil: Image) -> str:
     model = "methexis-inc/img2prompt:50adaf2d3ad20a6f911a8a9e3ccf777b263b8596fbd2c8fc26e8888f8a0edbb5"
     prompt = replicate.run(
@@ -40,20 +39,7 @@ def has_text_inprint(img_pil: Image) -> bool:
 #     return text_caption
 
 def image2text_caption(img_pil: Image) -> str | None:
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}"
-    }
-
-    payload = get_gpt4_vision_payload(img_pil, "Return only the text caption. If no text caption exists, return nothing.")
-    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-
-    try:
-        output = response.json().get("choices")[0].get("message").get("content")
-        return output
-    except Exception:
-        print(f"Could not extract gpt4 output from {response.json()}")
-        return None
+    return get_gpt4_vision_response(img_pil, prompt="Return only the text caption. If no text caption exists, return nothing.")
 
 
 def image2visual_caption(img_pil: Image) -> str:

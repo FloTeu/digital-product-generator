@@ -24,6 +24,7 @@ def export_upload_data(
 
     selected_mba_products = global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS]
     selected_asins = [prod.asin for prod in selected_mba_products]
+    # TODO: Change to image upload ready
     img_pil = global_memory_container[MemoryId.IMAGE_RAW]
 
     product_categories: List[MBAProductCategory] = [MBAProductCategory.SHIRT]
@@ -43,10 +44,10 @@ def export_upload_data(
     export_data = MBAUploadData(
         processing_data=ProcessingData(search_term=search_term,
                                        selected_asins=selected_asins,
-                                       title_suggestions=[],
-                                       brand_suggestions=[],
-                                       bullet_suggestions=[],
-                                       prompt_suggestions=[],
+                                       title_suggestions=global_memory_container[MemoryId.TITLE_SUGGESTIONS],
+                                       brand_suggestions=global_memory_container[MemoryId.BRAND_SUGGESTIONS],
+                                       bullet_suggestions=global_memory_container[MemoryId.BULLET_SUGGESTIONS],
+                                       prompt_suggestions=global_memory_container[MemoryId.PROMPT_SUGGESTIONS],
                                        prompt=""
                                        ),
         product_data=MBAUploadProductData(title=title,

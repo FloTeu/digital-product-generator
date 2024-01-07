@@ -14,21 +14,6 @@ from digiprod_gen.frontend.backend_caller import BackendCaller
 
 SESSION_ID: str = "AiAgent"
 
-
-# @tool("getMbaRequestTool")
-# def get_crawling_request(search_term) -> Dict[str, CrawlingMBARequest]:
-#     """use to to get mba crawling request"""
-#     marketplace = MBAMarketplaceDomain.DE
-#     proxy = CONFIG.mba.get_marketplace_config(marketplace).get_proxy_with_secrets(
-#         st.secrets.proxy_perfect_privacy.user_name,
-#         st.secrets.proxy_perfect_privacy.password)
-#     postcode = CONFIG.mba.get_marketplace_config(marketplace).postcode
-#     request = CrawlingMBARequest(marketplace=marketplace, product_category=MBAProductCategory.SHIRT,
-#                                  search_term=search_term, headers=get_random_headers(marketplace), proxy=proxy,
-#                                  postcode=postcode, mba_overview_url=None)
-#     return {"response": request}
-
-
 @tool("crawlOverviewMBATool", args_schema=CrawlingMBARequest)
 def crawl_overview_mba(search_term: str,
                        marketplace: MBAMarketplaceDomain = MBAMarketplaceDomain.COM,
@@ -42,7 +27,6 @@ def crawl_overview_mba(search_term: str,
         st.secrets.proxy_perfect_privacy.password)
     postcode = CONFIG.mba.get_marketplace_config(marketplace).postcode
     headers = get_random_headers(marketplace)
-    #assert backend_caller
     crawling_request: CrawlingMBARequest = CrawlingMBARequest(search_term=search_term,
                                                             marketplace=marketplace,
                                                             product_category=product_category,
@@ -58,8 +42,11 @@ def crawl_overview_mba(search_term: str,
                                                  json=crawling_request.dict())
     except Exception as e:
         return {"response": "Failure"}
+    if response.status_code != 200:
+        return {"response": "Failure"}
     global_memory_container[MemoryId.MBA_PRODUCTS] = [MBAProduct(**product_dict)
                                                       for product_dict in response.json()]
+    global_memory_container.status.overview_page_crawled = True
     return {"response": MemoryAddResponse(uuid=MemoryId.MBA_PRODUCTS)}
 
 
@@ -79,16 +66,17 @@ def crawl_products_detail_mba(
         backend_caller = BackendCaller(CONFIG.backend)
         response = backend_caller.post(f"/browser/crawling/mba_product?session_id={SESSION_ID}&proxy={proxy}",
                                        json=mba_product.dict())
-        return response.json()
+        return MBAProduct(**response.json())
 
     final_mba_products = []
     for mba_product in mba_products:
         try:
-            final_mba_products.append(crawl_product_mba(MBAProduct(**mba_product), marketplace))
+            final_mba_products.append(crawl_product_mba(mba_product, marketplace))
         except Exception as e:
             return {"response": "Failure"}
 
     global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS] = final_mba_products
+    global_memory_container.status.detail_pages_crawled = True
     return {"response": MemoryAddResponse(uuid=MemoryId.SELECTED_MBA_PRODUCTS)}
 
 
