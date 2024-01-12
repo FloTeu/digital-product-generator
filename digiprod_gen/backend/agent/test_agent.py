@@ -1,4 +1,5 @@
 import os
+import time
 import streamlit as st
 import logging
 from functools import partial
@@ -63,8 +64,8 @@ if __name__ == "__main__":
     from langchain_community.chat_models import ChatOpenAI
     # Get the prompt to use - you can modify this!
     prompt: object = hub.pull("hwchase17/openai-tools-agent")
-    #llm = ChatOpenAI(model="gpt-3.5-turbo-1106", temperature=0)
-    llm = ChatOpenAI(model="gpt-4-1106-preview", temperature=0)
+    llm = ChatOpenAI(model="gpt-3.5-turbo-1106", temperature=0)
+    #llm = ChatOpenAI(model="gpt-4-1106-preview", temperature=0)
     # Construct the OpenAI Tools agent
     agent = create_openai_functions_agent(llm, tools, prompt)
     #agent = create_openai_tools_agent(llm, tools, prompt)
@@ -79,7 +80,7 @@ if __name__ == "__main__":
     #     agent=AgentType.OPENAI_MULTI_FUNCTIONS,
     #     verbose=True
     # )
-    search_term = "Unicorn metal"
+    search_term = "sloth"
     prompt = f"""
     Your final task is to create a new mba_product called product x.
     Create a mba request with search term '{search_term}' and crawl a list of mba_products.
@@ -96,7 +97,9 @@ if __name__ == "__main__":
     """
     #prompt="""Crawl and select 2 mba_products with the search_term 'Unicorn metal'. Generate a image with the prompt 'Unicorn metal black background' and export the final generated mba product"""
     #
+    ts = time.time()
     agent_executor.invoke({"input": prompt})
+    print("Time elapsed in seconds %.2f seconds" % (time.time() - ts))
 
     #print(agent.agent.llm_chain.prompt.template)
     #print(agent_executor.run("Crawl some mba products and select 4 which you find suitable."))

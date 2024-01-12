@@ -3,8 +3,8 @@ import json
 import streamlit as st
 import streamlit.web.bootstrap as st_bootstrap
 
+from pathlib import Path
 from io import TextIOWrapper
-
 from selenium.common.exceptions import NoSuchElementException
 from digiprod_gen.backend.utils.decorators import timeit
 from digiprod_gen.backend.utils.helper import Timer
@@ -27,6 +27,7 @@ from digiprod_gen.frontend.tab.upload.views import (display_listing_selection, d
                                                     display_product_category_selector, display_product_color_selector,
                                                     display_product_fit_type_selector)
 from digiprod_gen.frontend.tab.crawling.tab_crawling import display_mba_overview_products
+from digiprod_gen.frontend.tab.prod_import.views import display_products, display_products_export_dates
 
 
 @timeit
@@ -159,6 +160,11 @@ def display_tab_upload_views(session_state: SessionState):
                 else:
                     st.error("Something went wrong during publishing")
 
+def display_tab_import_views(session_state: SessionState):
+    st.subheader("Import MBA Products")
+    selected_date_str = display_products_export_dates()
+    display_products(selected_date_str)
+
 
 def display_admin_views(session_state: SessionState):
     """Display some options for the admin"""
@@ -212,7 +218,7 @@ def display_full_page_screenshot(driver):
 
 
 @timeit
-def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload):
+def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload, tab_import):
     """Renders views based on session data"""
     with tab_crawling:
         overview_designs_view = session_state.views.get_or_create_overview_designs()
@@ -228,6 +234,11 @@ def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload)
 
     with tab_upload:
         display_tab_upload_views(session_state)
+
+    if Path("export/").exists():
+        with tab_import:
+            display_tab_import_views(session_state)
+
 
     display_admin_views(session_state)
 
@@ -263,12 +274,12 @@ def main(config: DigiProdGenConfig):
     init_session_state(config)
 
     st.header("MBA Product Generator")
-    tab_crawling, tab_ig, tab_upload = st.tabs(["Crawling", "Image Generation", "MBA Upload"])
+    tab_crawling, tab_ig, tab_upload, tab_import = st.tabs(["Crawling", "Image Generation", "MBA Upload", "MBA Import"])
     session_state: SessionState = st.session_state["session_state"]
 
     # display views (+ add defaults to session)
     display_sidebar(session_state, tab_crawling, tab_ig, tab_upload)
-    display_views(session_state, tab_crawling, tab_ig, tab_upload)
+    display_views(session_state, tab_crawling, tab_ig, tab_upload, tab_import)
 
     # init session request
     if session_state.crawling_request == None:
