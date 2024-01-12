@@ -4,7 +4,7 @@ from digiprod_gen.backend.agent.memory import global_memory_container
 from digiprod_gen.backend.agent.models.memory import MemoryId, MemoryAddResponse
 from digiprod_gen.backend.agent.models.io import MBAProductUploadExport
 from digiprod_gen.backend.etl.load_fns import export_upload_mba_product
-from digiprod_gen.backend.models.export import MBAUploadData, MBAUploadProductData
+from digiprod_gen.backend.models.export import MBAExportUploadData, MBAExportUploadProductData
 from digiprod_gen.backend.models.mba import MBAUploadSettings, MBAProductCategory, MBAProductFitType, MBAProductColor, MBAMarketplaceDomain
 from digiprod_gen.backend.models.session import ProcessingData
 
@@ -41,7 +41,7 @@ def export_upload_data(
     fit_types: List[MBAProductFitType] = [MBAProductFitType.WOMAN, MBAProductFitType.MEN]
 
     description = f"""{title} by '{brand}. {bullets[0]}. {bullets[1]}'"""
-    export_data = MBAUploadData(
+    export_data = MBAExportUploadData(
         processing_data=ProcessingData(search_term=search_term,
                                        selected_asins=selected_asins,
                                        title_suggestions=global_memory_container[MemoryId.TITLE_SUGGESTIONS],
@@ -50,10 +50,10 @@ def export_upload_data(
                                        prompt_suggestions=global_memory_container[MemoryId.PROMPT_SUGGESTIONS],
                                        prompt=""
                                        ),
-        product_data=MBAUploadProductData(title=title,
-                                           brand=brand,
-                                           bullets=bullets,
-                                           description=description),
+        product_data=MBAExportUploadProductData(title=title,
+                                                brand=brand,
+                                                bullets=bullets,
+                                                description=description),
         mba_upload_settings=MBAUploadSettings(
             use_defaults=False,
             product_categories=product_categories,

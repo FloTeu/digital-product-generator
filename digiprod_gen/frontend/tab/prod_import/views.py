@@ -7,7 +7,7 @@ from PIL import Image
 from st_clickable_images import clickable_images
 
 from digiprod_gen.backend.etl.extract_fns import read_exported_data
-from digiprod_gen.backend.models.export import MBAUploadData
+from digiprod_gen.backend.models.export import MBAExportUploadData
 from digiprod_gen.backend.models.session import SessionState
 from digiprod_gen.backend.image.conversion import pil2b64_str
 
@@ -20,7 +20,7 @@ def display_products_export_dates() -> str:
         export_dates)
     return option
 
-def display_products(selected_date_str, session_state: SessionState) -> Tuple[Image.Image, MBAUploadData]:
+def display_products(selected_date_str, session_state: SessionState) -> Tuple[Image.Image, MBAExportUploadData]:
     """Display all importable products
         Expect export/import directory structure:
         export/
@@ -63,17 +63,21 @@ def display_products(selected_date_str, session_state: SessionState) -> Tuple[Im
     set2 = set(clicked_indexes.items())
     clicked_category_item = set2 - set1
     session_state.upload_data.import_data.selected_import_products = clicked_indexes
-    st.write(clicked_indexes)
-    st.write(clicked_category_item)
+    # st.write(clicked_indexes)
+    # st.write(clicked_category_item)
 
     # only change if difference noticed
     if clicked_category_item:
-        clicked_category_tuple = next(iter(clicked_category_item))
-        category_name = clicked_category_tuple[0]
-        clicked_index = clicked_category_tuple[1]
+        # Get first category which was really changed/clicked (i.e. != -1)
+        for clicked_category_tuple in iter(clicked_category_item):
+            category_name = clicked_category_tuple[0]
+            clicked_index = clicked_category_tuple[1]
+            if clicked_index != -1:
+                break
+
         session_state.upload_data.import_data.last_selected_cat_name = category_name
         session_state.upload_data.import_data.last_selected_index = clicked_index
-        st.write(category_name, clicked_index)
+        # st.write(category_name, clicked_index)
         return mba_upload_data[category_name][clicked_index]
 
     # return first available image if no image was clicked

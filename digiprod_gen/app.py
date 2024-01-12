@@ -11,6 +11,7 @@ from digiprod_gen.backend.utils.helper import Timer
 from digiprod_gen.backend.utils import init_environment, initialise_config
 from digiprod_gen.backend.models.response import UploadMBAResponse
 from digiprod_gen.backend.image import conversion
+from digiprod_gen.backend.image.upscale import resize_image_keep_aspect_ratio
 from digiprod_gen.backend.models.session import SessionState
 from digiprod_gen.backend.models.config import DigiProdGenConfig
 from digiprod_gen.backend.browser.selenium_fns import get_full_page_screenshot
@@ -23,11 +24,12 @@ from digiprod_gen.frontend.tab.image_generation.image_generation import display_
     display_image_generation_prompt, update_session_selected_prompt
 from digiprod_gen.frontend.tab.upload.views import (display_listing_selection, display_data_for_upload,
                                                     ListingSelectChange,
-                                                    display_image_upload, display_marketplace_selector,
+                                                    display_image_uploader, display_marketplace_selector,
                                                     display_product_category_selector, display_product_color_selector,
                                                     display_product_fit_type_selector)
 from digiprod_gen.frontend.tab.crawling.tab_crawling import display_mba_overview_products
 from digiprod_gen.frontend.tab.prod_import.views import display_products, display_products_export_dates
+from digiprod_gen.frontend.tab.prod_import.utils import import_selected_product
 
 
 @timeit
@@ -69,19 +71,22 @@ def display_tab_image_gen_views(session_state: SessionState):
 
 @timeit
 def display_tab_upload_views(session_state: SessionState):
-    display_image_upload(session_state.image_gen_data, session_state.status)
+    display_image_uploader(session_state.image_gen_data, session_state.status)
 
     # listing generation
     if not session_state.status.listing_generated:
         st.warning('Please click on 4. Listing Generation')
 
 
-    if session_state.status.detail_pages_crawled:
-        if session_state.status.listing_generated:
-            display_listing_selection(session_state.upload_data)
+    if session_state.status.listing_generated:
+        display_listing_selection(session_state.upload_data)
 
-        if session_state.image_gen_data.image_pil_upload_ready:
-            session_state.image_gen_data.image_pil_upload_ready = display_data_for_upload(session_state.image_gen_data.image_pil_upload_ready,
+        display_img = session_state.image_gen_data.image_pil_upload_ready
+        if display_img is None and session_state.status.product_imported:
+            display_img = session_state.image_gen_data.image_pil_generated
+
+        if display_img:
+            session_state.image_gen_data.image_pil_upload_ready = display_data_for_upload(conversion.ensure_rgba(display_img),
                                     title=read_session("final_title") or read_session(ListingSelectChange.TITLE.value),
                                     brand=read_session("final_brand") or read_session(ListingSelectChange.BRAND.value),
                                     bullet_1=read_session("final_bullet1") or read_session(ListingSelectChange.BULLET_1.value),
@@ -164,11 +169,16 @@ def display_tab_import_views(session_state: SessionState):
     st.subheader("Import MBA Products")
     selected_date_str = display_products_export_dates()
     img_pil, upload_data = display_products(selected_date_str, session_state)
-    display_data_for_upload(conversion.ensure_rgba(img_pil),
-                            title=upload_data.product_data.title,
-                            brand=upload_data.product_data.brand,
-                            bullet_1=upload_data.product_data.bullets[0],
-                            bullet_2=upload_data.product_data.bullets[1])
+    display_data_for_upload(resize_image_keep_aspect_ratio(conversion.ensure_rgba(img_pil), 4000),
+                        title=upload_data.product_data.title,
+                        brand=upload_data.product_data.brand,
+                        bullet_1=upload_data.product_data.bullets[0],
+                        bullet_2=upload_data.product_data.bullets[1],
+                        disable_all=True, key_suffix="import")
+    if st.button("Import Product"):
+        import_selected_product(img_pil, upload_data, session_state)
+        st.rerun()
+
 
 def display_admin_views(session_state: SessionState):
     """Display some options for the admin"""

@@ -2,7 +2,6 @@ import logging
 from typing import Dict, Any
 from uuid import uuid4
 from digiprod_gen.backend.models.session import DigiProdGenStatus, ProcessingData
-from digiprod_gen.backend.models.export import MBAUploadData
 
 logger = logging.getLogger("GlobalMemoryContainer")
 

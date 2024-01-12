@@ -95,6 +95,7 @@ class DigiProdGenStatus:
     mba_login_otp_required: bool = False
     mba_login_successful: bool = False
     product_uploaded: bool = False
+    product_imported: bool = False
 
     def refresh(self):
         """
@@ -107,6 +108,7 @@ class DigiProdGenStatus:
         self.image_upload_ready = False
         self.listing_generated = False
         self.product_uploaded = False
+        self.product_imported = False
 
 
 @dataclass

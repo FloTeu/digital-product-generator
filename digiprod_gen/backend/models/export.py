@@ -6,15 +6,15 @@ from digiprod_gen.backend.models.mba import MBAUploadSettings
 from digiprod_gen.backend.models.session import ProcessingData
 
 
-class MBAUploadProductData(BaseModel):
+class MBAExportUploadProductData(BaseModel):
     title: str
     brand: str
     bullets: List[str]
     description: str
 
-class MBAUploadData(BaseModel):
+class MBAExportUploadData(BaseModel):
     processing_data: ProcessingData
-    product_data: MBAUploadProductData
+    product_data: MBAExportUploadProductData
     mba_upload_settings: MBAUploadSettings
 
 

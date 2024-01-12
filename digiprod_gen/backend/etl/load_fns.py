@@ -2,12 +2,12 @@ import json
 from PIL import Image
 from datetime import datetime
 from pathlib import Path
-from digiprod_gen.backend.models.export import MBAUploadData
+from digiprod_gen.backend.models.export import MBAExportUploadData
 
 
 def export_upload_mba_product(
         img_pil: Image,
-        export_data: MBAUploadData,
+        export_data: MBAExportUploadData,
         output_dir: Path | None = None,
         ):
     if output_dir is None:
