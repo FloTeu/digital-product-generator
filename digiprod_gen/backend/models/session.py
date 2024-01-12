@@ -64,6 +64,11 @@ class ImageGenData:
     def get_valid_upload_png(self):
         return self.image_pil_upload_ready
 
+@dataclass
+class MBAImportData:
+    last_selected_cat_name: str = field(default="")
+    last_selected_index: int = field(default=0)
+    selected_import_products: Dict[str, int] = field(default_factory=dict)
 
 @dataclass
 class MBAUploadData:
@@ -76,6 +81,7 @@ class MBAUploadData:
     bullet_2: str | None = None
     description: str | None = None
     settings: MBAUploadSettings = field(default_factory=MBAUploadSettings)
+    import_data: MBAImportData = field(default_factory=MBAImportData)
 
 
 @dataclass

@@ -163,8 +163,12 @@ def display_tab_upload_views(session_state: SessionState):
 def display_tab_import_views(session_state: SessionState):
     st.subheader("Import MBA Products")
     selected_date_str = display_products_export_dates()
-    display_products(selected_date_str)
-
+    img_pil, upload_data = display_products(selected_date_str, session_state)
+    display_data_for_upload(conversion.ensure_rgba(img_pil),
+                            title=upload_data.product_data.title,
+                            brand=upload_data.product_data.brand,
+                            bullet_1=upload_data.product_data.bullets[0],
+                            bullet_2=upload_data.product_data.bullets[1])
 
 def display_admin_views(session_state: SessionState):
     """Display some options for the admin"""
