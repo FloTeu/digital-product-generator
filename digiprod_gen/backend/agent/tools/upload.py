@@ -48,7 +48,8 @@ def export_upload_data(
                                        brand_suggestions=global_memory_container[MemoryId.BRAND_SUGGESTIONS],
                                        bullet_suggestions=global_memory_container[MemoryId.BULLET_SUGGESTIONS],
                                        prompt_suggestions=global_memory_container[MemoryId.PROMPT_SUGGESTIONS],
-                                       prompt=""
+                                       keywords=global_memory_container[MemoryId.KEYWORDS],
+                                       prompt=global_memory_container[MemoryId.IMAGE_PROMPT]
                                        ),
         product_data=MBAExportUploadProductData(title=title,
                                                 brand=brand,

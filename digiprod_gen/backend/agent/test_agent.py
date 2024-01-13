@@ -16,6 +16,7 @@ from digiprod_gen.backend.agent.tools.product import (
     get_prompt_suggestions,
     evaluate_image,
     extract_keywords,
+    select_mba_listings,
     generate_listing_suggestions,
     enrich_mba_products_with_image_caption)
 from digiprod_gen.backend.agent.tools.crawling import crawl_overview_mba, crawl_products_detail_mba
@@ -47,6 +48,7 @@ tools = [
     generate_image,
     evaluate_image,
     get_prompt_suggestions,
+    select_mba_listings,
     enrich_mba_products_with_image_caption,
     print_select_mba_products,
     crawl_overview_mba,
@@ -93,7 +95,8 @@ if __name__ == "__main__":
     Take your chosen prompt and create an image.
     Assess whether the image is suitable for a print-on-demand design and, depending on the answer, recreate the image or consider a different prompt.
     You can also slightly edit the prompt based on the feedback you got.
-    Export the final product x and choose the the best title, brand and bullets from your received suggestions.
+    Choose the best title, brand and bullets from your received suggestions with the function selectMBAListingsTool.
+    Export the final product x.
     """
     #prompt="""Crawl and select 2 mba_products with the search_term 'Unicorn metal'. Generate a image with the prompt 'Unicorn metal black background' and export the final generated mba product"""
     #

@@ -57,3 +57,10 @@ class SelectProductRequest(BaseModel):
 
 class MBAProductsRequest(BaseModel):
     mba_products: List[MBAProduct]
+
+
+class SelectListingsByImageRequest(BaseModel):
+    img_b64_str: str
+    brand_suggestions: List[str]
+    title_suggestions: List[str]
+    bullet_suggestions: List[str]

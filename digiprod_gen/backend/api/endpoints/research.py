@@ -4,13 +4,14 @@ from typing import List
 
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
-
+from langchain.output_parsers import PydanticOutputParser
 from digiprod_gen.backend.image.lvm_fns import get_gpt4_vision_response
 from llm_prompting_gen.models.prompt_engineering import PromptEngineeringMessages
 from llm_prompting_gen.generators import PromptEngineeringGenerator, ParsablePromptEngineeringGenerator
 from langchain.chat_models import ChatOpenAI
 from digiprod_gen.backend.image import conversion
-from digiprod_gen.backend.models.request import SelectProductRequest, MBAProductsRequest
+from digiprod_gen.backend.models.request import SelectProductRequest, MBAProductsRequest, SelectListingsByImageRequest
+from digiprod_gen.backend.models.response import SelectListingsByImageResponse
 from digiprod_gen.frontend.tab.crawling.views import mba_products_overview_html_str
 import imgkit
 
@@ -63,3 +64,19 @@ async def post_select_mba_products_by_image(request: SelectProductRequest) -> Li
     asins = pe_gen.generate(ai_answer=lvm_suggestion, id2asin_dict=request.id2asin)
     return asins.asins
 
+@router.post("/select_listing_by_image")
+async def post_select_listing_by_image(request: SelectListingsByImageRequest) -> SelectListingsByImageResponse:
+    """
+    Gets a mba product AI generated image with listing suggestions
+    Via LVM (e.g. GPT-4V) the best suitable suggestions for this image are chosen.
+
+    returns: SelectListingsByImageResponse
+    """
+    # decode base64string
+    img_pil = conversion.b64_str2pil(request.img_b64_str)
+    pe_msg = PromptEngineeringMessages.from_json("templates/research_listing_selection.json")
+    prompt = pe_msg.messages["instruction"].format(**request.model_dump()).content
+    output_parser = PydanticOutputParser(pydantic_object=SelectListingsByImageResponse)
+    format_instruction = output_parser.get_format_instructions()
+    lvm_suggestion = get_gpt4_vision_response(img_pil, prompt + format_instruction, temperature=0.0)
+    return output_parser.parse(lvm_suggestion)

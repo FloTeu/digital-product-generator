@@ -55,6 +55,8 @@ def crawl_products_detail_mba(
             marketplace: MBAMarketplaceDomain = MBAMarketplaceDomain.COM
             ) -> Dict[str, List[MBAProduct]]:
     """use to crawl amazon mba product detail pages and receive list of enriched mba products"""
+    if MemoryId.SELECTED_MBA_PRODUCTS not in  global_memory_container:
+        return {"response": "Failure. No mba products selected yet"}
     mba_products = global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS]
     def crawl_product_mba(mba_product: MBAProduct,
                           marketplace: MBAMarketplaceDomain = MBAMarketplaceDomain.COM
@@ -66,6 +68,8 @@ def crawl_products_detail_mba(
         backend_caller = BackendCaller(CONFIG.backend)
         response = backend_caller.post(f"/browser/crawling/mba_product?session_id={SESSION_ID}&proxy={proxy}",
                                        json=mba_product.dict())
+        if response.status_code != 200:
+            raise ValueError(response.json())
         return MBAProduct(**response.json())
 
     final_mba_products = []
