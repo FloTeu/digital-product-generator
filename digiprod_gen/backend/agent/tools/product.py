@@ -5,8 +5,6 @@ from datetime import datetime
 from typing import List, Dict
 from pydantic.json import pydantic_encoder
 
-from langchain_core.tools import tool
-
 from digiprod_gen.backend.agent.models.api import MBAProductsRequest
 from digiprod_gen.backend.agent.models.memory import MemoryId, MemoryAddResponse
 from digiprod_gen.backend.api.common import CONFIG
@@ -17,20 +15,18 @@ from digiprod_gen.backend.models.common import ImageCaptioningModel, ImageGenera
 from digiprod_gen.backend.image.crop import get_mba_design_crop
 from digiprod_gen.backend.image import conversion
 from digiprod_gen.backend.agent.memory import global_memory_container
+from digiprod_gen.backend.agent.tools.common import tool
 from digiprod_gen.frontend.backend_caller import BackendCaller
 
+@tool("randomselectMbaProductsTool", required_memory_ids=[MemoryId.MBA_PRODUCTS], adds_memory_ids=[MemoryId.SELECTED_MBA_PRODUCTS])
 
-@tool("randomselectMbaProductsTool")
 def select_random_mba_products(output_size: int = 4) -> Dict[str, MemoryAddResponse]:
     """use to select a subsample of mba products for further product generation"""
-    if MemoryId.MBA_PRODUCTS not in global_memory_container:
-        return {"response": "Failure. No mba products crawled yet"}
     mba_products = global_memory_container[MemoryId.MBA_PRODUCTS]
     mba_products_selected = random.choices(mba_products,k=output_size)
     global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS] = mba_products_selected
-    return {"response": MemoryAddResponse(uuid=MemoryId.SELECTED_MBA_PRODUCTS)}
 
-@tool("printMbaProductsTool")
+@tool("printMbaProductsTool", required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.SELECTED_MBA_PRODUCTS], adds_memory_ids=[])
 def print_select_mba_products():
     """use to print the selected mba products"""
     mba_products = global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS]
@@ -38,7 +34,7 @@ def print_select_mba_products():
         print(mba_product.json())
     return {"response": "Successfully printed mba products"}
 
-@tool("selectMBAProductsTool")
+@tool("selectMBAProductsTool", required_memory_ids=[MemoryId.MBA_PRODUCTS], adds_memory_ids=[MemoryId.SELECTED_MBA_PRODUCTS])
 def select_mba_products() -> Dict[str, MemoryAddResponse]:
     """
     Takes all crawled mba products and creates chooses the best suitable products
@@ -48,27 +44,22 @@ def select_mba_products() -> Dict[str, MemoryAddResponse]:
 
     request = MBAProductsRequest(mba_products=mba_products)
     backend_caller = BackendCaller(CONFIG.backend)
-    try:
-        response = backend_caller.post(f"/research/select_products",
-                                                     json=request.dict())
-    except Exception as e:
-        return {"response": "Failure"}
+    response = backend_caller.post(f"/research/select_products",
+                                                 json=request.dict())
+    response.raise_for_status()
 
     selected_asins = response.json()
     selected_mba_products = [mba_product for mba_product in mba_products if mba_product.asin in selected_asins]
 
     global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS] = selected_mba_products
-    return {"response": MemoryAddResponse(uuid=MemoryId.SELECTED_MBA_PRODUCTS)}
 
-@tool("enrichMBAProductsWithImageCaptionTool")
+@tool("enrichMBAProductsWithImageCaptionTool", required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.SELECTED_MBA_PRODUCTS], adds_memory_ids=[MemoryId.SELECTED_MBA_PRODUCTS])
 def enrich_mba_products_with_image_caption(
                     caption_model: ImageCaptioningModel = ImageCaptioningModel.GPT4
                     ) -> Dict[str, MemoryAddResponse]:
     """
     Takes s subsample of crawled mba products and adds the image_prompt attribute.
     """
-    if MemoryId.SELECTED_MBA_PRODUCTS not in global_memory_container:
-        return {"response": "Failure. No mba products selected yet"}
     mba_products = global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS]
     backend_caller = BackendCaller(CONFIG.backend)
 
@@ -93,11 +84,10 @@ def enrich_mba_products_with_image_caption(
         mba_products_with_caption.append(mba_product)
 
     global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS] = mba_products_with_caption
-    return {"response": MemoryAddResponse(uuid=MemoryId.SELECTED_MBA_PRODUCTS)}
 
 
 
-@tool("getPromptSuggestionsTool")
+@tool("getPromptSuggestionsTool", required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.SELECTED_MBA_PRODUCTS], adds_memory_ids=[MemoryId.PROMPT_SUGGESTIONS])
 def get_prompt_suggestions(
                     ) -> Dict[str, MemoryAddResponse]:
     """
@@ -110,12 +100,13 @@ def get_prompt_suggestions(
 
     response = backend_caller.post(f"/text/gen/prompts",
                                    data=json_data)
+    response.raise_for_status()
     prompt_suggestions = response.json()
     global_memory_container.status.prompts_generated = True
     global_memory_container[MemoryId.PROMPT_SUGGESTIONS] = prompt_suggestions
-    return {"response": MemoryAddResponse(uuid=MemoryId.PROMPT_SUGGESTIONS, success=True, data=prompt_suggestions)}
+    return prompt_suggestions
 
-@tool("generateImageTool")
+@tool("generateImageTool", required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.SELECTED_MBA_PRODUCTS, MemoryId.PROMPT_SUGGESTIONS], adds_memory_ids=[MemoryId.IMAGE_RAW, MemoryId.IMAGE_PROMPT])
 def generate_image(
                     search_term: str,
                     prompt: str,
@@ -126,15 +117,13 @@ def generate_image(
     """
     backend_caller = BackendCaller(CONFIG.backend)
     response = backend_caller.get(f"/image/generation?prompt={prompt}&image_gen_model={image_gen_model}")
-    if response.status_code != 200:
-        return {"response": "Failure"}
+    response.raise_for_status()
     image_pil_generated = conversion.bytes2pil(response.content)
     image_pil_generated.save(f"export/{search_term}_{str(datetime.now())}.png")
     global_memory_container[MemoryId.IMAGE_RAW] = image_pil_generated
     global_memory_container[MemoryId.IMAGE_PROMPT] = prompt
-    return {"response": MemoryAddResponse(uuid=MemoryId.IMAGE_RAW, success=True)}
 
-@tool("evaluateImageTool")
+@tool("evaluateImageTool", required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.SELECTED_MBA_PRODUCTS, MemoryId.PROMPT_SUGGESTIONS, MemoryId.IMAGE_RAW], adds_memory_ids=[])
 def evaluate_image(
                     prompt: str
                     ) -> Dict[str, Dict[str, ImageCheckResponse]]:
@@ -144,20 +133,16 @@ def evaluate_image(
     img_pil = global_memory_container[MemoryId.IMAGE_RAW]
     backend_caller = BackendCaller(CONFIG.backend)
     response = backend_caller.post(f"/image/check?prompt={prompt}", img_pil=img_pil)
-    if response.status_code != 200:
-        return {"response": "Failure"}
+    response.raise_for_status()
     return {"response": response.json()}
 
-@tool("extractKeywords")
+@tool("extractKeywords", required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.SELECTED_MBA_PRODUCTS], adds_memory_ids=[MemoryId.KEYWORDS])
 def extract_keywords(
                     ) -> Dict[str, MemoryAddResponse]:
     """
     Extract keywords from crawled mba products
     """
     backend_caller = BackendCaller(CONFIG.backend)
-
-    if not global_memory_container.status.detail_pages_crawled:
-        return {"response": "Failure. No mba product details crawled yet"}
     mba_products = global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS]
 
     keyword_text = ""
@@ -165,23 +150,18 @@ def extract_keywords(
         keyword_text += f"{mba_product.brand} {mba_product.title} {' '.join([bullet for bullet in mba_product.bullets])}\n"
     KeywordExtractionRequest(text=keyword_text)
     response = backend_caller.post(f"/text/extract/keywords", data=KeywordExtractionRequest(text=keyword_text).model_dump_json())
-
-    if response.status_code != 200:
-        return {"response": "Failure"}
+    response.raise_for_status()
 
     global_memory_container[MemoryId.KEYWORDS] = response.json()
     global_memory_container.status.keywords_extracted = True
-    return {"response": MemoryAddResponse(uuid=MemoryId.KEYWORDS, success=True)}
 
-@tool("generateListingSuggestions")
+@tool("generateListingSuggestions", required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.SELECTED_MBA_PRODUCTS, MemoryId.KEYWORDS], adds_memory_ids=[])
 def generate_listing_suggestions(
         product_type: MBAProductTextType
         ) -> Dict[str, MemoryAddResponse]:
     """
     Generates listing suggestions such as title, brand or bullets
     """
-    if not global_memory_container.status.keywords_extracted:
-        return {"response": "Failure. No keywords extracted yet"}
 
     backend_caller = BackendCaller(CONFIG.backend)
     mba_products: List[MBAProduct]= global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS]
@@ -199,25 +179,25 @@ def generate_listing_suggestions(
 
     listing_gen_request = ListingGenRequest(type=product_type, examples=examples, keywords=",".join(global_memory_container[MemoryId.KEYWORDS]))
     response = backend_caller.post(f"/text/gen/listings", data=listing_gen_request.model_dump_json())
-    if response.status_code != 200:
-        return {"response": "Failure"}
+    response.raise_for_status()
 
     listing_suggestion = response.json()
     global_memory_container[memory_id] = listing_suggestion
-    if all([product_type_i in global_memory_container for product_type_i in [MBAProductTextType.BRAND, MBAProductTextType.TITLE, MBAProductTextType.BULLET]]):
+    type_in_memory_list = [product_type_i in global_memory_container for product_type_i in
+     [MemoryId.BRAND_SUGGESTIONS, MemoryId.TITLE_SUGGESTIONS, MemoryId.BULLET_SUGGESTIONS]]
+    if all(type_in_memory_list):
+        print("All listings successfully generated")
         global_memory_container.status.listing_generated = True
 
     return {"response": MemoryAddResponse(uuid=memory_id, success=True, data=None)}
 
 
-@tool("selectMBAListingsTool")
+@tool("selectMBAListingsTool", required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.SELECTED_MBA_PRODUCTS, MemoryId.KEYWORDS, MemoryId.TITLE_SUGGESTIONS, MemoryId.BRAND_SUGGESTIONS, MemoryId.BULLET_SUGGESTIONS], adds_memory_ids=[MemoryId.LISTING_SELECTED])
 def select_mba_listings() -> Dict[str, SelectListingsByImageResponse]:
     """
     Takes ai generated mba product image and listing suggestions and decides which
     listing suggestion (i.e. title, brand, bullets) is the best suitable for the image.
     """
-    if not global_memory_container.status.listing_generated:
-        return {"response": "Failure. No listings generated yet"}
     title_suggestions = global_memory_container[MemoryId.TITLE_SUGGESTIONS]
     brand_suggestions = global_memory_container[MemoryId.BRAND_SUGGESTIONS]
     bullet_suggestions = global_memory_container[MemoryId.BULLET_SUGGESTIONS]
@@ -228,10 +208,8 @@ def select_mba_listings() -> Dict[str, SelectListingsByImageResponse]:
                                            brand_suggestions=brand_suggestions,
                                            bullet_suggestions=bullet_suggestions)
     backend_caller = BackendCaller(CONFIG.backend)
-    try:
-        response = backend_caller.post(f"/research/select_listing_by_image",
-                                                     json=request.model_dump())
-    except Exception as e:
-        return {"response": "Failure"}
+    response = backend_caller.post(f"/research/select_listing_by_image",
+                                                 json=request.model_dump())
+    response.raise_for_status()
 
     return {"response": SelectListingsByImageResponse(**response.json())}

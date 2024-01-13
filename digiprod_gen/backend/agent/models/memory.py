@@ -13,6 +13,8 @@ class MemoryId(str, Enum):
     TITLE_SUGGESTIONS="title_suggestions"
     BRAND_SUGGESTIONS="brand_suggestions"
     BULLET_SUGGESTIONS="bullet_suggestions"
+    LISTING_SELECTED="listing_selected"
+
 
 class MemoryAddResponse(BaseModel):
     uuid: MemoryId

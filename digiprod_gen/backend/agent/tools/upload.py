@@ -7,9 +7,10 @@ from digiprod_gen.backend.etl.load_fns import export_upload_mba_product
 from digiprod_gen.backend.models.export import MBAExportUploadData, MBAExportUploadProductData
 from digiprod_gen.backend.models.mba import MBAUploadSettings, MBAProductCategory, MBAProductFitType, MBAProductColor, MBAMarketplaceDomain
 from digiprod_gen.backend.models.session import ProcessingData
+from digiprod_gen.backend.agent.tools.common import tool
 
 
-@tool("exportUploadMbaProduct", args_schema=MBAProductUploadExport)
+@tool("exportUploadMbaProduct", args_schema=MBAProductUploadExport, required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.SELECTED_MBA_PRODUCTS, MemoryId.KEYWORDS, MemoryId.TITLE_SUGGESTIONS, MemoryId.BRAND_SUGGESTIONS, MemoryId.BULLET_SUGGESTIONS, MemoryId.IMAGE_RAW, MemoryId.IMAGE_PROMPT, MemoryId.PROMPT_SUGGESTIONS, MemoryId.LISTING_SELECTED], adds_memory_ids=[])
 def export_upload_data(
         search_term: str,
         title: str,
@@ -17,10 +18,6 @@ def export_upload_data(
         bullets: List[str],
     ):
     """use to export the final generated mba product"""
-    if MemoryId.SELECTED_MBA_PRODUCTS not in global_memory_container:
-        return {"response": "Failure. No mba products selected yet"}
-    if MemoryId.IMAGE_RAW not in global_memory_container:
-        return {"response": "Failure. No image generated yet"}
 
     selected_mba_products = global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS]
     selected_asins = [prod.asin for prod in selected_mba_products]
