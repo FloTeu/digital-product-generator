@@ -82,7 +82,7 @@ if __name__ == "__main__":
     #     agent=AgentType.OPENAI_MULTI_FUNCTIONS,
     #     verbose=True
     # )
-    search_term = "sloth"
+    search_term = "sloth coffee"
     prompt = f"""
     Your final task is to create a new mba_product called product x.
     Create a mba request with search term '{search_term}' and crawl a list of mba_products.

@@ -75,4 +75,5 @@ def crawl_products_detail_mba(
     global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS] = final_mba_products
     global_memory_container.status.detail_pages_crawled = True
 
+    return [mba_prod.asin for mba_prod in final_mba_products]
 

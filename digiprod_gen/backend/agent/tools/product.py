@@ -53,6 +53,9 @@ def select_mba_products() -> Dict[str, MemoryAddResponse]:
 
     global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS] = selected_mba_products
 
+    return [mba_prod.asin for mba_prod in selected_mba_products]
+
+
 @tool("enrichMBAProductsWithImageCaptionTool", required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.SELECTED_MBA_PRODUCTS], adds_memory_ids=[MemoryId.SELECTED_MBA_PRODUCTS])
 def enrich_mba_products_with_image_caption(
                     caption_model: ImageCaptioningModel = ImageCaptioningModel.GPT4
@@ -193,7 +196,7 @@ def generate_listing_suggestions(
 
 
 @tool("selectMBAListingsTool", required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.SELECTED_MBA_PRODUCTS, MemoryId.KEYWORDS, MemoryId.TITLE_SUGGESTIONS, MemoryId.BRAND_SUGGESTIONS, MemoryId.BULLET_SUGGESTIONS], adds_memory_ids=[MemoryId.LISTING_SELECTED])
-def select_mba_listings() -> Dict[str, SelectListingsByImageResponse]:
+def select_mba_listings() -> SelectListingsByImageResponse:
     """
     Takes ai generated mba product image and listing suggestions and decides which
     listing suggestion (i.e. title, brand, bullets) is the best suitable for the image.
@@ -211,5 +214,7 @@ def select_mba_listings() -> Dict[str, SelectListingsByImageResponse]:
     response = backend_caller.post(f"/research/select_listing_by_image",
                                                  json=request.model_dump())
     response.raise_for_status()
+    selected_listing = SelectListingsByImageResponse(**response.json())
+    global_memory_container[MemoryId.LISTING_SELECTED] = selected_listing
 
-    return {"response": SelectListingsByImageResponse(**response.json())}
+    return selected_listing
