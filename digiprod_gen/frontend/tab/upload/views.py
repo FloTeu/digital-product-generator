@@ -55,7 +55,8 @@ def display_data_for_upload(image_pil: Image,
                             bullet_1: str | None,
                             bullet_2: str | None,
                             disable_all: bool = False,
-                            key_suffix=""
+                            key_suffix="",
+                            change_session=True
                             ) -> Image:
     st.subheader("Upload Overview")
     col1, col2 = st.columns(2)
@@ -86,12 +87,14 @@ def display_data_for_upload(image_pil: Image,
     if title:
         final_title = col2_1.text_area("**Title**", value=title, on_change=update_session_upload_listing, disabled=disable_all, key=f"mba_upload_listing_title{key_suffix}")
         display_char_max_notice(len(final_title), 60, col2_1)
-        st.session_state["final_title"] = final_title
+        if change_session:
+            st.session_state["final_title"] = final_title
         mba_upload_data.title = final_title
     if bullet_1:
         final_bullet1 = col2_1.text_area("**Bullet 1**", value=bullet_1, on_change=update_session_upload_listing, disabled=disable_all, key=f"mba_upload_listing_bullet_1{key_suffix}")
         display_char_max_notice(len(final_bullet1), 256, col2_1)
-        st.session_state["final_bullet1"] = final_bullet1
+        if change_session:
+           st.session_state["final_bullet1"] = final_bullet1
         mba_upload_data.bullet_1 = final_bullet1
     if title and brand:
         # Note: Description is automatically updated within update_session_upload_listing
@@ -103,12 +106,14 @@ def display_data_for_upload(image_pil: Image,
     if brand:
         final_brand = col2_2.text_area("**Brand**", value=brand, on_change=update_session_upload_listing, disabled=disable_all, key=f"mba_upload_listing_brand{key_suffix}")
         display_char_max_notice(len(final_brand), 50, col2_2)
-        st.session_state["final_brand"] = final_brand
+        if change_session:
+           st.session_state["final_brand"] = final_brand
         mba_upload_data.brand = final_brand
     if bullet_2:
         final_bullet2 = col2_2.text_area("**Bullet 2**", value=bullet_2, on_change=update_session_upload_listing, disabled=disable_all, key=f"mba_upload_listing_bullet_2{key_suffix}")
         display_char_max_notice(len(final_bullet2), 256, col2_2)
-        st.session_state["final_bullet2"] = final_bullet2
+        if change_session:
+           st.session_state["final_bullet2"] = final_bullet2
         mba_upload_data.bullet_2 = final_bullet2
 
     # Update descrption with latest changes

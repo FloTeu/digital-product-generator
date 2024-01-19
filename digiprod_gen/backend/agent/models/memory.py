@@ -4,6 +4,7 @@ from pydantic.v1 import BaseModel
 
 class MemoryId(str, Enum):
     """Defines object in memory and helps the ai agent to reference memory id correct"""
+    SEARCH_TERM="search_term"
     MBA_PRODUCTS="mba_products"
     SELECTED_MBA_PRODUCTS="mba_products_selected"
     IMAGE_PROMPT="image_prompt"

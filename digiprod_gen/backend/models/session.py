@@ -147,7 +147,7 @@ class ProcessingData(BaseModel):
     """Data container for optional export"""
     search_term: str
     selected_asins: List[str]
-    keywords: List[str]
+    keywords: List[str] | None = None
     title_suggestions: List[str]
     brand_suggestions: List[str]
     bullet_suggestions: List[str]

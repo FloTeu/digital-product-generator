@@ -169,12 +169,13 @@ def display_tab_import_views(session_state: SessionState):
     st.subheader("Import MBA Products")
     selected_date_str = display_products_export_dates()
     img_pil, upload_data = display_products(selected_date_str, session_state)
+    print("SELECTED",upload_data)
     display_data_for_upload(resize_image_keep_aspect_ratio(conversion.ensure_rgba(img_pil), 4000),
                         title=upload_data.product_data.title,
                         brand=upload_data.product_data.brand,
                         bullet_1=upload_data.product_data.bullets[0],
                         bullet_2=upload_data.product_data.bullets[1],
-                        disable_all=True, key_suffix="import")
+                        disable_all=True, key_suffix="import", change_session=False)
     if st.button("Import Product"):
         import_selected_product(img_pil, upload_data, session_state)
         st.rerun()

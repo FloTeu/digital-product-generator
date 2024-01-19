@@ -1,3 +1,4 @@
+import streamlit as st
 from PIL import Image
 from digiprod_gen.backend.models.export import MBAExportUploadData
 from digiprod_gen.backend.models.session import SessionState
@@ -30,3 +31,10 @@ def import_selected_product(img_pil: Image, upload_data: MBAExportUploadData, se
     session_state.image_gen_data.image_pil_background_removed = None
     session_state.image_gen_data.image_pil_upload_ready = None
     session_state.image_gen_data.image_pil_outpainted = None
+
+    # Update session listing
+    st.session_state["final_brand"] = upload_data.product_data.brand
+    st.session_state["final_title"] = upload_data.product_data.title
+    st.session_state["final_bullet1"] = upload_data.product_data.bullets[0]
+    st.session_state["final_bullet2"] = upload_data.product_data.bullets[1]
+

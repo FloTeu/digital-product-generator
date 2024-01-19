@@ -19,7 +19,7 @@ from digiprod_gen.backend.agent.tools.product import (
     select_mba_listings,
     generate_listing_suggestions,
     enrich_mba_products_with_image_caption)
-from digiprod_gen.backend.agent.tools.crawling import crawl_overview_mba, crawl_products_detail_mba
+from digiprod_gen.backend.agent.tools.crawling import crawl_overview_mba, crawl_products_detail_mba, get_random_search_term
 from digiprod_gen.backend.agent.tools.upload import export_upload_data
 from digiprod_gen.backend.agent.models.api import CrawlingMBARequest
 from digiprod_gen.backend.api.common import CONFIG
@@ -51,6 +51,7 @@ tools = [
     select_mba_listings,
     enrich_mba_products_with_image_caption,
     print_select_mba_products,
+    get_random_search_term,
     crawl_overview_mba,
     crawl_products_detail_mba,
     generate_listing_suggestions,
@@ -66,7 +67,7 @@ if __name__ == "__main__":
     from langchain_community.chat_models import ChatOpenAI
     # Get the prompt to use - you can modify this!
     prompt: object = hub.pull("hwchase17/openai-tools-agent")
-    llm = ChatOpenAI(model="gpt-3.5-turbo-1106", temperature=0)
+    llm = ChatOpenAI(model="gpt-3.5-turbo-1106", temperature=0.3)
     #llm = ChatOpenAI(model="gpt-4-1106-preview", temperature=0)
     # Construct the OpenAI Tools agent
     agent = create_openai_functions_agent(llm, tools, prompt)
@@ -82,7 +83,8 @@ if __name__ == "__main__":
     #     agent=AgentType.OPENAI_MULTI_FUNCTIONS,
     #     verbose=True
     # )
-    search_term = "sloth coffee"
+    search_term = "Capybara"
+    search_term = "that you think is suitable for a print on demand niche"
     prompt = f"""
     Your final task is to create a new mba_product called product x.
     Create a mba request with search term '{search_term}' and crawl a list of mba_products.

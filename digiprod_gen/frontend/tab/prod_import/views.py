@@ -1,3 +1,5 @@
+import logging
+
 import streamlit as st
 from os import listdir, getcwd
 from typing import Tuple
@@ -15,6 +17,7 @@ from digiprod_gen.backend.image.conversion import pil2b64_str
 def display_products_export_dates() -> str:
     dirs = glob("export/*/")
     export_dates = [Path(dir).name for dir in dirs]
+    export_dates.sort(reverse=True)
     option = st.selectbox(
         'Choose a date of export',
         export_dates)
@@ -42,9 +45,12 @@ def display_products(selected_date_str, session_state: SessionState) -> Tuple[Im
         images = []
         with category_tab:
             for product_i, product_dir in enumerate(product_dirs):
-                img_pil, upload_data = read_exported_data(Path(product_dir))
-                images.append(f"data:image/jpeg;base64,{pil2b64_str(img_pil)}")
-                mba_upload_data[category_name].append((img_pil, upload_data))
+                try:
+                    img_pil, upload_data = read_exported_data(Path(product_dir))
+                    images.append(f"data:image/jpeg;base64,{pil2b64_str(img_pil)}")
+                    mba_upload_data[category_name].append((img_pil, upload_data))
+                except Exception as e:
+                    logging.warning(f"Could not read data from path {product_dir}. {e}")
                 # product_col = product_cols[product_i % 3]
                 # with product_col:
                 #     st.image(img_pil)
@@ -81,5 +87,6 @@ def display_products(selected_date_str, session_state: SessionState) -> Tuple[Im
         return mba_upload_data[category_name][clicked_index]
 
     # return first available image if no image was clicked
-    return mba_upload_data[session_state.upload_data.import_data.last_selected_cat_name][session_state.upload_data.import_data.last_selected_index]
-
+    if session_state.upload_data.import_data.last_selected_cat_name in mba_upload_data:
+        return mba_upload_data[session_state.upload_data.import_data.last_selected_cat_name][session_state.upload_data.import_data.last_selected_index]
+    return mba_upload_data[list(mba_upload_data.keys())[0]][0]
