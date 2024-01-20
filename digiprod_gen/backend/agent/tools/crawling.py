@@ -61,12 +61,12 @@ def get_random_search_term(
 
 
 
-@tool("crawlProductsMBATool", required_memory_ids=[MemoryId.SELECTED_MBA_PRODUCTS], adds_memory_ids=[MemoryId.SELECTED_MBA_PRODUCTS])
+@tool("crawlProductsMBATool", required_memory_ids=[MemoryId.MBA_PRODUCTS_SELECTED], adds_memory_ids=[MemoryId.MBA_PRODUCTS_DETAIL])
 def crawl_products_detail_mba(
             marketplace: MBAMarketplaceDomain = MBAMarketplaceDomain.COM
             ) -> Dict[str, List[MBAProduct]]:
     """use to crawl amazon mba product detail pages and receive list of enriched mba products"""
-    mba_products = global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS]
+    mba_products = global_memory_container[MemoryId.MBA_PRODUCTS_SELECTED]
     def crawl_product_mba(mba_product: MBAProduct,
                           marketplace: MBAMarketplaceDomain = MBAMarketplaceDomain.COM
                           ) -> MBAProduct:
@@ -85,7 +85,7 @@ def crawl_products_detail_mba(
     for mba_product in mba_products:
         final_mba_products.append(crawl_product_mba(mba_product, marketplace))
 
-    global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS] = final_mba_products
+    global_memory_container[MemoryId.MBA_PRODUCTS_DETAIL] = final_mba_products
     global_memory_container.status.detail_pages_crawled = True
 
     return [mba_prod.asin for mba_prod in final_mba_products]

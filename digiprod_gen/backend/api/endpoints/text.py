@@ -54,7 +54,7 @@ async def gen_listings(lg_request: ListingGenRequest,
 
     if lg_request.type == MBAProductTextType.BULLET:
         product_listing_gen = PromptEngineeringGenerator.from_json("templates/product_text_bullet_gen.json", llm=llm)
-        product_listing_gen.prompt_elements.examples = lg_request.examples
+        product_listing_gen.prompt_elements.examples = lg_request.examples if len(lg_request.examples) > 0 else None
     elif lg_request.type == MBAProductTextType.BRAND:
         product_listing_gen = PromptEngineeringGenerator.from_json("templates/product_text_brand_gen.json", llm=llm)
         product_listing_gen.prompt_elements.examples = lg_request.examples

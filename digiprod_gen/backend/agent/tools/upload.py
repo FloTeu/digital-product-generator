@@ -10,7 +10,7 @@ from digiprod_gen.backend.models.session import ProcessingData
 from digiprod_gen.backend.agent.tools.common import tool
 
 
-@tool("exportUploadMbaProduct", args_schema=MBAProductUploadExport, required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.SELECTED_MBA_PRODUCTS, MemoryId.KEYWORDS, MemoryId.TITLE_SUGGESTIONS, MemoryId.BRAND_SUGGESTIONS, MemoryId.BULLET_SUGGESTIONS, MemoryId.IMAGE_RAW, MemoryId.IMAGE_PROMPT, MemoryId.PROMPT_SUGGESTIONS, MemoryId.LISTING_SELECTED], adds_memory_ids=[])
+@tool("exportUploadMbaProduct", args_schema=MBAProductUploadExport, required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.MBA_PRODUCTS_SELECTED, MemoryId.MBA_PRODUCTS_DETAIL, MemoryId.KEYWORDS, MemoryId.TITLE_SUGGESTIONS, MemoryId.BRAND_SUGGESTIONS, MemoryId.BULLET_SUGGESTIONS, MemoryId.IMAGE_RAW, MemoryId.IMAGE_PROMPT, MemoryId.PROMPT_SUGGESTIONS, MemoryId.LISTING_SELECTED], adds_memory_ids=[])
 def export_upload_data(
         search_term: str,
         title: str,
@@ -19,7 +19,7 @@ def export_upload_data(
     ):
     """use to export the final generated mba product"""
 
-    selected_mba_products = global_memory_container[MemoryId.SELECTED_MBA_PRODUCTS]
+    selected_mba_products = global_memory_container[MemoryId.MBA_PRODUCTS_DETAIL]
     selected_asins = [prod.asin for prod in selected_mba_products]
     # TODO: Change to image upload ready
     img_pil = global_memory_container[MemoryId.IMAGE_RAW]

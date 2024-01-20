@@ -100,6 +100,7 @@ if __name__ == "__main__":
     Choose the best title, brand and bullets from your received suggestions with the function selectMBAListingsTool.
     Export the final product x.
     """
+    prompt = "Create and export a new mba_product"
     #prompt="""Crawl and select 2 mba_products with the search_term 'Unicorn metal'. Generate a image with the prompt 'Unicorn metal black background' and export the final generated mba product"""
     #
     ts = time.time()
