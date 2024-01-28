@@ -31,12 +31,13 @@ def main(argv):
 
     # rh set articles to prime
     params = url_fns.get_url_query_params(marketplace, keyword, sort)
+    del params["k"]
 
     url_parts = list(urlparse.urlparse(url))
     query = dict(urlparse.parse_qsl(url_parts[4]))
     query.update(params)
 
-    url_parts[4] = urlencode(query)
+    url_parts[4] = f"k={keyword}&".replace(" ", "+") + urlencode(query)
 
     return urlparse.urlunparse(url_parts)
 

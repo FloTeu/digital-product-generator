@@ -20,7 +20,7 @@ from digiprod_gen.backend.agent.tools.product import (
     generate_listing_suggestions,
     enrich_mba_products_with_image_caption)
 from digiprod_gen.backend.agent.tools.crawling import crawl_overview_mba, crawl_products_detail_mba, get_random_search_term
-from digiprod_gen.backend.agent.tools.upload import export_upload_data
+from digiprod_gen.backend.agent.tools.upload import export_upload_data, check_run_id_done
 from digiprod_gen.backend.agent.models.api import CrawlingMBARequest
 from digiprod_gen.backend.api.common import CONFIG
 from digiprod_gen.frontend.backend_caller import BackendCaller
@@ -51,6 +51,7 @@ tools = [
     select_mba_listings,
     enrich_mba_products_with_image_caption,
     print_select_mba_products,
+    check_run_id_done,
     get_random_search_term,
     crawl_overview_mba,
     crawl_products_detail_mba,
@@ -83,8 +84,8 @@ if __name__ == "__main__":
     #     agent=AgentType.OPENAI_MULTI_FUNCTIONS,
     #     verbose=True
     # )
-    search_term = "Capybara"
-    search_term = "that you think is suitable for a print on demand niche"
+    search_term = "Karneval Kölle alaaf"
+    #search_term = "that you think is suitable for a print on demand niche"
     prompt = f"""
     Your final task is to create a new mba_product called product x.
     Create a mba request with search term '{search_term}' and crawl a list of mba_products.
@@ -100,7 +101,8 @@ if __name__ == "__main__":
     Choose the best title, brand and bullets from your received suggestions with the function selectMBAListingsTool.
     Export the final product x.
     """
-    prompt = "Create and export a new mba_product"
+    #     prompt = """Create and export a new mba_product.
+    # Check at the end if you are done with the Tool checkRunIsDone and if not, make sure to export the final product correctly."""
     #prompt="""Crawl and select 2 mba_products with the search_term 'Unicorn metal'. Generate a image with the prompt 'Unicorn metal black background' and export the final generated mba product"""
     #
     ts = time.time()
