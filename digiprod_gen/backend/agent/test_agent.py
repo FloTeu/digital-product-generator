@@ -2,6 +2,7 @@ import os
 import time
 import streamlit as st
 import logging
+import random
 from functools import partial
 from langchain.llms import OpenAI
 from langchain.agents import initialize_agent, AgentType
@@ -20,10 +21,10 @@ from digiprod_gen.backend.agent.tools.product import (
     generate_listing_suggestions,
     enrich_mba_products_with_image_caption)
 from digiprod_gen.backend.agent.tools.crawling import crawl_overview_mba, crawl_products_detail_mba, get_random_search_term
+from digiprod_gen.backend.agent.constants import NICHES
 from digiprod_gen.backend.agent.tools.upload import export_upload_data, check_run_id_done
-from digiprod_gen.backend.agent.models.api import CrawlingMBARequest
-from digiprod_gen.backend.api.common import CONFIG
-from digiprod_gen.frontend.backend_caller import BackendCaller
+from digiprod_gen.backend.agent.memory.container import global_memory_container
+
 
 logger = logging.getLogger('selenium.webdriver.remote.remote_connection')
 logger.setLevel(logging.WARNING)  # or any variant from ERROR, CRITICAL or NOTSET
@@ -84,33 +85,39 @@ if __name__ == "__main__":
     #     agent=AgentType.OPENAI_MULTI_FUNCTIONS,
     #     verbose=True
     # )
-    search_term = "Karneval Kölle alaaf"
-    #search_term = "that you think is suitable for a print on demand niche"
-    prompt = f"""
-    Your final task is to create a new mba_product called product x.
-    Create a mba request with search term '{search_term}' and crawl a list of mba_products.
-    Select a subsample of 2 products of the mba_products that you have received previously.
-    Crawl detail information of your subsample.
-    Extract keywords from the selected subsample.
-    Create listing suggestions for title, brand and bullets for product x.
-    Enrich the subsample with image captions.
-    Get some prompt suggestions and choose the one which you find most suitable to create an image which sells well as print on demand product.
-    Take your chosen prompt and create an image.
-    Assess whether the image is suitable for a print-on-demand design and, depending on the answer, recreate the image or consider a different prompt.
-    You can also slightly edit the prompt based on the feedback you got.
-    Choose the best title, brand and bullets from your received suggestions with the function selectMBAListingsTool.
-    Export the final product x.
-    """
-    #     prompt = """Create and export a new mba_product.
-    # Check at the end if you are done with the Tool checkRunIsDone and if not, make sure to export the final product correctly."""
-    #prompt="""Crawl and select 2 mba_products with the search_term 'Unicorn metal'. Generate a image with the prompt 'Unicorn metal black background' and export the final generated mba product"""
-    #
-    ts = time.time()
-    agent_executor.invoke({"input": prompt})
-    print("Time elapsed in seconds %.2f seconds" % (time.time() - ts))
+    from copy import deepcopy
+    search_terms = deepcopy(NICHES)
+    random.shuffle(search_terms)
+    #search_terms = ["Karneval"]
+    for search_term in search_terms:
+        global_memory_container.clear_memory()
+        #search_term = "that you think is suitable for a print on demand niche"
+        prompt = f"""
+        Your final task is to create a new mba_product called product x.
+        Create a mba request with search term '{search_term}' and crawl a list of mba_products.
+        Select a subsample of 2 products of the mba_products that you have received previously.
+        Crawl detail information of your subsample.
+        Extract keywords from the selected subsample.
+        Create listing suggestions for title, brand and bullets for product x.
+        Enrich the subsample with image captions.
+        Get some prompt suggestions and choose the one which you find most suitable to create an image which sells well as print on demand product.
+        Take your chosen prompt and create an image.
+        Assess whether the image is suitable for a print-on-demand design and, depending on the answer, recreate the image or consider a different prompt.
+        You can also slightly edit the prompt based on the feedback you got.
+        Choose the best title, brand and bullets from your received suggestions with the function selectMBAListingsTool.
+        Export the final product x.
+        Call checkRunIsDone at the end and check if your done. If the response is not successful, please fix what is missing.
+        """
+        #     prompt = """Create and export a new mba_product.
+        # Check at the end if you are done with the Tool checkRunIsDone and if not, make sure to export the final product correctly."""
+        #prompt="""Crawl and select 2 mba_products with the search_term 'Unicorn metal'. Generate a image with the prompt 'Unicorn metal black background' and export the final generated mba product"""
+        #
+        ts = time.time()
+        agent_executor.invoke({"input": prompt})
+        print("Time elapsed in seconds %.2f seconds" % (time.time() - ts))
 
-    #print(agent.agent.llm_chain.prompt.template)
-    #print(agent_executor.run("Crawl some mba products and select 4 which you find suitable."))
+        #print(agent.agent.llm_chain.prompt.template)
+        #print(agent_executor.run("Crawl some mba products and select 4 which you find suitable."))
 
 
 

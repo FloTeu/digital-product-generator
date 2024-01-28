@@ -33,7 +33,10 @@ async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> Li
     browser = get_cached_browser(session_id, request.proxy, allow_javascript=False, disable_images=True)
     browser.ensure_driver_is_alive()
     logger.info(f"Start search utils overview page. Is ready: {browser.is_ready}")
-    mba_crawling.change_privacy_settings(browser.driver, base_url=request.mba_overview_url.split("/s")[0], accept_cookies=True)
+    try:
+        mba_crawling.change_privacy_settings(browser.driver, base_url=request.mba_overview_url.split("/s")[0], accept_cookies=True)
+    except Exception as e:
+        logger.warning(f"Could not change privacy settings {e}")
     mba_crawling.search_overview_page(request, browser.driver)
     # If selenium is running with headless mode the first request sometimes fails
     first_mba_overview_interactions(browser, request, ignore_cookies=False)

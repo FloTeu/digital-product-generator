@@ -10,7 +10,6 @@ class MBAProductUrls(BaseModel):
     mba_product_urls: List[str]
 
 class MBAProductUploadExport(BaseModel):
-    search_term: str
     title: str
     brand: str
     bullets: List[str] = Field(description="Two bullets suitable for a good targeting")

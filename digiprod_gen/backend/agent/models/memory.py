@@ -16,6 +16,7 @@ class MemoryId(str, Enum):
     BRAND_SUGGESTIONS="brand_suggestions"
     BULLET_SUGGESTIONS="bullet_suggestions"
     LISTING_SELECTED="listing_selected"
+    EXPORT_DIR="export_dir"
 
 
 class MemoryAddResponse(BaseModel):

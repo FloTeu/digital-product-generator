@@ -18,6 +18,9 @@ class GlobalMemoryContainer:
         self.__setitem__(uuid, item)
         return uuid
 
+    def clear_memory(self):
+        self._memory = {}
+
     def __setitem__(self, key, item):
         if key in self._memory:
             logger.warning(f"'{key}' already exists in memory and will be overwritten")
