@@ -141,7 +141,7 @@ async def get_image_check(
     img_pil = await get_image(image_file)
     lvm_suggestion = ""
     if check_model == ImageCaptioningModel.GPT4:
-        pe_msg = PromptEngineeringMessages.from_json("templates/product_image_check.json")
+        pe_msg = PromptEngineeringMessages.from_yaml("templates/product_image_check.yaml")
         lvm_prompt = pe_msg.messages["instruction"].format(prompt=prompt).content
         lvm_suggestion = get_gpt4_vision_response(img_pil, lvm_prompt, temperature=0.0)
     else:
@@ -149,7 +149,7 @@ async def get_image_check(
 
 
     llm = ChatOpenAI(temperature=0.0)
-    pe_gen = ParsablePromptEngineeringGenerator.from_json("templates/product_image_check_postprocessing.json", llm=llm, pydantic_cls=ImageCheckResponse)
+    pe_gen = ParsablePromptEngineeringGenerator.from_yaml("templates/product_image_check_postprocessing.yaml", llm=llm, pydantic_cls=ImageCheckResponse)
     response: ImageCheckResponse = pe_gen.generate(ai_answer=lvm_suggestion)
     return response
 

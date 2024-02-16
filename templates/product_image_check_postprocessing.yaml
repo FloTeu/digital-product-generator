@@ -1,0 +1,4 @@
+role: "You are a text interpreter."
+instruction": "Decide whether the following text delimited by ''' 
+comes to the conclusion that the image is suitable to be sold as a POD product.\n 
+'''{ai_answer}'''"

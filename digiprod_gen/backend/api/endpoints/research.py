@@ -53,7 +53,7 @@ async def post_select_mba_products_by_image(request: SelectProductRequest) -> Li
     """
     # decode base64string
     img_pil = conversion.b64_str2pil(request.img_b64_str)
-    pe_msg = PromptEngineeringMessages.from_json("templates/research_product_selection.json")
+    pe_msg = PromptEngineeringMessages.from_yaml("templates/research_product_selection.yaml")
     prompt = pe_msg.messages["instruction"].format().content
     lvm_suggestion = get_gpt4_vision_response(img_pil, prompt, temperature=0.0)
 
@@ -74,7 +74,7 @@ async def post_select_listing_by_image(request: SelectListingsByImageRequest) ->
     """
     # decode base64string
     img_pil = conversion.b64_str2pil(request.img_b64_str)
-    pe_msg = PromptEngineeringMessages.from_json("templates/research_listing_selection.json")
+    pe_msg = PromptEngineeringMessages.from_yaml("templates/research_listing_selection.yaml")
     prompt = pe_msg.messages["instruction"].format(**request.model_dump()).content
     output_parser = PydanticOutputParser(pydantic_object=SelectListingsByImageResponse)
     format_instruction = output_parser.get_format_instructions()

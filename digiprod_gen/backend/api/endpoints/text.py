@@ -1,5 +1,6 @@
 from typing import List
 from fastapi import APIRouter, UploadFile, File
+from pydantic import BaseModel
 from langchain.chat_models import ChatOpenAI
 from llm_prompting_gen.generators import PromptEngineeringGenerator, ParsablePromptEngineeringGenerator
 
@@ -19,10 +20,17 @@ async def get_prompt_suggestions(mba_products: List[MBAProduct],
     As input a list of few shot examples is required.
     """
     llm = ChatOpenAI(temperature=temperature)
-    prompt_gen = PromptEngineeringGenerator.from_json("templates/stable_diffusion_prompt_gen.json", llm)
+    prompt_gen = PromptEngineeringGenerator.from_yaml("templates/stable_diffusion_prompt_gen.yaml", llm)
     llm_prompt_gen_input = mba_products2llm_prompt_gen_input(mba_products)
     llm_output = prompt_gen.generate(text=llm_prompt_gen_input)
-    return extract_list_from_output(llm_output)
+
+    # Postprocessing of prompts
+    class PromptOutput(BaseModel):
+        prompts: list[str]
+
+    prompt_postprocess_gen = ParsablePromptEngineeringGenerator.from_yaml("templates/prompt_gen_postprocessing.yaml", llm, pydantic_cls=PromptOutput)
+    prompt_output = prompt_postprocess_gen.generate(llm_output)
+    return prompt_output.prompts
 
 
 @router.post("/extract/keywords")

@@ -1,0 +1,14 @@
+instruction: "Decide whether the following image is suitable for a print on demand design (e.g. for a t-shirt). \n
+Consider the following evaluation criteria:\n
+* Orthography\n
+* No misspelling\n
+* People would buy it\n* 
+Main motif should be in the center of the image\n
+* The background (especially the outer pixels) should be suitable for transforming it transparently\n
+* The image should only show the design and no mockup t-shirt or pleat patterns\n
+The image was created with the prompt: '''{prompt}'''\n
+At the end append your final suggestion with a clear statement whether the image is suitable or not. 
+If one of the criteria is not matched, consider the image as not suitable. 
+All parts of the image have to match the criteria. 
+Make your final decision clear. 
+Let's think step by step."

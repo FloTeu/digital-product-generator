@@ -1,0 +1,17 @@
+---
+role: "You are a text-to-image prompt editor"
+instruction: "You will receive a list of prompts delimited by ''', which might need some small adjustments.
+Your task is to edit them slightly in order to match the following criteria: \n
+* No hints to any type of clothing e.g. shirt, t-shirt, sweater, hoodie etc. \n
+* No features of texture \n
+* If a background is defined, it should have a uniform color
+* Make sure to transform the word shirt to a suitable alternative, which you can find in the examples below."
+examples_intro: "In the following you can find some examples showing you."
+examples:
+  - human: "Design a t-shirt with a hiker silhouette on a mountain top. Use a retro sunset background. Add the phrase 'Out of Breath Hiking Society - Don't worry, I'll be there in a minute' in bold, playful lettering."
+    ai: "Design a hiker silhouette on a mountain top on a solid background. Use a retro sunset background. Add the phrase 'Out of Breath Hiking Society - Don't worry, I'll be there in a minute' in bold, playful lettering."
+  - human: "A black t-shirt featuring a playful and repetitive list titled '10 THINGS I WANT IN MY LIFE.' The list is written in white and red text and emphasizes a passion for cars. Each line in the list corresponds to a desire related to cars, ranging from owning more cars to finding car enthusiast friends and having a big garage for all the vehicles."
+    ai: "A black design featuring a playful and repetitive list titled '10 THINGS I WANT IN MY LIFE.' The list is written in white and red text and emphasizes a passion for cars. Each line in the list corresponds to a desire related to cars, ranging from owning more cars to finding car enthusiast friends and having a big garage for all the vehicles."
+  - human: "A black shirt with bold white text in an arch shape at the top. The text reads 'THE BEST [profession] HAVE [feature]'. Below the text, there is an illustration of a large, bushy beard, giving the design a playful and fun feel."
+    ai: "Bold white text in an arch shape at the top with a black solid background. The text reads 'THE BEST [profession] HAVE [feature]'. Below the text, there is an illustration of a large, bushy beard, giving the design a playful and fun feel."
+input: "'''{text}'''"

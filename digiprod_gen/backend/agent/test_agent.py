@@ -88,7 +88,7 @@ if __name__ == "__main__":
     from copy import deepcopy
     search_terms = deepcopy(NICHES)
     random.shuffle(search_terms)
-    #search_terms = ["Karneval"]
+    #search_terms = ["Unicorn Metal"]
     for search_term in search_terms:
         global_memory_container.clear_memory()
         #search_term = "that you think is suitable for a print on demand niche"

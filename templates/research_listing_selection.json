@@ -1,3 +1,0 @@
-{
-  "instruction": "You will receive an ai generated print on demand design and listing suggestions. You can find the title suggestions delimited by ''', the brand suggestions delimited by *** and the bullet suggestions delimited by ###. Your task is to analyze the provided image and choose the best suitable listing. People who read your chosen listing should not be confused, when they see the image design.\n'''{title_suggestions}'''\n***{brand_suggestions}***\n###{bullet_suggestions}###"
-}
