@@ -8,15 +8,16 @@ from digiprod_gen.backend.models.export import MBAExportUploadData, MBAExportUpl
 from digiprod_gen.backend.models.mba import MBAUploadSettings, MBAProductCategory, MBAProductFitType, MBAProductColor, MBAMarketplaceDomain
 from digiprod_gen.backend.models.session import ProcessingData
 from digiprod_gen.backend.agent.tools.common import tool
+from digiprod_gen.backend.models.response import SelectListingsByImageResponse
 
 
-@tool("exportUploadMbaProduct", args_schema=MBAProductUploadExport, required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.SEARCH_TERM, MemoryId.MBA_PRODUCTS_SELECTED, MemoryId.MBA_PRODUCTS_DETAIL, MemoryId.KEYWORDS, MemoryId.TITLE_SUGGESTIONS, MemoryId.BRAND_SUGGESTIONS, MemoryId.BULLET_SUGGESTIONS, MemoryId.IMAGE_RAW, MemoryId.IMAGE_PROMPT, MemoryId.PROMPT_SUGGESTIONS, MemoryId.LISTING_SELECTED], adds_memory_ids=[MemoryId.EXPORT_DIR])
-def export_upload_data(
-        title: str,
-        brand: str,
-        bullets: List[str],
-    ):
+@tool("exportUploadMbaProduct", required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.SEARCH_TERM, MemoryId.MBA_PRODUCTS_SELECTED, MemoryId.MBA_PRODUCTS_DETAIL, MemoryId.KEYWORDS, MemoryId.TITLE_SUGGESTIONS, MemoryId.BRAND_SUGGESTIONS, MemoryId.BULLET_SUGGESTIONS, MemoryId.IMAGE_RAW, MemoryId.IMAGE_PROMPT, MemoryId.PROMPT_SUGGESTIONS, MemoryId.LISTING_SELECTED], adds_memory_ids=[MemoryId.EXPORT_DIR])
+def export_upload_data():
     """use to export the final generated mba product"""
+    listing_selected: SelectListingsByImageResponse = global_memory_container[MemoryId.LISTING_SELECTED]
+    title = listing_selected.title
+    brand = listing_selected.brand
+    bullets = listing_selected.bullets
 
     selected_mba_products = global_memory_container[MemoryId.MBA_PRODUCTS_DETAIL]
     selected_asins = [prod.asin for prod in selected_mba_products]

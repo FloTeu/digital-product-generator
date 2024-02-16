@@ -4,7 +4,7 @@ from typing import List
 
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
-from langchain.output_parsers import PydanticOutputParser
+from llm_prompting_gen.output_parser.pydantic_parser import PydanticOutputParser
 from digiprod_gen.backend.image.lvm_fns import get_gpt4_vision_response
 from llm_prompting_gen.models.prompt_engineering import PromptEngineeringMessages
 from llm_prompting_gen.generators import PromptEngineeringGenerator, ParsablePromptEngineeringGenerator

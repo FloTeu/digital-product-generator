@@ -123,7 +123,8 @@ def generate_image(
     response = backend_caller.get(f"/image/generation?prompt={prompt}&image_gen_model={image_gen_model}")
     response.raise_for_status()
     image_pil_generated = conversion.bytes2pil(response.content)
-    image_pil_generated.save(f"export/{search_term}_{str(datetime.now())}.png")
+    file_name = search_term.replace('/','_').replace('.','_').replace(',','_')
+    image_pil_generated.save(f"export/{str(datetime.now())}_{file_name}.png")
     global_memory_container[MemoryId.IMAGE_RAW] = image_pil_generated
     global_memory_container[MemoryId.IMAGE_PROMPT] = prompt
 
@@ -196,7 +197,7 @@ def generate_listing_suggestions(
     return {"response": MemoryAddResponse(uuid=memory_id, success=True, data=None)}
 
 
-@tool("selectMBAListingsTool", required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.MBA_PRODUCTS_DETAIL, MemoryId.KEYWORDS, MemoryId.TITLE_SUGGESTIONS, MemoryId.BRAND_SUGGESTIONS, MemoryId.BULLET_SUGGESTIONS], adds_memory_ids=[MemoryId.LISTING_SELECTED])
+@tool("selectMBAListingsTool", required_memory_ids=[MemoryId.MBA_PRODUCTS, MemoryId.MBA_PRODUCTS_DETAIL, MemoryId.KEYWORDS, MemoryId.TITLE_SUGGESTIONS, MemoryId.BRAND_SUGGESTIONS, MemoryId.BULLET_SUGGESTIONS, MemoryId.IMAGE_RAW], adds_memory_ids=[MemoryId.LISTING_SELECTED])
 def select_mba_listings() -> SelectListingsByImageResponse:
     """
     Takes ai generated mba product image and listing suggestions and decides which
