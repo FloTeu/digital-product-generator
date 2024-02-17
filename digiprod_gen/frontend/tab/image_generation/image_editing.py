@@ -81,7 +81,7 @@ def display_image_editor(session_image_gen_data: ImageGenData, session_br_config
 def display_image_editor_upscaling(col1, col2, image_element, session_image_gen_data: ImageGenData, backend_caller: BackendCaller, compress_quality: int=100):
     upscaler_method = col1.selectbox(
         'Up Scaling Method',
-        (UpscalerModel.PIL.value, UpscalerModel.GFPGAN.value, UpscalerModel.SOME_UPSCALER.value, UpscalerModel.HIGH_RESOLUTION_CONTROLNET.value))
+        (UpscalerModel.PIL.value, UpscalerModel.GFPGAN.value, UpscalerModel.SOME_UPSCALER.value, UpscalerModel.ULTIMATE_SD_UPSCALER.value, UpscalerModel.HIGH_RESOLUTION_CONTROLNET.value))
     if col1.button("Upscale", key="upscaling_button",
                    use_container_width=True) and session_image_gen_data.image_pil_generated and not session_image_gen_data.image_pil_upscaled:
         with image_element, st.spinner("Upscaling..."):

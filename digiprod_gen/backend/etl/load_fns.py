@@ -16,7 +16,7 @@ def export_upload_mba_product(
         output_dir: Path | None = None,
         ) -> Path:
     if output_dir is None:
-        output_dir = get_export_dir(export_data.processing_data.search_term)
+        output_dir = get_export_dir(export_data.processing_data.search_term.replace("/", "_").replace(" ", "").replace(".", "_"))
     # make dir if not exists
     output_dir.mkdir(parents=True, exist_ok=True)
 

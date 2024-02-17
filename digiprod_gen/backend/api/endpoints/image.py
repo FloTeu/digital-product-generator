@@ -5,7 +5,7 @@ from langchain.chat_models import ChatOpenAI
 from digiprod_gen.backend.api.common import get_image
 from digiprod_gen.backend.image.caption import image2visual_caption, image2prompt_gpt4, image2prompt, image2text_caption
 from digiprod_gen.backend.models.common import ImageCaptioningModel, ImageGenerationModel, UpscalerModel, BackgroundRemovalModel
-from digiprod_gen.backend.image.upscale import pil_upscale, some_upscalers_upscale, gfpgan_upscale, high_resolution_controlnet_upscale
+from digiprod_gen.backend.image.upscale import pil_upscale, some_upscalers_upscale, gfpgan_upscale, high_resolution_controlnet_upscale, ultimate_sd_upscale
 from digiprod_gen.backend.image.background_removal import simple_remove_background, rembg, easy_rem_bg
 from digiprod_gen.backend.image import generation, conversion
 from digiprod_gen.backend.models.response import ImageCheckResponse
@@ -87,6 +87,8 @@ async def get_image_upscaled(upscaler: UpscalerModel, prompt: str="", image_file
         image_pil_upscaled = gfpgan_upscale(img_pil, scale=int((4096 / img_pil.size[0]) * 2))
     elif upscaler == UpscalerModel.HIGH_RESOLUTION_CONTROLNET:
         image_pil_upscaled = high_resolution_controlnet_upscale(img_pil, prompt=prompt)
+    elif upscaler == UpscalerModel.ULTIMATE_SD_UPSCALER:
+        image_pil_upscaled = ultimate_sd_upscale(img_pil, prompt=prompt)
     elif upscaler == UpscalerModel.SOME_UPSCALER:
         # Convert 4 channels to 3 channels
         image_pil_upscaled = some_upscalers_upscale(img_pil)

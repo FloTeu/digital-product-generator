@@ -25,6 +25,33 @@ def high_resolution_controlnet_upscale(img_pil: Image, prompt: str) -> Image:
     model = "batouresearch/high-resolution-controlnet-tile:f878e9d044980c8eddb3e449f685945910d86bb55135e45fa065a00a8a519f09"
     return replicate_generate(model, {"image": pil2bytes_io(img_pil), "prompt": prompt, "resolution": 4096, "negative_prompt": "Longbody, lowres, extra digit, fewer digits, cropped, worst quality, low quality, mutant"}, output_format=OutputFormat.GENERATOR)
 
+def ultimate_sd_upscale(img_pil: Image, prompt: str) -> Image:
+    model = "fewjative/ultimate-sd-upscale:5daf1012d946160622cd1bd45ed8f12d9675d24659276ccfe24804035f3b3ad7"
+    input_params = {"cfg": 8,
+        "steps": 20,
+        "denoise": 0.2,
+        "upscaler": "4x-UltraSharp",
+        "mask_blur": 8,
+        "mode_type": "Linear",
+        "scheduler": "normal",
+        "tile_width": 512,
+        "upscale_by": 4,
+        "tile_height": 512,
+        "sampler_name": "euler",
+        "tile_padding": 32,
+        "seam_fix_mode": "None",
+        "seam_fix_width": 64,
+        "negative_prompt": "Longbody, lowres, extra digit, fewer digits, cropped, worst quality, low quality, mutant",
+        "positive_prompt": prompt,
+        "seam_fix_denoise": 1,
+        "seam_fix_padding": 16,
+        "seam_fix_mask_blur": 8,
+        "controlnet_strength": 1,
+        "force_uniform_tiles": True,
+        "use_controlnet_tile": True
+    }
+    return replicate_generate(model, {"image": pil2bytes_io(img_pil), **input_params}, output_format=OutputFormat.STRING)
+
 def stability_ai_upscale(img_pil: Image, prompt=None, width=None, client=None) -> Image:
     client = client or get_upscaling_client("stable-diffusion-x4-latent-upscaler")
     answers = client.upscale(
