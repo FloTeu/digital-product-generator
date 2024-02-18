@@ -18,8 +18,8 @@ def some_upscalers_upscale(img_pil: Image) -> Image:
     return replicate_generate(model, {"image": pil2bytes_io(img_pil)})
 
 def gfpgan_upscale(img_pil: Image, scale=16) -> Image:
-    model = "alexgenovese/upscaler:ba0132791dea9f3a80b18a9c04e96bdddbc6265e55cb79c61857365f9d172fd8"
-    return replicate_generate(model, {"image_url": f"data:image/jpeg;base64,{pil2b64_str(img_pil)}", "scale": scale})
+    model = "alexgenovese/upscaler:4f7eb3da655b5182e559d50a0437440f242992d47e5e20bd82829a79dee61ff3"
+    return replicate_generate(model, {"image": pil2bytes_io(img_pil), "scale": scale, "face_enhance": False})
 
 def high_resolution_controlnet_upscale(img_pil: Image, prompt: str) -> Image:
     model = "batouresearch/high-resolution-controlnet-tile:f878e9d044980c8eddb3e449f685945910d86bb55135e45fa065a00a8a519f09"

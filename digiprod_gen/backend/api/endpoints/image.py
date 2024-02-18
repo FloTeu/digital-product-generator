@@ -84,7 +84,7 @@ async def get_image_upscaled(upscaler: UpscalerModel, prompt: str="", image_file
         # increase resolution after simple upscale
         # image_pil_upscaled = real_esrgan_resolution(image_pil_upscaled)
     elif upscaler == UpscalerModel.GFPGAN:
-        image_pil_upscaled = gfpgan_upscale(img_pil, scale=int((4096 / img_pil.size[0]) * 2))
+        image_pil_upscaled = gfpgan_upscale(img_pil, scale=int(4096 / img_pil.size[0]))
     elif upscaler == UpscalerModel.HIGH_RESOLUTION_CONTROLNET:
         image_pil_upscaled = high_resolution_controlnet_upscale(img_pil, prompt=prompt)
     elif upscaler == UpscalerModel.ULTIMATE_SD_UPSCALER:

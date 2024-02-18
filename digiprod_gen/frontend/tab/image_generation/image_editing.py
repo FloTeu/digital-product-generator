@@ -46,7 +46,7 @@ def display_image_editor(session_image_gen_data: ImageGenData, session_br_config
     print("is_download_visible", is_download_visible)
     if is_download_visible:
         with st.spinner("Load Download Button"):
-            format = display_image_pil.format or "PNG"
+            format = "PNG" # display_image_pil.format or
             col1.download_button("Download Image", data=pil2bytes_io(display_image_pil), file_name=f"export.{format}", mime=f'image/{format}', use_container_width=True)
 
     return image_pil_br or image_upscaled
