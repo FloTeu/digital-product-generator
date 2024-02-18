@@ -194,6 +194,19 @@ def display_tab_import_views(session_state: SessionState):
     else:
         errors = []
         compress_quality = 80
+
+        upscaler = st.selectbox(
+            'Up Scaling Method',
+            (UpscalerModel.GFPGAN.value, UpscalerModel.SOME_UPSCALER.value, UpscalerModel.PIL.value,
+             UpscalerModel.ULTIMATE_SD_UPSCALER.value, UpscalerModel.HIGH_RESOLUTION_CONTROLNET.value),
+            key="upscaler_selectbox_import_view")
+
+        br_method = st.selectbox(
+            'Background Removal Method',
+            (BackgroundRemovalModel.OPEN_CV.value, BackgroundRemovalModel.REM_BG.value,
+             BackgroundRemovalModel.EASY_REM_BG.value),
+            key="br_selectbox_import_view")
+
         if st.button("Upload Product", key="upload_from_import_button"):
             # import
             progress_bar = st.progress(0, text="Import product...")
@@ -201,7 +214,6 @@ def display_tab_import_views(session_state: SessionState):
 
             # upscale
             progress_bar.progress(10, text="Upscale product...")
-            upscaler = UpscalerModel.GFPGAN
             response = session_state.backend_caller.post(
                 f"/image/upscaling?upscaler={upscaler}&prompt={session_state.image_gen_data.image_gen_prompt_selected}",
                 img_pil=img_pil)
@@ -212,7 +224,6 @@ def display_tab_import_views(session_state: SessionState):
 
             # remove background
             progress_bar.progress(50, text="Remove background...")
-            br_method = BackgroundRemovalModel.OPEN_CV
             response = session_state.backend_caller.post(
                 f"/image/background_removal?br_method={br_method}&outer_pixel_range={session_state.config.image_gen.background_removal.outer_pixel_range}&tolerance={session_state.config.image_gen.background_removal.tolerance}",
                 img_pil=image_upscaled)
@@ -224,7 +235,7 @@ def display_tab_import_views(session_state: SessionState):
                 conversion.pil2pil_png(image_pil_br))
 
             # upload_data
-            progress_bar.progress(60, text="Upload image...")
+            progress_bar.progress(60, text="Upload product...")
             errors = upload_product(session_state)
             progress_bar.progress(100, text="Upload succeeded" if len(errors) == 0 else "Upload failed")
 
