@@ -8,6 +8,9 @@ from langchain.llms import OpenAI
 from langchain.agents import initialize_agent, AgentType
 from langchain.tools.render import format_tool_to_openai_function
 from langchain.tools import StructuredTool
+from langchain_openai import ChatOpenAI
+
+
 
 from digiprod_gen.backend.agent.tools.product import (
     select_random_mba_products,
@@ -70,7 +73,7 @@ if __name__ == "__main__":
 
     from langchain import hub
     from langchain.agents import AgentExecutor, create_openai_tools_agent, create_openai_functions_agent
-    from langchain_community.chat_models import ChatOpenAI
+    #from langchain_community.chat_models import ChatOpenAI
     # Get the prompt to use - you can modify this!
     prompt: object = hub.pull("hwchase17/openai-tools-agent")
     llm = ChatOpenAI(model="gpt-3.5-turbo-1106", temperature=0.3)

@@ -45,7 +45,6 @@ def display_products(selected_date_str, session_state: SessionState) -> Tuple[Im
             for product_i, product_dir in enumerate(product_dirs):
                 try:
                     upload_data, img_pils = read_exported_data(Path(product_dir))
-                    print(img_pils, upload_data)
                     for img_pil in img_pils:
                         images.append(f"data:image/jpeg;base64,{pil2b64_str(img_pil)}")
                         mba_upload_data[category_name].append((img_pil, upload_data))
