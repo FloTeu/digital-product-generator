@@ -1,8 +1,5 @@
 import logging
-import uuid
-
 import streamlit as st
-from os import listdir, getcwd
 from typing import Tuple
 from pathlib import Path
 from glob import glob
@@ -47,16 +44,13 @@ def display_products(selected_date_str, session_state: SessionState) -> Tuple[Im
         with category_tab:
             for product_i, product_dir in enumerate(product_dirs):
                 try:
-                    img_pil, upload_data = read_exported_data(Path(product_dir))
-                    images.append(f"data:image/jpeg;base64,{pil2b64_str(img_pil)}")
-                    mba_upload_data[category_name].append((img_pil, upload_data))
+                    upload_data, img_pils = read_exported_data(Path(product_dir))
+                    print(img_pils, upload_data)
+                    for img_pil in img_pils:
+                        images.append(f"data:image/jpeg;base64,{pil2b64_str(img_pil)}")
+                        mba_upload_data[category_name].append((img_pil, upload_data))
                 except Exception as e:
                     logging.warning(f"Could not read data from path {product_dir}. {e}")
-                # product_col = product_cols[product_i % 3]
-                # with product_col:
-                #     st.image(img_pil)
-                #     st.write(upload_data.product_data.title)
-                    #images.append(f"data:image/jpeg;base64,{pil2b64_str(img_pil)}")
             clicked = clickable_images(
                 images,
                 titles=[f"Image #{str(i)}" for i in range(1)],

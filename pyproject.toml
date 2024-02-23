@@ -36,9 +36,15 @@ pillow = "^10.2.0"
 pydantic = "^2.5.3"
 langchainhub = "^0.1.14"
 st-clickable-images = "^0.0.3"
+langsmith = "^0.1.5"
 
 [tool.poetry.group.debug.dependencies]
 tiktoken = "^0.5.1"
+
+
+[tool.poetry.group.bugreport.dependencies]
+google-search-results = "^2.4.2"
+numexpr = "^2.9.0"
 
 [build-system]
 requires = ["poetry-core"]

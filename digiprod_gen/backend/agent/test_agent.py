@@ -34,6 +34,10 @@ logger.setLevel(logging.ERROR)  # Run selenium wire at ERROR level
 def init_environment():
     os.environ["OPENAI_API_KEY"] = st.secrets["api_token"]["open_ai"]
     os.environ["REPLICATE_API_TOKEN"] = st.secrets["api_token"]["replicate"]
+    os.environ["LANGCHAIN_TRACING_V2"] = "true"
+    os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
+    os.environ["LANGCHAIN_PROJECT"] = "MBA_Agent"
+    assert os.environ.get("LANGCHAIN_API_KEY", None), "'LANGCHAIN_API_KEY' does not exist in environment"
 
 
 #backend_caller = BackendCaller(CONFIG.backend)
