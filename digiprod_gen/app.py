@@ -207,6 +207,13 @@ def display_tab_import_views(session_state: SessionState):
              BackgroundRemovalModel.EASY_REM_BG.value),
             key="br_selectbox_import_view")
 
+
+        br_tolerance = session_state.config.image_gen.background_removal.tolerance
+        if br_method == BackgroundRemovalModel.OPEN_CV.value:
+            br_tolerance_selected = st.slider('Background Removal Pixel Tolerance', 0, 200, value=br_tolerance, step=1)
+            if br_tolerance_selected != 0:
+                br_tolerance = br_tolerance_selected
+
         if st.button("Upload Product", key="upload_from_import_button"):
             # import
             progress_bar = st.progress(0, text="Import product...")
@@ -225,7 +232,7 @@ def display_tab_import_views(session_state: SessionState):
             # remove background
             progress_bar.progress(50, text="Remove background...")
             response = session_state.backend_caller.post(
-                f"/image/background_removal?br_method={br_method}&outer_pixel_range={session_state.config.image_gen.background_removal.outer_pixel_range}&tolerance={session_state.config.image_gen.background_removal.tolerance}",
+                f"/image/background_removal?br_method={br_method}&outer_pixel_range={session_state.config.image_gen.background_removal.outer_pixel_range}&tolerance={br_tolerance}",
                 img_pil=image_upscaled)
             image_pil_br = conversion.bytes2pil(response.content)
             session_state.image_gen_data.image_pil_background_removed = image_pil_br

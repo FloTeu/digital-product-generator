@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 import streamlit as st
 from os import listdir, getcwd
@@ -61,7 +62,7 @@ def display_products(selected_date_str, session_state: SessionState) -> Tuple[Im
                 titles=[f"Image #{str(i)}" for i in range(1)],
                 div_style={"display": "flex", "justify-content": "center", "flex-wrap": "wrap"},
                 img_style={"margin": "5px", "height": "200px"},
-
+                key=f"clickable_image_{category_name}_{Path(product_dir).name}"
             )
             clicked_indexes[category_name] = clicked
 
