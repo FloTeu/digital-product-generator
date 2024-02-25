@@ -116,7 +116,7 @@ def display_data_for_upload(image_pil: Image,
            st.session_state["final_bullet2"] = final_bullet2
         mba_upload_data.bullet_2 = final_bullet2
 
-    # Update descrption with latest changes
+    # Update description with latest changes
     try:
         mba_upload_data.description = f'{mba_upload_data.title} by "{mba_upload_data.brand}". {mba_upload_data.bullet_1} {mba_upload_data.bullet_2}'
     except Exception as e:

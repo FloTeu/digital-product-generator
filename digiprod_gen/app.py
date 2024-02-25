@@ -217,6 +217,7 @@ def display_tab_import_views(session_state: SessionState):
         if st.button("Upload Product", key="upload_from_import_button"):
             # import
             progress_bar = st.progress(0, text="Import product...")
+            upload_data.product_data.description = session_state.upload_data.description
             import_selected_product(img_pil, upload_data, session_state)
 
             # upscale
