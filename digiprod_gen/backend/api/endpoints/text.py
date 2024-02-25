@@ -1,12 +1,13 @@
 from typing import List
 from fastapi import APIRouter, UploadFile, File
+from pydantic import BaseModel
 from langchain.chat_models import ChatOpenAI
 from llm_prompting_gen.generators import PromptEngineeringGenerator, ParsablePromptEngineeringGenerator
 
 from digiprod_gen.backend.prompt_engineering.utils import extract_list_from_output
 from digiprod_gen.backend.models.mba import MBAProduct, MBAProductTextType
 from digiprod_gen.backend.models.request import KeywordExtractionRequest, ListingGenRequest
-from digiprod_gen.backend.text.text_gen_fns import mba_products2llm_prompt_gen_input, remove_banned_words_from_list
+from digiprod_gen.backend.text.text_gen_fns import mba_products2llm_prompt_gen_input, remove_banned_words_from_list, remove_banned_words
 from digiprod_gen.backend.text.mba_banned_word import MBA_BANNED_WORDS
 
 router = APIRouter()
@@ -19,10 +20,17 @@ async def get_prompt_suggestions(mba_products: List[MBAProduct],
     As input a list of few shot examples is required.
     """
     llm = ChatOpenAI(temperature=temperature)
-    prompt_gen = PromptEngineeringGenerator.from_json("templates/stable_diffusion_prompt_gen.json", llm)
+    prompt_gen = PromptEngineeringGenerator.from_yaml("templates/stable_diffusion_prompt_gen.yaml", llm)
     llm_prompt_gen_input = mba_products2llm_prompt_gen_input(mba_products)
     llm_output = prompt_gen.generate(text=llm_prompt_gen_input)
-    return extract_list_from_output(llm_output)
+
+    # Postprocessing of prompts
+    class PromptOutput(BaseModel):
+        prompts: list[str]
+
+    prompt_postprocess_gen = ParsablePromptEngineeringGenerator.from_yaml("templates/prompt_gen_postprocessing.yaml", llm, pydantic_cls=PromptOutput)
+    prompt_output = prompt_postprocess_gen.generate(llm_output)
+    return prompt_output.prompts
 
 
 @router.post("/extract/keywords")
@@ -48,9 +56,13 @@ async def gen_listings(lg_request: ListingGenRequest,
     As input a text a list of mba_products is required.
     """
     llm = ChatOpenAI(temperature=temperature)
+
+    if lg_request.remove_banned_words:
+        lg_request.examples = [remove_banned_words(example) for example in lg_request.examples]
+
     if lg_request.type == MBAProductTextType.BULLET:
         product_listing_gen = PromptEngineeringGenerator.from_json("templates/product_text_bullet_gen.json", llm=llm)
-        product_listing_gen.prompt_elements.examples = lg_request.examples
+        product_listing_gen.prompt_elements.examples = lg_request.examples if len(lg_request.examples) > 0 else None
     elif lg_request.type == MBAProductTextType.BRAND:
         product_listing_gen = PromptEngineeringGenerator.from_json("templates/product_text_brand_gen.json", llm=llm)
         product_listing_gen.prompt_elements.examples = lg_request.examples

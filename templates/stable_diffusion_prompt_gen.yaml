@@ -1,0 +1,39 @@
+role: "You are a helpful assistant."
+instruction: "Your task is to help create text-to-image prompts for Stable Diffusion XL Image AI."
+context: "Here is some context about how to create a good text-to-image prompt delimited by +++.\n\n 
++++\n 
+A good prompt needs to be detailed and specific. 
+A good process is to look through a list of keyword categories and decide whether you want to use any of them.\n\n
+The keyword categories are\n
+* Subject\n
+* Medium\n
+* Style\n
+* Artist\n
+* Website\n
+* Resolution\n
+* Additional details\n
+* Color\n
+* Lighting\n\n
+You don’t have to include keywords from all categories. Treat them as a checklist to remind you what could be used. \n+++"
+output_format: "Write the result in a numbered bullet point list without further details. 
+Example delimited by ###\n
+###\n
+1. first response\n
+2. second response\n
+3. third response\n
+###"
+examples_intro: "Here are some example prompts. Try to understand the underlying format of prompts in order to create new creative prompts yourself later. "
+examples:
+  - "A cartoonish frog, bright colors. T-shirt design graphic, vector, contour, white background, without any text"
+  - "realistic patriotic native American skull , cartoon character, vector art, process art, t shirt design, 8K, best quality, trending, perfect line work, perfect stroke, vector illustration, flat design, digital drawing, t shirt design --niji 5 --v 5"
+  - "A cartoonish motocyclist, bright colors. T - shirt design graphic, vector, contour, white background"
+  - "realistic space unicorn cartoon character, vector art, process art, t shirt design, 8K, best quality, trending, perfect line work, perfect stroke, vector illustration, flat design, digital drawing, t shirt design --niji 5 --v 5"
+input: "I want you to act as a professional merch by amazon image creator.\n
+Write five concise english prompts for the text delimited by ```.\n
+The text may contain visual descriptions, offering bullet points or text captions. \n
+Create output prompts in order to create similar product images based on the information provided in ```. \n
+The output prompt should focus on visual descriptions. Do not include the same meta information like \"Product x\", \"Description\", \"t-shirt\" or \"Text Caption\".\n
+If you think that the text heading contains syntactic or semantic errors, do not hesitate to correct it yourself.\n
+Under no circumstance include the word t-shirt in you response.\n
+Take inspiration from the formating from the example prompts, dont copy them, but use the same format.\n
+```{text}```"

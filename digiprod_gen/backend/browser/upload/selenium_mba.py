@@ -13,7 +13,7 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException,
 from digiprod_gen.backend.browser.selenium_fns import hover_over_element, wait_until_element_exists, SeleniumBrowser
 from digiprod_gen.backend.browser import selenium_fns
 from digiprod_gen.backend.models.mba import MBAMarketplaceDomain, MBAProductFitType, MBAProductCategory, MBAProductColor
-from digiprod_gen.backend.transform.transform_fns import mba_product_category2html_row_name
+from digiprod_gen.backend.etl.transform_fns import mba_product_category2html_row_name
 from PIL import Image
 from typing import List
 

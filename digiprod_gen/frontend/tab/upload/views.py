@@ -53,25 +53,28 @@ def display_data_for_upload(image_pil: Image,
                             title: str | None,
                             brand: str | None,
                             bullet_1: str | None,
-                            bullet_2: str | None
+                            bullet_2: str | None,
+                            disable_all: bool = False,
+                            key_suffix="",
+                            change_session=True
                             ) -> Image:
     st.subheader("Upload Overview")
     col1, col2 = st.columns(2)
     col2_1, col2_2 = col2.columns(2)
 
     with Timer("display_upload_ready_image"), col1:
-        color_hex = st.color_picker('Pick a background color', '#000000')
+        color_hex = st.color_picker('Pick a background color', '#000000', key=f"cp{key_suffix}")
         rgba_tuple = hex_to_rgba(color_hex)
 
         # max_pixels: Defines the maximum number of pixel width for resize feature
         max_pixels = 6000
         value = float("%.2f" % (image_pil.size[0] / max_pixels))
-        slider_value = st.slider("Scale image", min_value=0.0, max_value=1.0, value=value, step=0.01)
+        slider_value = st.slider("Scale image", min_value=0.0, max_value=1.0, value=value, step=0.01, key=f"s{key_suffix}")
         image_pil = resize_image_keep_aspect_ratio(image_pil, int(slider_value * max_pixels))
         try:
             display_upload_ready_image(image_pil, rgba_tuple)
-        except:
-            st.warning("Could not display image")
+        except Exception as e:
+            st.warning(f"Could not display image {e}")
     session_state: SessionState = st.session_state["session_state"]
     mba_upload_data: MBAUploadData = session_state.upload_data
 
@@ -82,34 +85,38 @@ def display_data_for_upload(image_pil: Image,
 
     # Column 1
     if title:
-        final_title = col2_1.text_area("**Title**", value=title, on_change=update_session_upload_listing, key="mba_upload_listing_title")
+        final_title = col2_1.text_area("**Title**", value=title, on_change=update_session_upload_listing, disabled=disable_all, key=f"mba_upload_listing_title{key_suffix}")
         display_char_max_notice(len(final_title), 60, col2_1)
-        st.session_state["final_title"] = final_title
+        if change_session:
+            st.session_state["final_title"] = final_title
         mba_upload_data.title = final_title
     if bullet_1:
-        final_bullet1 = col2_1.text_area("**Bullet 1**", value=bullet_1, on_change=update_session_upload_listing, key="mba_upload_listing_bullet_1")
+        final_bullet1 = col2_1.text_area("**Bullet 1**", value=bullet_1, on_change=update_session_upload_listing, disabled=disable_all, key=f"mba_upload_listing_bullet_1{key_suffix}")
         display_char_max_notice(len(final_bullet1), 256, col2_1)
-        st.session_state["final_bullet1"] = final_bullet1
+        if change_session:
+           st.session_state["final_bullet1"] = final_bullet1
         mba_upload_data.bullet_1 = final_bullet1
     if title and brand:
         # Note: Description is automatically updated within update_session_upload_listing
-        col2_1.text_area("**Description**", value=description, on_change=update_session_upload_listing, disabled=True, key="mba_upload_listing_description")
+        col2_1.text_area("**Description**", value=description, on_change=update_session_upload_listing, disabled=True, key=f"mba_upload_listing_description{key_suffix}")
 
 
 
     # Column 2
     if brand:
-        final_brand = col2_2.text_area("**Brand**", value=brand, on_change=update_session_upload_listing, key="mba_upload_listing_brand")
+        final_brand = col2_2.text_area("**Brand**", value=brand, on_change=update_session_upload_listing, disabled=disable_all, key=f"mba_upload_listing_brand{key_suffix}")
         display_char_max_notice(len(final_brand), 50, col2_2)
-        st.session_state["final_brand"] = final_brand
+        if change_session:
+           st.session_state["final_brand"] = final_brand
         mba_upload_data.brand = final_brand
     if bullet_2:
-        final_bullet2 = col2_2.text_area("**Bullet 2**", value=bullet_2, on_change=update_session_upload_listing, key="mba_upload_listing_bullet_2")
+        final_bullet2 = col2_2.text_area("**Bullet 2**", value=bullet_2, on_change=update_session_upload_listing, disabled=disable_all, key=f"mba_upload_listing_bullet_2{key_suffix}")
         display_char_max_notice(len(final_bullet2), 256, col2_2)
-        st.session_state["final_bullet2"] = final_bullet2
+        if change_session:
+           st.session_state["final_bullet2"] = final_bullet2
         mba_upload_data.bullet_2 = final_bullet2
 
-    # Update descrption with latest changes
+    # Update description with latest changes
     try:
         mba_upload_data.description = f'{mba_upload_data.title} by "{mba_upload_data.brand}". {mba_upload_data.bullet_1} {mba_upload_data.bullet_2}'
     except Exception as e:
@@ -198,9 +205,9 @@ def display_upload_settings_editor(session_mba_upload_settings: MBAUploadSetting
     display_product_color_selector(session_mba_upload_settings)
     display_product_fit_type_selector(session_mba_upload_settings)
 
-def display_image_upload(image_gen_data: ImageGenData, status: DigiProdGenStatus):
+def display_image_uploader(image_gen_data: ImageGenData, status: DigiProdGenStatus):
     # User can either choose newly created image or a existing one (by uploading it in this view)
-    if not status.image_upload_ready:
+    if not status.image_upload_ready and not status.product_imported:
         image = st.file_uploader("Image:", type=["png", "jpg", "jpeg"], key="image_upload_tab")
         if image:
             image_pil_upload_ready = img_conversion.bytes_io2pil(image)

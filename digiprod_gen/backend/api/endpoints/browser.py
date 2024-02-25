@@ -2,23 +2,20 @@ import time
 import sys
 import logging
 from typing import List, Annotated
-from functools import lru_cache
 
-
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form, Query
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from selenium.common import NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
 
-from digiprod_gen.backend.api.common import  CONFIG
+from digiprod_gen.backend.api.common import get_cached_browser
 from digiprod_gen.backend.browser.crawling import mba as mba_crawling
 from digiprod_gen.backend.browser.parser import mba as mba_parser
 from digiprod_gen.backend.browser.selenium_fns import wait_until_element_exists, SeleniumBrowser
 from digiprod_gen.backend.browser.upload import selenium_mba as upload_mba_fns
-from digiprod_gen.backend.browser.crawling.utils.common import get_random_user_agent, get_random_headers
+from digiprod_gen.backend.browser.crawling.utils.common import get_random_headers
 from digiprod_gen.backend.models.mba import MBAProduct
 from digiprod_gen.backend.models.response import UploadMBAResponse
-from digiprod_gen.backend.utils import delete_files_in_path, is_debug
 from digiprod_gen.backend.models.request import UploadMBARequest, CrawlingMBARequest
 from urllib.parse import quote_plus
 from PIL import Image
@@ -29,28 +26,6 @@ logger = logging.getLogger("BackendAPI")
 security = HTTPBasic()
 router = APIRouter()
 
-@lru_cache()
-def init_selenium_browser(session_id, proxy=None, allow_javascript: bool=False, disable_images: bool=True) -> SeleniumBrowser:
-    # New browser is started per session and per proxy
-    # get random user agent, each time new browser is created
-    headers = get_random_headers()
-    logger.info(f"Init selenium browser with session_id {session_id} and user agent {headers['user-agent']}")
-    data_dir_path = CONFIG.browser.selenium_data_dir_path
-    delete_files_in_path(data_dir_path)
-    browser = SeleniumBrowser()
-    browser.setup(headless=not is_debug(),
-                  data_dir_path=data_dir_path,
-                  proxy=proxy,
-                  headers=headers,
-                  allow_javascript=allow_javascript,
-                  disable_images=disable_images
-                  )
-    return browser
-
-def get_cached_browser(session_id: str, proxy: str | None = None, allow_javascript: bool=False, disable_images: bool=False):
-    # get param "+" is encoded to whitespace. Therefore, we need to decode it again (auto decode of %2B via fastapi does not work for unknown reasons)
-    proxy_decoded = proxy.replace(' ', '+') if proxy else None
-    return init_selenium_browser(session_id, proxy_decoded, allow_javascript=allow_javascript, disable_images=disable_images)
 
 @router.post("/crawling/mba_overview")
 async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> List[MBAProduct]:
@@ -58,6 +33,10 @@ async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> Li
     browser = get_cached_browser(session_id, request.proxy, allow_javascript=False, disable_images=True)
     browser.ensure_driver_is_alive()
     logger.info(f"Start search utils overview page. Is ready: {browser.is_ready}")
+    try:
+        mba_crawling.change_privacy_settings(browser.driver, base_url=request.mba_overview_url.split("/s")[0], accept_cookies=True)
+    except Exception as e:
+        logger.warning(f"Could not change privacy settings {e}")
     mba_crawling.search_overview_page(request, browser.driver)
     # If selenium is running with headless mode the first request sometimes fails
     first_mba_overview_interactions(browser, request, ignore_cookies=False)
@@ -68,6 +47,8 @@ async def crawl_mba_overview(request: CrawlingMBARequest, session_id: str) -> Li
         headers = get_random_headers()
         logger.info(f"Restart browser with headers {headers}")
         browser.reset_driver(proxy=request.proxy, headers=headers)
+        mba_crawling.change_privacy_settings(browser.driver, base_url=request.mba_overview_url.split("/s")[0],
+                                             accept_cookies=True)
         mba_crawling.search_overview_page(request, browser.driver)
         first_mba_overview_interactions(browser, request, ignore_cookies=False)
         mba_product_web_elements = mba_parser.get_mba_product_web_elements(browser.driver)
@@ -265,8 +246,3 @@ async def search_url(url: str, session_id: str, proxy: str | None = None):
     browser.driver.get(url)
 
 
-def init_selenium_browser_working() -> SeleniumBrowser:
-    # TODO: Browser would be started with every api call. Better would be to start it per session user
-    browser = SeleniumBrowser()
-    browser.setup()
-    return browser

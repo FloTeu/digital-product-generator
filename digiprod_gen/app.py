@@ -1,16 +1,19 @@
 import click
-
+import json
 import streamlit as st
 import streamlit.web.bootstrap as st_bootstrap
 
+from pathlib import Path
 from io import TextIOWrapper
-
 from selenium.common.exceptions import NoSuchElementException
 from digiprod_gen.backend.utils.decorators import timeit
 from digiprod_gen.backend.utils.helper import Timer
 from digiprod_gen.backend.utils import init_environment, initialise_config
 from digiprod_gen.backend.models.response import UploadMBAResponse
+from digiprod_gen.backend.models.common import UpscalerModel, BackgroundRemovalModel
 from digiprod_gen.backend.image import conversion
+from digiprod_gen.backend.image.compress import compress
+from digiprod_gen.backend.image.upscale import resize_image_keep_aspect_ratio
 from digiprod_gen.backend.models.session import SessionState
 from digiprod_gen.backend.models.config import DigiProdGenConfig
 from digiprod_gen.backend.browser.selenium_fns import get_full_page_screenshot
@@ -23,10 +26,12 @@ from digiprod_gen.frontend.tab.image_generation.image_generation import display_
     display_image_generation_prompt, update_session_selected_prompt
 from digiprod_gen.frontend.tab.upload.views import (display_listing_selection, display_data_for_upload,
                                                     ListingSelectChange,
-                                                    display_image_upload, display_marketplace_selector,
+                                                    display_image_uploader, display_marketplace_selector,
                                                     display_product_category_selector, display_product_color_selector,
                                                     display_product_fit_type_selector)
 from digiprod_gen.frontend.tab.crawling.tab_crawling import display_mba_overview_products
+from digiprod_gen.frontend.tab.prod_import.views import display_products, display_products_export_dates
+from digiprod_gen.frontend.tab.prod_import.utils import import_selected_product
 
 
 @timeit
@@ -68,19 +73,22 @@ def display_tab_image_gen_views(session_state: SessionState):
 
 @timeit
 def display_tab_upload_views(session_state: SessionState):
-    display_image_upload(session_state.image_gen_data, session_state.status)
+    display_image_uploader(session_state.image_gen_data, session_state.status)
 
     # listing generation
     if not session_state.status.listing_generated:
         st.warning('Please click on 4. Listing Generation')
 
 
-    if session_state.status.detail_pages_crawled:
-        if session_state.status.listing_generated:
-            display_listing_selection(session_state.upload_data)
+    if session_state.status.listing_generated:
+        display_listing_selection(session_state.upload_data)
 
-        if session_state.image_gen_data.image_pil_upload_ready:
-            session_state.image_gen_data.image_pil_upload_ready = display_data_for_upload(session_state.image_gen_data.image_pil_upload_ready,
+        display_img = session_state.image_gen_data.image_pil_upload_ready
+        if display_img is None and session_state.status.product_imported:
+            display_img = session_state.image_gen_data.image_pil_generated
+
+        if display_img:
+            session_state.image_gen_data.image_pil_upload_ready = display_data_for_upload(conversion.ensure_rgba(display_img),
                                     title=read_session("final_title") or read_session(ListingSelectChange.TITLE.value),
                                     brand=read_session("final_brand") or read_session(ListingSelectChange.BRAND.value),
                                     bullet_1=read_session("final_bullet1") or read_session(ListingSelectChange.BULLET_1.value),
@@ -114,42 +122,7 @@ def display_tab_upload_views(session_state: SessionState):
             st.error('You not uploaded/generated an image yet', icon="🚨")
         else:
             if st.button("Upload product to MBA"):
-                with st.spinner("Upload product"):
-                    try:
-                        if session_state.upload_data.title == None or session_state.upload_data.brand == None:
-                            st.error('You not defined your required brand and title yet', icon="🚨")
-                            session_state.upload_data.title ="Test Title"
-                            session_state.upload_data.brand ="Test Brand"
-                        if session_state.upload_data.bullet_1 == None and session_state.upload_data.bullet_2 == None:
-                            st.error('You not defined your listings yet', icon="🚨")
-
-                        headers = {
-                            'accept': 'application/json',
-                        }
-                        request_data = {**session_state.upload_data.settings.model_dump(), "title": session_state.upload_data.title,
-                                        "brand": session_state.upload_data.brand, "bullet_1": session_state.upload_data.bullet_1,
-                                        "bullet_2": session_state.upload_data.bullet_2, "description": session_state.upload_data.description}
-                        response = session_state.backend_caller.post(
-                            f"/browser/upload/upload_mba_product?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}",
-                            headers=headers, data=request_data, img_pil=session_state.image_gen_data.image_pil_upload_ready
-                        )
-                        if response.status_code == 200:
-                            upload_response: UploadMBAResponse = UploadMBAResponse.parse_obj(response.json())
-                            warnings = upload_response.warnings
-                            errors = upload_response.errors
-                            if len(warnings) == 0 and len(errors) == 0:
-                                session_state.status.product_uploaded = True
-                        else:
-                            warnings, errors = [],[]
-                    except NoSuchElementException as e:
-                        st.error("Something went wrong during upload")
-                        display_full_page_screenshot(session_state.browser.driver)
-                        raise e
-
-                for warning in warnings:
-                    st.warning(f"MBA Warning: {warning}")
-                for error in errors:
-                    st.error(f"MBA Error: {error}")
+                errors = upload_product(session_state)
             if len(errors) == 0 and session_state.status.product_uploaded and st.button("Publish to MBA"):
                 response = session_state.backend_caller.get(
                     f"/browser/upload/publish_mba_product?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}&searchable=true"
@@ -160,9 +133,133 @@ def display_tab_upload_views(session_state: SessionState):
                     st.error("Something went wrong during publishing")
 
 
+def upload_product(session_state):
+    errors = []
+    with st.spinner("Upload product"):
+        try:
+            if session_state.upload_data.title == None or session_state.upload_data.brand == None:
+                st.error('You not defined your required brand and title yet', icon="🚨")
+                session_state.upload_data.title = "Test Title"
+                session_state.upload_data.brand = "Test Brand"
+            if session_state.upload_data.bullet_1 == None and session_state.upload_data.bullet_2 == None:
+                st.error('You not defined your listings yet', icon="🚨")
+
+            headers = {
+                'accept': 'application/json',
+            }
+            request_data = {**session_state.upload_data.settings.model_dump(), "title": session_state.upload_data.title,
+                            "brand": session_state.upload_data.brand, "bullet_1": session_state.upload_data.bullet_1,
+                            "bullet_2": session_state.upload_data.bullet_2,
+                            "description": session_state.upload_data.description}
+            response = session_state.backend_caller.post(
+                f"/browser/upload/upload_mba_product?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}",
+                headers=headers, data=request_data, img_pil=session_state.image_gen_data.image_pil_upload_ready
+            )
+            if response.status_code == 200:
+                upload_response: UploadMBAResponse = UploadMBAResponse.parse_obj(response.json())
+                warnings = upload_response.warnings
+                errors = upload_response.errors
+                if len(warnings) == 0 and len(errors) == 0:
+                    session_state.status.product_uploaded = True
+            else:
+                warnings, errors = [], []
+        except NoSuchElementException as e:
+            st.error("Something went wrong during upload")
+            display_full_page_screenshot(session_state.browser.driver)
+            raise e
+    for warning in warnings:
+        st.warning(f"MBA Warning: {warning}")
+    for error in errors:
+        st.error(f"MBA Error: {error}")
+    return errors
+
+
+def display_tab_import_views(session_state: SessionState):
+    st.subheader("Import MBA Products")
+    selected_date_str = display_products_export_dates()
+    img_pil, upload_data = display_products(selected_date_str, session_state)
+    print("SELECTED",upload_data)
+    display_data_for_upload(resize_image_keep_aspect_ratio(conversion.ensure_rgba(img_pil), 4000),
+                        title=upload_data.product_data.title,
+                        brand=upload_data.product_data.brand,
+                        bullet_1=upload_data.product_data.bullets[0],
+                        bullet_2=upload_data.product_data.bullets[1],
+                        disable_all=True, key_suffix="import", change_session=False)
+    if st.button("Import Product"):
+        import_selected_product(img_pil, upload_data, session_state)
+        st.rerun()
+
+    if not session_state.status.mba_login_successful:
+        st.warning("Please login with your MBA credentials (5. MBA Upload)")
+    else:
+        errors = []
+        compress_quality = 80
+
+        upscaler = st.selectbox(
+            'Up Scaling Method',
+            (UpscalerModel.GFPGAN.value, UpscalerModel.SOME_UPSCALER.value, UpscalerModel.PIL.value,
+             UpscalerModel.ULTIMATE_SD_UPSCALER.value, UpscalerModel.HIGH_RESOLUTION_CONTROLNET.value),
+            key="upscaler_selectbox_import_view")
+
+        br_method = st.selectbox(
+            'Background Removal Method',
+            (BackgroundRemovalModel.OPEN_CV.value, BackgroundRemovalModel.REM_BG.value,
+             BackgroundRemovalModel.EASY_REM_BG.value),
+            key="br_selectbox_import_view")
+
+
+        br_tolerance = session_state.config.image_gen.background_removal.tolerance
+        if br_method == BackgroundRemovalModel.OPEN_CV.value:
+            br_tolerance_selected = st.slider('Background Removal Pixel Tolerance', 0, 200, value=br_tolerance, step=1)
+            if br_tolerance_selected != 0:
+                br_tolerance = br_tolerance_selected
+
+        if st.button("Upload Product", key="upload_from_import_button"):
+            # import
+            progress_bar = st.progress(0, text="Import product...")
+            upload_data.product_data.description = session_state.upload_data.description
+            import_selected_product(img_pil, upload_data, session_state)
+
+            # upscale
+            progress_bar.progress(10, text="Upscale product...")
+            response = session_state.backend_caller.post(
+                f"/image/upscaling?upscaler={upscaler}&prompt={session_state.image_gen_data.image_gen_prompt_selected}",
+                img_pil=img_pil)
+            image_upscaled = conversion.bytes2pil(response.content)
+            progress_bar.progress(40, text="Compress product...")
+            image_upscaled = compress(image_upscaled, quality=compress_quality)
+            session_state.image_gen_data.image_pil_upscaled = image_upscaled
+
+            # remove background
+            progress_bar.progress(50, text="Remove background...")
+            response = session_state.backend_caller.post(
+                f"/image/background_removal?br_method={br_method}&outer_pixel_range={session_state.config.image_gen.background_removal.outer_pixel_range}&tolerance={br_tolerance}",
+                img_pil=image_upscaled)
+            image_pil_br = conversion.bytes2pil(response.content)
+            session_state.image_gen_data.image_pil_background_removed = image_pil_br
+
+            # save upload ready image in session
+            session_state.image_gen_data.image_pil_upload_ready = conversion.ensure_rgba(
+                conversion.pil2pil_png(image_pil_br))
+
+            # upload_data
+            progress_bar.progress(60, text="Upload product...")
+            errors = upload_product(session_state)
+            progress_bar.progress(100, text="Upload succeeded" if len(errors) == 0 else "Upload failed")
+
+        if len(errors) == 0 and session_state.status.product_uploaded and st.button("Publish to MBA", key="publish_from_import_button"):
+            response = session_state.backend_caller.get(
+                f"/browser/upload/publish_mba_product?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}&searchable=true"
+            )
+            if response.status_code == 200:
+                st.balloons()
+            else:
+                st.error("Something went wrong during publishing")
+
+
 def display_admin_views(session_state: SessionState):
     """Display some options for the admin"""
-    if  st.experimental_user.email in st.secrets.admin.emails or read_session("mba_email") in st.secrets.admin.emails:
+    if st.experimental_user.email in st.secrets.admin.emails or read_session("mba_email") in st.secrets.admin.emails:
         st.subheader("Admin View")
         st.warning("Note: This is only visible to admins")
 
@@ -187,6 +284,23 @@ def display_admin_views(session_state: SessionState):
                 display_full_page_screenshot(session_state.browser.driver)
             st.download_button('Download Browser Source', session_state.browser.driver.page_source, file_name="source.html")
 
+        if st.button("Send Select Products Request"):
+            from digiprod_gen.backend.image.conversion import bytes2pil, pil2b64_str
+            from digiprod_gen.frontend.tab.crawling.views import mba_products_overview_html_str
+            import imgkit
+
+            if session_state.crawling_data.mba_products:
+                from pydantic import BaseModel
+                from digiprod_gen.backend.models.mba import MBAProduct
+                from typing import List
+
+                class MBAProductsRequest(BaseModel):
+                    mba_products: List[MBAProduct]
+
+                request_body = MBAProductsRequest(mba_products=session_state.crawling_data.mba_products)
+                session_state.backend_caller.post("/research/select_products",
+                                                  data=request_body.model_dump_json())
+
 
 def display_full_page_screenshot(driver):
     screenshot_bytes = get_full_page_screenshot(driver)
@@ -195,7 +309,7 @@ def display_full_page_screenshot(driver):
 
 
 @timeit
-def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload):
+def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload, tab_import):
     """Renders views based on session data"""
     with tab_crawling:
         overview_designs_view = session_state.views.get_or_create_overview_designs()
@@ -211,6 +325,11 @@ def display_views(session_state: SessionState, tab_crawling, tab_ig, tab_upload)
 
     with tab_upload:
         display_tab_upload_views(session_state)
+
+    if Path("export/").exists():
+        with tab_import:
+            display_tab_import_views(session_state)
+
 
     display_admin_views(session_state)
 
@@ -246,12 +365,12 @@ def main(config: DigiProdGenConfig):
     init_session_state(config)
 
     st.header("MBA Product Generator")
-    tab_crawling, tab_ig, tab_upload = st.tabs(["Crawling", "Image Generation", "MBA Upload"])
+    tab_crawling, tab_ig, tab_upload, tab_import = st.tabs(["Crawling", "Image Generation", "MBA Upload", "MBA Import"])
     session_state: SessionState = st.session_state["session_state"]
 
     # display views (+ add defaults to session)
     display_sidebar(session_state, tab_crawling, tab_ig, tab_upload)
-    display_views(session_state, tab_crawling, tab_ig, tab_upload)
+    display_views(session_state, tab_crawling, tab_ig, tab_upload, tab_import)
 
     # init session request
     if session_state.crawling_request == None:

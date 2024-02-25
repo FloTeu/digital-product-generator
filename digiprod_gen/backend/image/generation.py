@@ -39,13 +39,14 @@ def generate_with_stable_diffusion_xl_shirt(prompt: str) -> Image:
     return generate_with_stable_diffusion_xl_lora(prompt + " in the style of TOK", lora_url=ImageGenerationSDXLLoraUrl.SHIRT)
 
 def generate_with_dalle3(prompt: str, quality: OpenAIImageQuality = OpenAIImageQuality.STANDARD) -> Image:
+    client = openai.OpenAI()
     openai.api_key = os.environ.get("OPENAI_API_KEY")
-    response = openai.Image.create(
-        model="dall-e-3",
-        prompt=prompt,
-        size="1024x1024",
-        quality=quality,
-        n=1,
+    response = client.images.generate(
+      model="dall-e-3",
+      prompt=prompt,
+      size="1024x1024",
+      quality=quality,
+      n=1,
     )
 
     image_url = response.data[0].url

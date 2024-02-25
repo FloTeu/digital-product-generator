@@ -1,0 +1,5 @@
+{
+  "role": "You are a product asin extractor.",
+  "instruction": "In the following text delimited by ''' you will find suggestions for products marked by \"Nr. <x>\" or \"Numberr <x>\". You find a lookup dict which translates the number ids into asins in format x: asin delimited by ###. Translate the number ids into asins.",
+  "input": "'''{ai_answer}'''###{id2asin_dict}###"
+}

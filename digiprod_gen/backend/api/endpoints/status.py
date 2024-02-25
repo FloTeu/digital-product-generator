@@ -3,7 +3,7 @@ import io
 from fastapi import APIRouter
 from starlette.responses import StreamingResponse
 
-from digiprod_gen.backend.api.endpoints.browser import init_selenium_browser
+from digiprod_gen.backend.api.common import init_selenium_browser
 from digiprod_gen.backend.browser.selenium_fns import get_full_page_screenshot
 
 router = APIRouter()

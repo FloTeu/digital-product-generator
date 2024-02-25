@@ -20,6 +20,16 @@ def click_accept_cookies(driver: WebDriver):
     """ Click reject all cookies link"""
     driver.find_element("id", "sp-cc-accept").click()
 
+def change_privacy_settings(driver: WebDriver, base_url: str, accept_cookies: bool=True) -> None:
+    driver.get(base_url)
+    driver.get(base_url + "/privacyprefs/retail?ref_=portal_banner_cpp")
+    if accept_cookies:
+        driver.find_element(By.XPATH, "//input[@name='accept']").click()
+    else:
+        driver.find_element(By.XPATH, "//input[@name='rejectOrSave']").click()
+
+
+
 def change_postcode(driver, postcode):
     """Changes customer postcode address in order to show the deliverable products"""
     driver.find_element(By.ID, "nav-global-location-popover-link").click()

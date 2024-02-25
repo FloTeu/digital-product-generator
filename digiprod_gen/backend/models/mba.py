@@ -94,9 +94,6 @@ class MBAProduct(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
-
-
-
 class MBAUploadSettings(BaseModel):
     use_defaults: bool = Field(default=False)
     product_categories: List[MBAProductCategory] = Field(default_factory=list)
@@ -106,3 +103,4 @@ class MBAUploadSettings(BaseModel):
 
     class Config:
         use_enum_values = True
+

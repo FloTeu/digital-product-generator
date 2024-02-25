@@ -34,6 +34,7 @@ def listing_generation(st_tab_ig: DeltaGenerator):
         session_state.upload_data.predicted_brands = backend_caller.post(f"/text/gen/listings?temperature=0.7", data=ListingGenRequest(examples=examples, keywords=keywords_str, type=MBAProductTextType.BRAND).model_dump_json()).json()
         print("product texts elapsed %.2f seconds" % (time.time() - ts_start))
 
+    session_state.status.keywords_extracted = True
     session_state.status.listing_generated = True
 
 

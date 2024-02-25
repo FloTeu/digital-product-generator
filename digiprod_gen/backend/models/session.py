@@ -1,8 +1,11 @@
 import streamlit as st
 
 from PIL.Image import Image
+from pydantic import BaseModel
+
 from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser
 from digiprod_gen.backend.models.mba import MBAProduct, MBAUploadSettings
+from digiprod_gen.backend.image.crop import get_mba_design_crop
 from digiprod_gen.frontend.backend_caller import BackendCaller
 
 from dataclasses import dataclass, field
@@ -39,15 +42,7 @@ class CrawlingData:
         image_pil = self.get_mba_product_image(id)
         if not image_pil:
             raise ValueError("Pillow image not yet set")
-        width, height = image_pil.size
-        # Setting the points for cropped image
-        left = width / 5
-        top = height / 5
-        right = 4 * (width / 5)
-        bottom = 4 * (height / 5)
-        # Cropped image of above dimension
-        # (It will not change original image)
-        return image_pil.crop((left, top, right, bottom))
+        return get_mba_design_crop(image_pil)
 
 @dataclass
 class ImageGenData:
@@ -69,6 +64,11 @@ class ImageGenData:
     def get_valid_upload_png(self):
         return self.image_pil_upload_ready
 
+@dataclass
+class MBAImportData:
+    last_selected_cat_name: str = field(default="")
+    last_selected_index: int = field(default=0)
+    selected_import_products: Dict[str, int] = field(default_factory=dict)
 
 @dataclass
 class MBAUploadData:
@@ -81,6 +81,7 @@ class MBAUploadData:
     bullet_2: str | None = None
     description: str | None = None
     settings: MBAUploadSettings = field(default_factory=MBAUploadSettings)
+    import_data: MBAImportData = field(default_factory=MBAImportData)
 
 
 @dataclass
@@ -89,10 +90,12 @@ class DigiProdGenStatus:
     detail_pages_crawled: bool = False
     prompts_generated: bool = False
     image_upload_ready: bool = False
+    keywords_extracted: bool = False
     listing_generated: bool = False
     mba_login_otp_required: bool = False
     mba_login_successful: bool = False
     product_uploaded: bool = False
+    product_imported: bool = False
 
     def refresh(self):
         """
@@ -105,6 +108,7 @@ class DigiProdGenStatus:
         self.image_upload_ready = False
         self.listing_generated = False
         self.product_uploaded = False
+        self.product_imported = False
 
 
 @dataclass
@@ -137,3 +141,15 @@ class SessionState:
     def get_marketplace_config(self, marketplace: str | None = None) -> DigiProdGenMBAMarketplaceConfig:
         marketplace = marketplace or self.crawling_request.marketplace
         return self.config.mba.get_marketplace_config(marketplace)
+
+
+class ProcessingData(BaseModel):
+    """Data container for optional export"""
+    search_term: str
+    selected_asins: List[str]
+    keywords: List[str] | None = None
+    title_suggestions: List[str]
+    brand_suggestions: List[str]
+    bullet_suggestions: List[str]
+    prompt_suggestions: List[str]
+    prompt: str

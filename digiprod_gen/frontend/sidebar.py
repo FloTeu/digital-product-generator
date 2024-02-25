@@ -44,6 +44,10 @@ def listing_generation_input(tab_ig: DeltaGenerator):
 def mab_login_input(tab_upload: DeltaGenerator):
     session_state: SessionState = st.session_state["session_state"]
     def login_to_mba_fn(tab_upload):
+        # If not set yet, init session request
+        if session_state.crawling_request == None:
+            update_mba_request()
+
         response = session_state.backend_caller.get(
             f"/browser/upload/mba_login?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}",
             auth=(read_session("mba_email"), read_session("mba_password")))

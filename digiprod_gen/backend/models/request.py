@@ -1,6 +1,6 @@
 import hashlib
 import json
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 from pydantic import BaseModel, Field
 
@@ -48,3 +48,19 @@ class ListingGenRequest(BaseModel):
     keywords: str
     type: MBAProductTextType
     remove_banned_words: bool = True
+
+
+class SelectProductRequest(BaseModel):
+    id2asin: Dict[int, str]
+    img_b64_str: str
+
+
+class MBAProductsRequest(BaseModel):
+    mba_products: List[MBAProduct]
+
+
+class SelectListingsByImageRequest(BaseModel):
+    img_b64_str: str
+    brand_suggestions: List[str]
+    title_suggestions: List[str]
+    bullet_suggestions: List[str]

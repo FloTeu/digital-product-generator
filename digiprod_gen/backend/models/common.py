@@ -19,6 +19,7 @@ class UpscalerModel(str, Enum):
     GFPGAN="GFPGAN"
     SOME_UPSCALER="AI Upscaler"
     HIGH_RESOLUTION_CONTROLNET="High Resolution Controlnet"
+    ULTIMATE_SD_UPSCALER="Ultimate SD Upscaler"
 
 class BackgroundRemovalModel(str, Enum):
     OPEN_CV="Simple Background Removal"
