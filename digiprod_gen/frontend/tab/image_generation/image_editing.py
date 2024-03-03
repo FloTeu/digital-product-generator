@@ -124,18 +124,25 @@ def display_image_editor_background_removal(col1, col2, image_element, session_b
     br_method = col1.selectbox(
         'Background Removal Method',
         (BackgroundRemovalModel.OPEN_CV.value, BackgroundRemovalModel.REM_BG.value, BackgroundRemovalModel.EASY_REM_BG.value))
+
+    br_tolerance = session_br_config.tolerance
+    if br_method == BackgroundRemovalModel.OPEN_CV.value:
+        br_tolerance_selected = col1.slider('Background Removal Pixel Tolerance', 0, 200, value=br_tolerance, step=1, key="br_tolerance_image_editing")
+        if br_tolerance_selected != 0 and br_tolerance_selected != br_tolerance:
+            br_tolerance = br_tolerance_selected
+
     if col1.button("Remove Background", key="remove_background_button", use_container_width=True) and image_upscaled and not session_image_gen_data.image_pil_background_removed:
         with image_element, st.spinner("Background Removal..."):
             try:
                 response = backend_caller.post(
-                    f"/image/background_removal?br_method={br_method}&outer_pixel_range={session_br_config.outer_pixel_range}&tolerance={session_br_config.tolerance}", img_pil=image_upscaled)
+                    f"/image/background_removal?br_method={br_method}&outer_pixel_range={session_br_config.outer_pixel_range}&tolerance={br_tolerance}", img_pil=image_upscaled)
                 image_pil_br = bytes2pil(response.content)
             except ModelError as e:
                 logging.warning(f"Replicate Model could not handle input. Error: {str(e)}. Retry with compressed image...")
                 img_compressed = compress(image_upscaled, quality=20)
                 session_image_gen_data.image_pil_upscaled = img_compressed
                 response = backend_caller.post(
-                    f"/image/background_removal?br_method={br_method}&outer_pixel_range={session_br_config.outer_pixel_range}&tolerance={session_br_config.tolerance}", img_pil=img_compressed)
+                    f"/image/background_removal?br_method={br_method}&outer_pixel_range={session_br_config.outer_pixel_range}&tolerance={br_tolerance}", img_pil=img_compressed)
                 image_pil_br = bytes2pil(response.content)
 
             if compress_quality < 100:

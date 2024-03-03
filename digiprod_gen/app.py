@@ -210,7 +210,7 @@ def display_tab_import_views(session_state: SessionState):
 
         br_tolerance = session_state.config.image_gen.background_removal.tolerance
         if br_method == BackgroundRemovalModel.OPEN_CV.value:
-            br_tolerance_selected = st.slider('Background Removal Pixel Tolerance', 0, 200, value=br_tolerance, step=1)
+            br_tolerance_selected = st.slider('Background Removal Pixel Tolerance', 0, 200, value=br_tolerance, step=1, key="br_tolerance_product_import")
             if br_tolerance_selected != 0:
                 br_tolerance = br_tolerance_selected
 
