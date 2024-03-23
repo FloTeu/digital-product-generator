@@ -15,6 +15,10 @@ from digiprod_gen.frontend.tab.image_generation.image_captioning import extend_m
 from digiprod_gen.frontend.session import read_session
 from digiprod_gen.backend.utils.utils import booleanize
 
+def display_page_navigation():
+    st.page_link("pages/ai_agent_page.py", label="Auto Product Generation")
+    st.page_link("pages/manual_page.py", label="Manual Product Generation")
+    st.page_link("pages/admin_page.py", label="Admin View")
 
 def search_mba_overview_input():
     st.text_input(value="Unicorn", label="Search Term", on_change=update_mba_request, key="search_term")

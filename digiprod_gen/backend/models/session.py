@@ -115,6 +115,8 @@ class DigiProdGenStatus:
 class DigitProdGenViews:
     sidebar: st.delta_generator.DeltaGenerator | None = None
     overview_designs: st.delta_generator.DeltaGenerator | None = None
+    ai_agent: st.delta_generator.DeltaGenerator | None = None
+
     def get_or_create_sidebar(self):
         if not self.sidebar:
             self.sidebar = st.sidebar.empty()
@@ -124,6 +126,11 @@ class DigitProdGenViews:
         if not self.overview_designs:
             self.overview_designs = st.empty()
         return self.overview_designs
+
+    def get_or_create_ai_agent(self):
+        if not self.ai_agent:
+            self.ai_agent = st.empty()
+        return self.ai_agent
 
 @dataclass
 class SessionState:
