@@ -16,6 +16,7 @@ pydantic-yaml = "^1.1.1"
 pillow = "^10.1.0"
 imgkit = "^1.2.3"
 langchain-openai = "^0.0.7"
+langchain-community = "^0.0.29"
 
 
 [tool.poetry.group.backend.dependencies]

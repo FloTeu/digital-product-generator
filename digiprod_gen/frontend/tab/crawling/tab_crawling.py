@@ -39,56 +39,6 @@ def crawl_mba_overview_and_display():
         session_state.status.overview_page_crawled = True
 
 
-
-#
-# def crawl_mba_overview2mba_products(session_state: SessionState):
-#     """ Crawl utils overview page and retry until the server returns a 200 status code.
-#         Transforms html to list of MBAProduct objects and stores them in session.
-#     """
-#     request = session_state.crawling_request
-#     driver = session_state.browser.driver
-#     config = session_state.config
-#
-#     mba_products: List[MBAProduct] = []
-#
-#     st.write("Start crawling products")
-#     # If signed in, we provide a postcode in order to show products independently of the signed in user
-#     postcode = config.utils.get_marketplace_config(request.marketplace).postcode if session_state.status.mba_login_successfull else None
-#     # TODO: Why does this call takes several seconds, even after page loaded already
-#     search_overview_and_change_postcode(request, driver, postcode=postcode)
-#     st.write("Crawling is done. Start to extract product information")
-#
-#     html_str = driver.page_source
-#
-#     # Parse to beautiful soup
-#     soup = BeautifulSoup(html_str, 'html.parser')
-#     product_tags = soup.find_all("div", {"class": "sg-col-inner"})
-#     mba_product_tags = [p for p in product_tags if is_mba_product(p)]
-#     st.write(f"{len(mba_product_tags)} products extracted")
-#
-#     for product_tag in mba_product_tags:
-#         # Ignore sponsored products
-#         if tag_or_children_have_class(product_tag, "sponsored-brand-label-info-desktop"):
-#             continue
-#         try:
-#             mba_product: MBAProduct = overview_product_tag2mba_product(product_tag, marketplace=request.marketplace)
-#         except Exception as e:
-#             print("Error during html to mba_product conversion", str(e))
-#             continue
-#         mba_products.append(mba_product)
-#
-#     if len(mba_products) == 0 and len(mba_product_tags) > 0:
-#         st.error(f"{len(mba_product_tags)} products found. But no product could be extracted")
-#         time.sleep(3)
-#     else:
-#         st.write(f"{len(mba_product_tags)} products found. {len(mba_products)} identified as valid")
-#
-#     # Save to session
-#     session_state.crawling_data.mba_products = mba_products
-#     # Update status
-#     session_state.status.overview_page_crawled = True
-#     return mba_products
-
 def display_mba_overview_products(crawling_data: CrawlingData, request: CrawlingMBARequest, shirts_per_row=4):
     """ Displays already crawled utils overview products to frontend.
     """

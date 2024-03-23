@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, UploadFile, File
 from pydantic import BaseModel
-from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
 from llm_prompting_gen.generators import PromptEngineeringGenerator, ParsablePromptEngineeringGenerator
 
 from digiprod_gen.backend.prompt_engineering.utils import extract_list_from_output

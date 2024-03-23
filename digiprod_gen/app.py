@@ -341,6 +341,8 @@ def display_sidebar(session_state: SessionState, tab_crawling, tab_ig, tab_uploa
     sidebar_element.empty()
 
     with sidebar_element.container():
+        sidebar.search_mba_overview_input()
+        sidebar.ai_agent_input()
         sidebar.crawling_mba_overview_input()
         if session_state.status.overview_page_crawled:
             mba_products = session_state.crawling_data.mba_products

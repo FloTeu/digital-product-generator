@@ -5,7 +5,7 @@ from langchain.prompts import (
     HumanMessagePromptTemplate
 )
 from langchain.prompts.base import BasePromptTemplate
-from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import LLMChain
 from digiprod_gen.backend.prompt_engineering.utils import get_midjourney_example_prompts
 

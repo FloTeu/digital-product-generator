@@ -8,7 +8,7 @@ from llm_prompting_gen.output_parser.pydantic_parser import PydanticOutputParser
 from digiprod_gen.backend.image.lvm_fns import get_gpt4_vision_response
 from llm_prompting_gen.models.prompt_engineering import PromptEngineeringMessages
 from llm_prompting_gen.generators import PromptEngineeringGenerator, ParsablePromptEngineeringGenerator
-from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
 from digiprod_gen.backend.image import conversion
 from digiprod_gen.backend.models.request import SelectProductRequest, MBAProductsRequest, SelectListingsByImageRequest
 from digiprod_gen.backend.models.response import SelectListingsByImageResponse

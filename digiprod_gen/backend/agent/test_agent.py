@@ -8,8 +8,7 @@ from langchain.llms import OpenAI
 from langchain.agents import initialize_agent, AgentType
 from langchain.tools.render import format_tool_to_openai_function
 from langchain.tools import StructuredTool
-from langchain_openai import ChatOpenAI
-
+from langchain_community.chat_models import ChatOpenAI
 
 
 from digiprod_gen.backend.agent.tools.product import (
@@ -95,13 +94,13 @@ if __name__ == "__main__":
     from copy import deepcopy
     search_terms = deepcopy(NICHES)
     random.shuffle(search_terms)
-    # search_terms = ["Unicorn Metal"]
+    search_terms = ["Cat Ugly Christmas Sweater"]
     for search_term in search_terms:
         global_memory_container.clear_memory()
         #search_term = "that you think is suitable for a print on demand niche"
         prompt = f"""
         Your final task is to create a new mba_product called product x.
-        Create a mba request with search term '{search_term}' and crawl a list of mba_products.
+        Create a mba request with search term '{search_term}' in a suitable marketplace and crawl a list of mba_products.
         Select a subsample of 2 products of the mba_products that you have received previously.
         Crawl detail information of your subsample.
         Extract keywords from the selected subsample.
