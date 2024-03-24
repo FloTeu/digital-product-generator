@@ -59,7 +59,7 @@ def run_ai_agent_product_generation():
     prompt: object = hub.pull("hwchase17/openai-tools-agent")
     llm = ChatOpenAI(model="gpt-3.5-turbo-1106", temperature=0.3)
     # Construct the OpenAI Tools agent
-    tools = [crawl_overview_mba, select_mba_products, crawl_products_detail_mba]
+    #tools = [crawl_overview_mba, select_mba_products, crawl_products_detail_mba]
     agent = create_openai_functions_agent(llm, tools, prompt)
     # Create an agent executor by passing in the agent and tools
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
@@ -82,7 +82,7 @@ def run_ai_agent_product_generation():
     Export the final product x.
     Call checkRunIsDone at the end and check if your done. If the response is not successful, please fix what is missing.
     """
-    prompt = "Crawl mba products select a subsample of 2 products and crawl the detail information"
+    #prompt = "Crawl mba products select a subsample of 2 products and crawl the detail information"
     #     prompt = """Create and export a new mba_product.
     # Check at the end if you are done with the Tool checkRunIsDone and if not, make sure to export the final product correctly."""
     # prompt="""Crawl and select 2 mba_products with the search_term 'Unicorn metal'. Generate a image with the prompt 'Unicorn metal black background' and export the final generated mba product"""

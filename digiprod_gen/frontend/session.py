@@ -155,8 +155,31 @@ def ai_agent_update_selected_mba_products_details_crawled(session_state: Session
             if mba_product.asin == selected_prod.asin:
                 session_state.crawling_data.mba_products[i] = selected_prod
 
+def ai_agent_update_prompt_suggestions(session_state: SessionState):
+    assert MemoryId.PROMPT_SUGGESTIONS in global_memory_container
 
-    # # Status update
+    session_state.status.prompts_generated = True
+    session_state.image_gen_data.image_gen_prompts = global_memory_container[MemoryId.PROMPT_SUGGESTIONS]
+
+def ai_agent_update_image_generation(session_state: SessionState):
+    assert MemoryId.IMAGE_RAW in global_memory_container
+    assert MemoryId.IMAGE_PROMPT in global_memory_container
+
+    session_state.image_gen_data.image_gen_prompt_selected = global_memory_container[MemoryId.IMAGE_PROMPT]
+    session_state.image_gen_data.image_pil_generated = global_memory_container[MemoryId.IMAGE_RAW]
+
+
+def ai_agent_update_listing(session_state: SessionState):
+    assert MemoryId.KEYWORDS in global_memory_container
+    assert MemoryId.BRAND_SUGGESTIONS in global_memory_container
+    assert MemoryId.TITLE_SUGGESTIONS in global_memory_container
+    assert MemoryId.BULLET_SUGGESTIONS in global_memory_container
+
+    session_state.status.listing_generated = True
+    session_state.status.keywords_extracted = True
+
+
+# # Status update
     # session_state.status.refresh()
     # session_state.status.listing_generated = True
     # session_state.status.prompts_generated = True
