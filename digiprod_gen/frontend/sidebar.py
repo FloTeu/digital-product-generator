@@ -30,12 +30,14 @@ def search_mba_overview_input():
 
 
 def ai_agent_input():
-    st.subheader("1-4 AI Agent")
+    st.subheader("1. AI Agent")
+    search_mba_overview_input()
     st.button("Start Auto Generation", on_click=run_ai_agent_product_generation, key="button_ai_agent")
 
 
 def crawling_mba_overview_input():
     st.subheader("1. Crawling MBA Overview")
+    search_mba_overview_input()
     # st.checkbox(label="Speed up Crawling", value=is_debug(), key="speed_up")
     st.button("Start Crawling", on_click=crawl_mba_overview_and_display, key="button_crawling")
 

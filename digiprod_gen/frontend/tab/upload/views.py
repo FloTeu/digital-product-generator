@@ -1,9 +1,13 @@
 import streamlit as st
 from typing import List, Tuple
 
-from digiprod_gen.backend.image import conversion as img_conversion
+from selenium.common import NoSuchElementException
+
+from digiprod_gen.backend.image import conversion as img_conversion, conversion
 from digiprod_gen.backend.image.utils import hex_to_rgba
 from digiprod_gen.backend.image.upscale import resize_image_keep_aspect_ratio
+from digiprod_gen.backend.models.response import UploadMBAResponse
+from digiprod_gen.backend.utils.decorators import timeit
 from digiprod_gen.backend.utils.helper import Timer
 from digiprod_gen.backend.models.session import MBAUploadData, SessionState, ImageGenData, DigiProdGenStatus
 from digiprod_gen.backend.models.mba import MBAMarketplaceDomain, MBAProductCategory, MBAProductColor, \
@@ -11,6 +15,9 @@ from digiprod_gen.backend.models.mba import MBAMarketplaceDomain, MBAProductCate
 from collections import deque
 from PIL import Image, ImageOps
 from enum import Enum
+
+from digiprod_gen.frontend.session import read_session
+
 
 class ListingSelectChange(str, Enum):
     TITLE="mba_upload_select_box_title"
@@ -214,3 +221,103 @@ def display_image_uploader(image_gen_data: ImageGenData, status: DigiProdGenStat
             image_gen_data.image_pil_upload_ready = img_conversion.pil2pil_png(image_pil_upload_ready)
 
 
+def upload_product(session_state):
+    errors = []
+    with st.spinner("Upload product"):
+        try:
+            if session_state.upload_data.title == None or session_state.upload_data.brand == None:
+                st.error('You not defined your required brand and title yet', icon="🚨")
+                session_state.upload_data.title = "Test Title"
+                session_state.upload_data.brand = "Test Brand"
+            if session_state.upload_data.bullet_1 == None and session_state.upload_data.bullet_2 == None:
+                st.error('You not defined your listings yet', icon="🚨")
+
+            headers = {
+                'accept': 'application/json',
+            }
+            request_data = {**session_state.upload_data.settings.model_dump(), "title": session_state.upload_data.title,
+                            "brand": session_state.upload_data.brand, "bullet_1": session_state.upload_data.bullet_1,
+                            "bullet_2": session_state.upload_data.bullet_2,
+                            "description": session_state.upload_data.description}
+            response = session_state.backend_caller.post(
+                f"/browser/upload/upload_mba_product?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}",
+                headers=headers, data=request_data, img_pil=session_state.image_gen_data.image_pil_upload_ready
+            )
+            if response.status_code == 200:
+                upload_response: UploadMBAResponse = UploadMBAResponse.parse_obj(response.json())
+                warnings = upload_response.warnings
+                errors = upload_response.errors
+                if len(warnings) == 0 and len(errors) == 0:
+                    session_state.status.product_uploaded = True
+            else:
+                warnings, errors = [], []
+        except NoSuchElementException as e:
+            st.error("Something went wrong during upload")
+            raise e
+    for warning in warnings:
+        st.warning(f"MBA Warning: {warning}")
+    for error in errors:
+        st.error(f"MBA Error: {error}")
+    return errors
+
+
+@timeit
+def display_tab_upload_views(session_state: SessionState):
+    display_image_uploader(session_state.image_gen_data, session_state.status)
+
+    # listing generation
+    if not session_state.status.listing_generated:
+        st.warning('Please click on 4. Listing Generation')
+
+
+    if session_state.status.listing_generated:
+        display_listing_selection(session_state.upload_data)
+
+        display_img = session_state.image_gen_data.image_pil_upload_ready
+        if display_img is None and session_state.status.product_imported:
+            display_img = session_state.image_gen_data.image_pil_generated
+
+        if display_img:
+            session_state.image_gen_data.image_pil_upload_ready = display_data_for_upload(conversion.ensure_rgba(display_img),
+                                    title=read_session("final_title") or read_session(ListingSelectChange.TITLE.value),
+                                    brand=read_session("final_brand") or read_session(ListingSelectChange.BRAND.value),
+                                    bullet_1=read_session("final_bullet1") or read_session(ListingSelectChange.BULLET_1.value),
+                                    bullet_2=read_session("final_bullet2") or read_session(ListingSelectChange.BULLET_2.value))
+
+            is_download_visible = st.checkbox("Activate Download Image Button", key="download_final_upload_ready_image")
+            if is_download_visible:
+                with st.spinner("Load Download Button"):
+                    st.download_button("Download Image", data=conversion.pil2bytes_io(session_state.image_gen_data.image_pil_upload_ready),
+                                         file_name=f"export.{session_state.image_gen_data.image_pil_upload_ready.format}",
+                                         mime=f'image/{session_state.image_gen_data.image_pil_upload_ready.format}', use_container_width=True)
+
+    mba_upload_settings = session_state.upload_data.settings
+    display_marketplace_selector(mba_upload_settings)
+
+    use_defaults = st.checkbox("Use MBA defaults")
+    mba_upload_settings.use_defaults = use_defaults
+    if not use_defaults:
+        display_product_category_selector(mba_upload_settings)
+        display_product_color_selector(mba_upload_settings)
+        display_product_fit_type_selector(mba_upload_settings)
+
+    #if session_state.status.detail_pages_crawled:
+    if not session_state.status.mba_login_successful:
+        st.warning("Please login with your MBA credentials (5. MBA Upload)")
+    else:
+        #display_mba_account_tier(session_state.browser.driver)
+        errors = []
+        # Image Upload
+        if session_state.image_gen_data.image_pil_upload_ready == None:
+            st.error('You not uploaded/generated an image yet', icon="🚨")
+        else:
+            if st.button("Upload product to MBA"):
+                errors = upload_product(session_state)
+            if len(errors) == 0 and session_state.status.product_uploaded and st.button("Publish to MBA"):
+                response = session_state.backend_caller.get(
+                    f"/browser/upload/publish_mba_product?session_id={session_state.session_id}&proxy={session_state.crawling_request.proxy}&searchable=true"
+                )
+                if response.status_code == 200:
+                    st.balloons()
+                else:
+                    st.error("Something went wrong during publishing")

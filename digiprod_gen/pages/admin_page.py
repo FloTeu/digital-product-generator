@@ -1,10 +1,15 @@
 import streamlit as st
+
+from digiprod_gen.backend.browser.selenium_fns import get_full_page_screenshot
 from digiprod_gen.backend.image import conversion
 from digiprod_gen.backend.models.session import SessionState
 from digiprod_gen.frontend.session import read_session
 from digiprod_gen.frontend.sidebar import display_page_navigation
-from digiprod_gen.pages.manual_page import display_full_page_screenshot
 
+def display_full_page_screenshot(driver):
+    screenshot_bytes = get_full_page_screenshot(driver)
+    screenshot_pil = conversion.bytes2pil(screenshot_bytes)
+    st.image(screenshot_pil)
 
 def display_admin_views():
     """Display some options for the admin"""
@@ -54,7 +59,8 @@ def display_admin_views():
 
 def main():
     st.header("MBA Product Generator")
-    session_state: SessionState = st.session_state["session_state"]
+    st.text_input("Admin Token", key="mba_email")
+    session_state: SessionState = read_session("session_state")
 
     # display views (+ add defaults to session)
     display_admin_views()
