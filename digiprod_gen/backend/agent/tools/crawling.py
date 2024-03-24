@@ -63,7 +63,6 @@ def get_random_search_term(
     global_memory_container[MemoryId.SEARCH_TERM] = search_term
     return search_term
 
-
 @tool("crawlProductsMBATool", required_memory_ids=[MemoryId.MBA_PRODUCTS_SELECTED],
       adds_memory_ids=[MemoryId.MBA_PRODUCTS_DETAIL])
 def crawl_products_detail_mba(

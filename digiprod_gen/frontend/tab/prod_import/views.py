@@ -97,7 +97,7 @@ def display_tab_import_views(session_state: SessionState):
     if st.button("Load import data"):
         selected_date_str = display_products_export_dates()
         img_pil, upload_data = display_products(selected_date_str, session_state)
-        print("SELECTED",upload_data)
+        print("SELECTED", upload_data)
         display_data_for_upload(resize_image_keep_aspect_ratio(conversion.ensure_rgba(img_pil), 4000),
                             title=upload_data.product_data.title,
                             brand=upload_data.product_data.brand,

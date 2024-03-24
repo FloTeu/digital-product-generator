@@ -110,9 +110,17 @@ class DigiProdGenStatus:
         self.product_uploaded = False
         self.product_imported = False
 
+@dataclass
+class DigitProdGenTabs:
+    crawling: st.delta_generator.DeltaGenerator
+    image_gen: st.delta_generator.DeltaGenerator
+    upload: st.delta_generator.DeltaGenerator
+    import_prod: st.delta_generator.DeltaGenerator
+
 
 @dataclass
 class DigitProdGenViews:
+    tabs: DigitProdGenTabs | None = None
     sidebar: st.delta_generator.DeltaGenerator | None = None
     overview_designs: st.delta_generator.DeltaGenerator | None = None
     ai_agent: st.delta_generator.DeltaGenerator | None = None

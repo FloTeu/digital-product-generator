@@ -261,7 +261,6 @@ def upload_product(session_state):
     return errors
 
 
-@timeit
 def display_tab_upload_views(session_state: SessionState):
     display_image_uploader(session_state.image_gen_data, session_state.status)
 

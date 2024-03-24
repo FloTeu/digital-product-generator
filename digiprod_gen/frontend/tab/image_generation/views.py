@@ -2,7 +2,6 @@ import streamlit as st
 
 from digiprod_gen.backend.image import conversion
 from digiprod_gen.backend.models.session import SessionState
-from digiprod_gen.backend.utils.decorators import timeit
 from digiprod_gen.backend.utils.helper import Timer
 from digiprod_gen.frontend.tab.image_generation.image_editing import set_image_pil_generated_by_user, \
     display_image_editor
@@ -11,7 +10,6 @@ from digiprod_gen.frontend.tab.image_generation.image_generation import update_s
 from digiprod_gen.frontend.tab.image_generation.selected_products import display_mba_selected_products
 
 
-@timeit
 def display_tab_image_gen_views(session_state: SessionState):
     if session_state.status.detail_pages_crawled:
         display_mba_selected_products(session_state.crawling_data, shirts_per_row=session_state.config.view.cards_per_row)

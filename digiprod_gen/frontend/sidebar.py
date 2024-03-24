@@ -63,7 +63,7 @@ def listing_generation_input(tab_ig: DeltaGenerator):
     st.button("Start Listing Generation", on_click=listing_generation, args=(tab_ig,), key="button_listing_generation")
 
 
-def mab_login_input(tab_upload: DeltaGenerator):
+def mab_login_input(tab_upload: DeltaGenerator, number: str="5"):
     session_state: SessionState = st.session_state["session_state"]
 
     def login_to_mba_fn(tab_upload):
@@ -85,7 +85,7 @@ def mab_login_input(tab_upload: DeltaGenerator):
         if response.status_code == 200 and booleanize(response.text):
             session_state.status.mba_login_successful = True
 
-    st.subheader("5. MBA Upload")
+    st.subheader(f"{number}. MBA Upload")
     if session_state.status.mba_login_successful:
         st.write("Log in: :white_check_mark:")
     else:

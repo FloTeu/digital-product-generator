@@ -4,6 +4,8 @@ import streamlit as st
 
 from digiprod_gen.backend.browser.crawling.utils.utils_mba import get_random_headers
 from digiprod_gen.backend.browser.selenium_fns import SeleniumBrowser
+from digiprod_gen.backend.agent.memory import global_memory_container
+from digiprod_gen.backend.agent.models.memory import MemoryId
 from digiprod_gen.backend.models.mba import MBAMarketplaceDomain, MBAProductCategory
 from digiprod_gen.backend.models.request import CrawlingMBARequest
 from digiprod_gen.backend.models.session import SessionState, ImageGenData, CrawlingData, MBAUploadData, \
@@ -129,3 +131,60 @@ def update_mba_request():
         session_state.status.refresh()
         session_state.crawling_data.selected_designs = []
     reset_session_data()
+
+def ai_agent_update_mba_products(session_state: SessionState):
+    assert MemoryId.MBA_PRODUCTS in global_memory_container
+    session_state.status.refresh()
+    session_state.status.overview_page_crawled = True
+    session_state.crawling_data.mba_products = global_memory_container[MemoryId.MBA_PRODUCTS]
+
+def ai_agent_update_selected_mba_products(session_state: SessionState):
+    assert MemoryId.MBA_PRODUCTS_SELECTED in global_memory_container
+    # change list of objects to lis of human readable indexes
+    list_of_hr_indexes = []
+    for i, mba_product in enumerate(session_state.crawling_data.mba_products):
+        if any(mba_product.asin == selected_prod.asin for selected_prod in global_memory_container[MemoryId.MBA_PRODUCTS_SELECTED]):
+            list_of_hr_indexes.append(i+1) # +1 to make it human readable (same number as human gets displayed
+    session_state.crawling_data.selected_designs = list_of_hr_indexes
+
+def ai_agent_update_selected_mba_products_details_crawled(session_state: SessionState):
+    assert MemoryId.MBA_PRODUCTS_DETAIL in global_memory_container
+    session_state.status.detail_pages_crawled = True
+    for i, mba_product in enumerate(session_state.crawling_data.mba_products):
+        for selected_prod in global_memory_container[MemoryId.MBA_PRODUCTS_DETAIL]:
+            if mba_product.asin == selected_prod.asin:
+                session_state.crawling_data.mba_products[i] = selected_prod
+
+
+    # # Status update
+    # session_state.status.refresh()
+    # session_state.status.listing_generated = True
+    # session_state.status.prompts_generated = True
+    # session_state.status.keywords_extracted = True
+    # session_state.status.product_imported = True
+    #
+    # # Upload data update
+    # session_state.upload_data.brand = upload_data.product_data.brand
+    # session_state.upload_data.title = upload_data.product_data.title
+    # session_state.upload_data.bullet_1 = upload_data.product_data.bullets[0]
+    # session_state.upload_data.bullet_2 = upload_data.product_data.bullets[1]
+    # session_state.upload_data.description = upload_data.product_data.description
+    # session_state.upload_data.predicted_brands = upload_data.processing_data.brand_suggestions
+    # session_state.upload_data.predicted_titles = upload_data.processing_data.title_suggestions
+    # session_state.upload_data.predicted_bullets = upload_data.processing_data.bullet_suggestions
+    # session_state.upload_data.settings = upload_data.mba_upload_settings
+    #
+    # # image data update
+    # session_state.image_gen_data.image_gen_prompts = upload_data.processing_data.prompt_suggestions
+    # session_state.image_gen_data.image_gen_prompt_selected = upload_data.processing_data.prompt
+    # session_state.image_gen_data.image_pil_generated = img_pil
+    # session_state.image_gen_data.image_pil_upscaled = None
+    # session_state.image_gen_data.image_pil_background_removed = None
+    # session_state.image_gen_data.image_pil_upload_ready = None
+    # session_state.image_gen_data.image_pil_outpainted = None
+    #
+    # # Update session listing
+    # st.session_state["final_brand"] = upload_data.product_data.brand
+    # st.session_state["final_title"] = upload_data.product_data.title
+    # st.session_state["final_bullet1"] = upload_data.product_data.bullets[0]
+    # st.session_state["final_bullet2"] = upload_data.product_data.bullets[1]
